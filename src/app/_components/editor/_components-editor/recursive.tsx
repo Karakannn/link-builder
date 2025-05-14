@@ -4,6 +4,7 @@ import Container from "./container";
 import TextComponent from "./text";
 import VideoComponent from "./video";
 import LinkComponent from "./link";
+import ShimmerButtonComponent from "./shimmer-button";
 
 type Props = {
     element: EditorElement;
@@ -21,7 +22,8 @@ const Recursive = ({ element }: Props) => {
             return <Container element={element} />;
         case "__body":
             return <Container element={element} />;
-
+        case "shimmerButton":
+            return <ShimmerButtonComponent element={element} />;
         case "link":
             return <LinkComponent element={element} />;
         default:

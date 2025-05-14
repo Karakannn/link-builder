@@ -10,7 +10,16 @@ export type EditorElement = {
     styles: React.CSSProperties;
     name: string;
     type: EditorBtns;
-    content: EditorElement[] | { href?: string; innerText?: string; src?: string };
+    content: EditorElement[] | { 
+        href?: string; 
+        innerText?: string; 
+        src?: string;
+        shimmerColor?: string;
+        shimmerSize?: string;
+        shimmerDuration?: string;
+        borderRadius?: string;
+        background?: string;
+    };
 };
 
 export type Editor = {

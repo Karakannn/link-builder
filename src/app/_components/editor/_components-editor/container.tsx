@@ -90,13 +90,44 @@ const Container = ({ element }: Props) => {
                     payload: {
                         containerId: id,
                         elementDetails: {
-                            id: v4(),
-                            name: "Video",
                             content: {
                                 src: "https://www.youtube.com/embed/A3l6YYkXzzg?si=zbcCeWcpq7Cwf8W1",
                             },
-                            styles: {},
+                            id: v4(),
+                            name: "Video",
+                            styles: {
+                                width: "560px",
+                                height: "315px",
+                                ...defaultStyles,
+                            },
                             type: "video",
+                        },
+                    },
+                });
+                break;
+            case "shimmerButton":
+                dispatch({
+                    type: "ADD_ELEMENT",
+                    payload: {
+                        containerId: id,
+                        elementDetails: {
+                            content: {
+                                innerText: "Tıkla",
+                                shimmerColor: "#ffffff",
+                                shimmerSize: "0.1em",
+                                shimmerDuration: "2s",
+                                borderRadius: "10px",
+                                background: "rgba(99, 102, 241, 1)",
+                            },
+                            id: v4(),
+                            name: "Shimmer Button",
+                            styles: {
+                                width: "200px",
+                                textAlign: "center",
+                                margin: "10px auto",
+                                ...defaultStyles,
+                            },
+                            type: "shimmerButton",
                         },
                     },
                 });

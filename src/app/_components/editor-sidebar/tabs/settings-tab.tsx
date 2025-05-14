@@ -65,6 +65,50 @@ const SettingsTab = () => {
                             <Input id="href" placeholder="https://domain.example.com/pathname" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.href} />
                         </div>
                     )}
+                    {state.editor.selectedElement.type === "shimmerButton" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Button Text</p>
+                                <Input id="innerText" placeholder="Button Text" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.innerText} />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Shimmer Color</p>
+                                <div className="flex border-[1px] rounded-md overflow-clip">
+                                    <div
+                                        className="w-12"
+                                        style={{
+                                            backgroundColor: state.editor.selectedElement.content.shimmerColor as string,
+                                        }}
+                                    />
+                                    <Input id="shimmerColor" placeholder="#ffffff" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.shimmerColor} />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Shimmer Size</p>
+                                <Input id="shimmerSize" placeholder="0.05em" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.shimmerSize} />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Shimmer Duration</p>
+                                <Input id="shimmerDuration" placeholder="3s" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.shimmerDuration} />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Border Radius</p>
+                                <Input id="borderRadius" placeholder="100px" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.borderRadius} />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Background Color</p>
+                                <div className="flex border-[1px] rounded-md overflow-clip">
+                                    <div
+                                        className="w-12"
+                                        style={{
+                                            backgroundColor: state.editor.selectedElement.content.background as string,
+                                        }}
+                                    />
+                                    <Input id="background" placeholder="rgba(0, 0, 0, 1)" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.background} />
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </AccordionContent>
             </AccordionItem>
             <AccordionItem value="Typography" className="px-0 py-0 border-y">

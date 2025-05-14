@@ -20,6 +20,7 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
         <Sheet open={true} modal={false}>
             <Tabs className="w-full" defaultValue="Settings">
                 <SheetContent
+                
                     side={"right"}
                     className={clsx("mt-[97px] w-16 z-[80] shadow-none p-0 focus:border-none transition-all overflow-hidden", {
                         hidden: state.editor.previewMode,
@@ -37,7 +38,7 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
                         <TabsContent value="Settings">
                             <SheetHeader className="text-left p-6">
                                 <SheetTitle>Styles</SheetTitle>
-                                <SheetDescription>Show your creativity! You can customize every component as you like.</SheetDescription>
+                                <SheetDescription>Stiller burada. Tüm komponentlara istediğin stili ekleyeyebilirsin</SheetDescription>
                             </SheetHeader>
                             <SettingsTab />
                         </TabsContent>
@@ -47,7 +48,7 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
                         <TabsContent value="Components">
                             <SheetHeader className="text-left p-6 ">
                                 <SheetTitle>Components</SheetTitle>
-                                <SheetDescription>You can drag and drop components on the canvas</SheetDescription>
+                                <SheetDescription>Burdan komponentları alıp sayfaya sürükleyebilirsin</SheetDescription>
                             </SheetHeader>
                             <ComponentsTab />
                         </TabsContent>

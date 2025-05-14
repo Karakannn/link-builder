@@ -7,6 +7,7 @@ import VideoPlaceholder from "./video-placeholder";
 import TwoColumnsPlaceholder from "./two-columns-placeholder";
 import LinkPlaceholder from "./link-placeholder";
 import ContactFormComponentPlaceholder from "./contact-form-component-placeholder";
+import ShimmerButtonPlaceholder from "./shimmer-button-placeholder";
 
 const ComponentsTab = () => {
     const elements: {
@@ -45,7 +46,12 @@ const ComponentsTab = () => {
                 id: "contactForm",
                 group: "elements",
             },
-
+            {
+                Component: <ShimmerButtonPlaceholder />,
+                label: "Shimmer Button",
+                id: "shimmerButton",
+                group: "elements",
+            },
             {
                 Component: <LinkPlaceholder />,
                 label: "Link",
