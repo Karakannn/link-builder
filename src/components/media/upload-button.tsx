@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "../ui/button";
 /* import UploadMediaForm from "../forms/upload-media";
  */import { useModal } from "@/providers/modal-provider";
-import CustomModal from "@/global/custom-modal";
+import CustomModal from "@/components/global/custom-modal";
 
 type Props = {
     subaccountId: string;
