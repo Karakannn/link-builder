@@ -74,34 +74,10 @@ export const onSignInUser = async (clerkId: string) => {
       where: {
         clerkId,
       },
-      select: {
-        id: true,
-        group: {
-          select: {
-            id: true,
-            channel: {
-              select: {
-                id: true,
-              },
-              take: 1,
-              orderBy: {
-                createdAt: "asc",
-              },
-            },
-          },
-        },
-      },
+    
     })
 
     if (loggedInUser) {
-      if (loggedInUser.group.length > 0) {
-        return {
-          status: 207,
-          id: loggedInUser.id,
-          groupId: loggedInUser.group[0].id,
-          channelId: loggedInUser.group[0].channel[0].id,
-        }
-      }
 
       return {
         status: 200,
@@ -121,3 +97,5 @@ export const onSignInUser = async (clerkId: string) => {
     }
   }
 }
+
+
