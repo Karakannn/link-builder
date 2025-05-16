@@ -1,6 +1,22 @@
-import { clerkMiddleware } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+import { NextResponse } from 'next/server'
 
-export default clerkMiddleware();
+const isProtectedRoute = createRouteMatcher(['/admin(.*)', '/builder(.*)'])
+
+export default clerkMiddleware(async (auth, req) => {
+
+  const session = await auth()
+  const { userId } = session
+
+ 
+
+  if (!userId && isProtectedRoute(req)) {
+    const customSignInUrl = new URL('/sign-in', req.url)
+/*     customSignInUrl.searchParams.set('redirect_url', req.url)
+    customSignInUrl.searchParams.set('source', 'protected-route') */
+    return NextResponse.redirect(customSignInUrl)
+  }
+})
 
 export const config = {
   matcher: [
@@ -9,4 +25,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-};
+}

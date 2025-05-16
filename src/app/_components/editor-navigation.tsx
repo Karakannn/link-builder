@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { UserNav } from "@/components/global/user-nav";
 import { DeviceTypes, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { ArrowLeftCircle, EyeIcon, Laptop, Redo2, Smartphone, Tablet, Undo2 } from "lucide-react";
@@ -178,6 +179,9 @@ const FunnelEditorNavigation: React.FC<Props> = ({ funnelId, funnelPageDetails, 
                         <span className="text-muted-foreground text-sm">Last updated şimdiiii</span>
                     </div>
                     <Button onClick={handleOnSave}>Save</Button>
+                    <div className="ml-2">
+                        <UserNav />
+                    </div>
                 </aside>
             </nav>
         </TooltipProvider>

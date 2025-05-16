@@ -30,21 +30,20 @@ export const FormGenerator = ({
   switch (inputType) {
     case "input":
       return (
-        <Label className="flex flex-col gap-2" htmlFor={`input-${label}`}>
+        <Label className="flex flex-col items-start gap-2" htmlFor={`input-${label}`}>
           {label && label}
           <Input
             id={`input-${label}`}
             type={type}
             placeholder={placeholder}
-            className="bg-themeBlack border-themeGray text-themeTextGray"
             {...register(name)}
           />
           <ErrorMessage
             errors={errors}
             name={name}
             render={({ message }) => (
-              <p className="text-red-400 mt-2">
-                {message === "Required" ? "" : message}
+              <p className="text-red-500 text-sm mt-1">
+                {message}
               </p>
             )}
           />
@@ -56,7 +55,8 @@ export const FormGenerator = ({
           {label && label}
           <select
             id={`select-${label}`}
-            className="w-full bg-transparent border-[1px] p-3 rounded-lg"
+            className={`w-full bg-transparent border-[1px] p-3 rounded-lg ${errors[name] ? "border-red-500" : ""
+              }`}
             {...register(name)}
           >
             {options?.length &&
@@ -74,8 +74,8 @@ export const FormGenerator = ({
             errors={errors}
             name={name}
             render={({ message }) => (
-              <p className="text-red-400 mt-2">
-                {message === "Required" ? "" : message}
+              <p className="text-red-500 text-sm mt-1">
+                {message}
               </p>
             )}
           />
@@ -86,7 +86,8 @@ export const FormGenerator = ({
         <Label className="flex flex-col gap-2" htmlFor={`input-${label}`}>
           {label && label}
           <Textarea
-            className="bg-themeBlack border-themeGray text-themeTextGray"
+            className={`bg-themeBlack border-themeGray text-themeTextGray ${errors[name] ? "border-red-500" : ""
+              }`}
             id={`input-${label}`}
             placeholder={placeholder}
             {...register(name)}
@@ -96,8 +97,8 @@ export const FormGenerator = ({
             errors={errors}
             name={name}
             render={({ message }) => (
-              <p className="text-red-400 mt-2">
-                {message === "Required" ? "" : message}
+              <p className="text-red-500 text-sm mt-1">
+                {message}
               </p>
             )}
           />

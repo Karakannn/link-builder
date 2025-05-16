@@ -1,6 +1,7 @@
 import { onAuthenticatedUser } from "@/actions/auth"
 import BackdropGradient from "@/components/global/backdrop-gradient"
 import GlassCard from "@/components/global/glass-card"
+import { GalleryVerticalEnd, Link, User } from "lucide-react"
 import { redirect } from "next/navigation"
 
 type Props = {
@@ -13,17 +14,29 @@ const AuthLayout = async ({ children }: Props) => {
   if (user.status === 200) redirect("/callback/sign-in")
 
   return (
-    <div className="container h-screen flex justify-center items-center">
-      <div className="flex flex-col w-full items-center py-24">
-        <h2 className="text-4xl font-bold text-themeTextWhite">LinkBuilder.</h2>
-        <BackdropGradient
-          className="w-4/12 h-2/6 opacity-40"
-          container="flex flex-col items-center"
-        >
-          <GlassCard className="xs:w-full md:w-7/12 lg:w-5/12 xl:w-4/12 p-7 mt-16">
+
+    <div className="grid min-h-svh lg:grid-cols-2">
+      <div className="flex flex-col gap-4 p-6 md:p-10">
+        <div className="flex justify-center gap-2 md:justify-start">
+          <a href="#" className="flex items-center gap-2 font-medium">
+            <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+              <Link className="size-4" />
+            </div>
+            LinkBuilder.
+          </a>
+        </div>
+        <div className="flex flex-1 items-center justify-center">
+          <div className="w-full max-w-xs">
             {children}
-          </GlassCard>
-        </BackdropGradient>
+          </div>
+        </div>
+      </div>
+      <div className="relative hidden bg-muted lg:block">
+        <img
+          src="/placeholder.svg"
+          alt="Image"
+          className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
       </div>
     </div>
   )

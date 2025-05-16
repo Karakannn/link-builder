@@ -9,7 +9,7 @@ import { useAuthSignIn } from "@/hooks/use-authentication"
 type Props = {}
 
 const SignInForm = (props: Props) => {
-  const { isPending, onAuthenticateUser, register, errors } = useAuthSignIn()
+  const { isPending, onAuthenticateUser, register, errors, authError } = useAuthSignIn()
 
   return (
     <form className="flex flex-col gap-3 mt-10" onSubmit={onAuthenticateUser}>
@@ -21,6 +21,14 @@ const SignInForm = (props: Props) => {
           errors={errors}
         />
       ))}
+      
+      {/* Display global authentication error */}
+      {authError && (
+        <div className="text-red-500 text-sm mt-1 mb-2">
+          {authError}
+        </div>
+      )}
+      
       <Button type="submit" className="rounded-2xl">
         <Loader loading={isPending}>Sign In with Email</Loader>
       </Button>

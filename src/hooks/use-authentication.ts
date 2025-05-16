@@ -12,19 +12,26 @@ import { toast } from "sonner"
 import { z } from "zod"
 
 export const useAuthSignIn = () => {
+
   const { isLoaded, setActive, signIn } = useSignIn()
+  const [authError, setAuthError] = useState<string | null>(null)
   const {
     register,
     formState: { errors },
     reset,
     handleSubmit,
+    setError,
   } = useForm<z.infer<typeof SignInSchema>>({
     resolver: zodResolver(SignInSchema),
     mode: "onBlur",
   })
 
-  const router = useRouter()
+  const router = useRouter();
+  
   const onClerkAuth = async (email: string, password: string) => {
+    // Clear any previous auth errors
+    setAuthError(null)
+
     if (!isLoaded)
       return toast("Error", {
         description: "Oops! something went wrong",
@@ -42,12 +49,62 @@ export const useAuthSignIn = () => {
           description: "Welcome back!",
         })
         router.push("/callback/sign-in")
+      } else if (authenticated.status === "needs_second_factor") {
+        // Handle 2FA if implemented
+        toast("2FA Required", {
+          description: "Please complete the second factor authentication",
+        })
+      } else {
+        // Handle other statuses
+        toast("Authentication Error", {
+          description: "Could not complete sign in process",
+        })
       }
     } catch (error: any) {
-      if (error.errors[0].code === "form_password_incorrect")
+      // Set the error for display in the form
+      const errorMessage = getClerkErrorMessage(error);
+      
+      if (errorMessage.includes("password")) {
+        setError("password", { 
+          type: "manual", 
+          message: errorMessage 
+        });
+      } else if (errorMessage.includes("email") || errorMessage.includes("identifier")) {
+        setError("email", { 
+          type: "manual", 
+          message: errorMessage 
+        });
+      } else {
+        // General error
+        setAuthError(errorMessage);
         toast("Error", {
-          description: "email/password is incorrect try again",
-        })
+          description: errorMessage,
+        });
+      }
+    }
+  }
+
+  // Helper function to extract meaningful error messages from Clerk errors
+  const getClerkErrorMessage = (error: any): string => {
+    if (!error || !error.errors || !error.errors.length) {
+      return "An unknown error occurred";
+    }
+
+    const clerkError = error.errors[0];
+    
+    switch (clerkError.code) {
+      case "form_password_incorrect":
+        return "Email or password is incorrect";
+      case "form_identifier_not_found":
+        return "No account found with this email";
+      case "form_param_format_invalid":
+        return clerkError.message || "Invalid input format";
+      case "network_error":
+        return "Network error, please check your connection";
+      case "rate_limit_exceeded":
+        return "Too many attempts, please try again later";
+      default:
+        return clerkError.message || "An unexpected error occurred";
     }
   }
 
@@ -65,6 +122,7 @@ export const useAuthSignIn = () => {
     isPending,
     register,
     errors,
+    authError,
   }
 }
 
