@@ -1,9 +1,9 @@
 "use client";
 
 import EditorProvider from "@/providers/editor/editor-provider";
-import FunnelEditorNavigation from "../../_components/editor-navigation";
-import FunnelEditor from "../../_components/editor";
-import FunnelEditorSidebar from "../../_components/editor-sidebar";
+import FunnelEditorNavigation from "../../../../_components/editor-navigation";
+import FunnelEditor from "../../../../_components/editor";
+import FunnelEditorSidebar from "../../../../_components/editor-sidebar";
 
 export default function Home() {
   return (

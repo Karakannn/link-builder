@@ -5,48 +5,41 @@ import { NavDocuments } from './nav-documents'
 import { NavMain } from './nav-main'
 import { NavSecondary } from './nav-secondary'
 import {
-  IconDashboard,
-  IconDatabase,
-  IconHelp,
-  IconInnerShadowTop,
-  IconSearch,
-  IconSettings,
+    IconDashboard,
+    IconDatabase,
+    IconSettings,
 } from "@tabler/icons-react"
+import { Building2 } from 'lucide-react'
 type Props = {}
 
 const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "#",
-      icon: IconDashboard,
-    },
-  ],
+    navMain: [
+        {
+            title: "Dashboard",
+            url: "/admin/dashboard",
+            icon: IconDashboard,
+        },
+        {
+            title: "Builder",
+            url: "/admin/builder",
+            icon: Building2,
+        },
+    ],
 
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "#",
-      icon: IconSettings,
-    },
-    {
-      title: "Get Help",
-      url: "#",
-      icon: IconHelp,
-    },
-    {
-      title: "Search",
-      url: "#",
-      icon: IconSearch,
-    },
-  ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-  ],
+    navSecondary: [
+        {
+            title: "Settings",
+            url: "/admin/settings",
+            icon: IconSettings,
+        },
+    ],
+    documents: [
+        {
+            name: "Media",
+            url: "/admin/media",
+            icon: IconDatabase,
+        },
+    ],
 }
 
 

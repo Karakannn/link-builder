@@ -1,5 +1,5 @@
-import { ChartAreaInteractive } from "@/app/(admin)/dashboard/_components/chart-area-interactive"
-import { SectionCards } from "@/app/(admin)/dashboard/_components/section-cards"
+import { ChartAreaInteractive } from "@/app/(admin)/admin/(with-layout)/dashboard/_components/chart-area-interactive"
+import { SectionCards } from "@/app/(admin)/admin/(with-layout)/dashboard/_components/section-cards"
 
 type Props = {
 
