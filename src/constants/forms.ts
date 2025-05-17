@@ -11,6 +11,7 @@ export const SIGN_UP_FORM: AuthFormProps[] = [
   {
     id: "1",
     inputType: "input",
+    label:"First Name",
     placeholder: "First name",
     name: "firstname",
     type: "text",
@@ -18,6 +19,7 @@ export const SIGN_UP_FORM: AuthFormProps[] = [
   {
     id: "2",
     inputType: "input",
+    label: "Last Name",
     placeholder: "Last name",
     name: "lastname",
     type: "text",
@@ -25,12 +27,14 @@ export const SIGN_UP_FORM: AuthFormProps[] = [
   {
     id: "3",
     inputType: "input",
+    label: "Email",
     placeholder: "Email",
     name: "email",
     type: "email",
   },
   {
     id: "4",
+    label:"Password",
     inputType: "input",
     placeholder: "Password",
     name: "password",

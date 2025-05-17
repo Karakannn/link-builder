@@ -19,3 +19,8 @@ export const SignUpSchema = z.object({
       "password should contain only alphabets and numbers",
     ),
 })
+
+// New schema for OTP validation
+export const OtpVerificationSchema = z.object({
+  code: z.string().min(1, { message: "Verification code is required" })
+})

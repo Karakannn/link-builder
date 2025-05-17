@@ -4,15 +4,13 @@ type Props = {}
 
 const SignUpPage = (props: Props) => {
   return (
-    <>
-      <h5 className="font-bold text-base text-themeTextWhite">Signup</h5>
-      <p className="text-themeTextGray leading-tight">
-        Network with people from around the world, join groups, create your own,
-        watch courses and become the best version of yourself.
-      </p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <h1 className="text-2xl font-bold">Signup</h1>
+        <p className="text-balance text-sm text-muted-foreground">Enter your email below to login to your account</p>
+      </div>
       <SignUpForm />
-
-    </>
+    </div>
   )
 }
 
