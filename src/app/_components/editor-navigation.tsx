@@ -12,14 +12,16 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { FocusEventHandler, useEffect } from "react";
 import { toast } from "sonner";
+import { User } from "@prisma/client";
 
 interface Props {
+    user: User;
     funnelId: string;
     funnelPageDetails: any;
     subaccountId: string;
 }
 
-const FunnelEditorNavigation: React.FC<Props> = ({ funnelId, funnelPageDetails, subaccountId }) => {
+const FunnelEditorNavigation: React.FC<Props> = ({ user, funnelId, funnelPageDetails, subaccountId }) => {
     const router = useRouter();
     const { state, dispatch } = useEditor();
 
@@ -180,7 +182,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ funnelId, funnelPageDetails, 
                     </div>
                     <Button onClick={handleOnSave}>Save</Button>
                     <div className="ml-2">
-                        <UserNav />
+                        <UserNav user={user} />
                     </div>
                 </aside>
             </nav>

@@ -18,6 +18,7 @@ model User {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   firstname String
   lastname  String
+  email     String
   createdAt DateTime @default(now())
   clerkId   String   @unique
   image     String?

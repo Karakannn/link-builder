@@ -28,12 +28,12 @@ const SignUpForm = (props: Props) => {
     code,
     setCode,
     getValues,
-    otpError,
-    otpErrors,
+    signUpError,
   } = useAuthSignUp()
 
+  console.log("signUpError", signUpError)
+
   const isOtpValid = code && code.trim() !== ''
-  const hasOtpError = otpError || (otpErrors && otpErrors.code)
 
   return (
     <form
@@ -49,12 +49,6 @@ const SignUpForm = (props: Props) => {
       {verifying ? (
         <div className="flex flex-col items-center gap-4 mb-5">
           <OtpInput otp={code} setOtp={setCode as any} />
-
-          {hasOtpError && (
-            <div className="text-red-500 text-sm my-1">
-              {otpError || otpErrors?.code?.message}
-            </div>
-          )}
         </div>
       ) : (
         CONSTANTS.signUpForm.map((field) => (
@@ -67,6 +61,13 @@ const SignUpForm = (props: Props) => {
         ))
       )}
 
+    {/*   {signUpError && (
+        <div className="text-red-500 text-sm mt-1 mb-2">
+          {signUpError}
+        </div>
+      )} */}
+
+      <div id="clerk-captcha"></div>
       {verifying ? (
         <Button
           type="submit"

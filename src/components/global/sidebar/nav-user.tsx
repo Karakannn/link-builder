@@ -28,16 +28,15 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { useUser } from "@clerk/nextjs"
 import { User } from "@prisma/client"
 
 type Props = {
-  userData: User
+  user: User
 }
 
-export function NavUser({ userData }: Props) {
+export function NavUser({ user }: Props) {
   const { isMobile } = useSidebar()
- 
+
 
   return (
     <SidebarMenu>
@@ -49,15 +48,16 @@ export function NavUser({ userData }: Props) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg grayscale">
-                <AvatarImage src={userData.image || ""} alt={userData.firstname || ""} />
+                <AvatarImage src={user.image || ""} alt={user.firstname || ""} />
                 <AvatarFallback className="rounded-lg">
-                  {userData.firstname?.[0]}{userData.lastname || ""}
+                  {user.firstname?.charAt(0)}
+                  {user.lastname?.charAt(0)}
                 </AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{userData.firstname}</span>
+                <span className="truncate font-medium">{user.firstname}</span>
                 <span className="text-muted-foreground truncate text-xs">
-                  {userData.image}
+                  {user.email}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -72,15 +72,16 @@ export function NavUser({ userData }: Props) {
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={userData.image || ""} alt={userData.firstname || ""} />
+                  <AvatarImage src={user.image || ""} alt={user.firstname || ""} />
                   <AvatarFallback className="rounded-lg">
-                    {userData.firstname?.[0]}{userData.lastname || ""}
+                    {user.firstname?.charAt(0)}
+                    {user.lastname?.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{userData.firstname}</span>
+                  <span className="truncate font-medium">{user.firstname}</span>
                   <span className="text-muted-foreground truncate text-xs">
-                      {userData.image}
+                    {user.email}
                   </span>
                 </div>
               </div>

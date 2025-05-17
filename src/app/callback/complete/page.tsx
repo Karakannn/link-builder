@@ -6,6 +6,7 @@ const CompleteOAuthAfterCallback = async () => {
   const user = await currentUser()
   if (!user) redirect("/sign-in")
   const complete = await onSignUpUser({
+    email: user.emailAddresses[0].emailAddress as string,
     firstname: user.firstName as string,
     lastname: user.lastName as string,
     image: user.imageUrl,

@@ -21,9 +21,9 @@ import SidebarContentWrapper from "./sidebar-content-wrapper"
 
 export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
-  const userData = await getAuthUserDetails();
+  const user = await getAuthUserDetails();
 
-  if (!userData) return <>loading...</>
+  if (!user) return <>loading...</>
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>
@@ -46,7 +46,7 @@ export async function AppSidebar({ ...props }: React.ComponentProps<typeof Sideb
         <SidebarContentWrapper />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser userData={userData} />
+        <NavUser user={user} />
       </SidebarFooter>
     </Sidebar>
   )

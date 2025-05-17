@@ -8,7 +8,7 @@ const CompleteSigIn = async () => {
 
   const authenticated = await onSignInUser(user.id)
 
-  if (authenticated.status === 200) return redirect(`/builder`)
+  if (authenticated.status === 200) return redirect(`/admin/dashboard`)
 
   if (authenticated.status !== 200) {
     redirect("/sign-in")

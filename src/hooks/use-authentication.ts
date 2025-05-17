@@ -135,7 +135,7 @@ export const useAuthSignUp = () => {
   const [verifying, setVerifying] = useState<boolean>(false)
   const [generatingCode, setGeneratingCode] = useState<boolean>(false)
   const [code, setCode] = useState<string>("")
-  const [otpError, setOtpError] = useState<string | null>(null)
+  const [signUpError, setSignUpError] = useState<string | null>(null)
 
   const {
     register,
@@ -167,8 +167,8 @@ export const useAuthSignUp = () => {
       })
     try {
       if (email && password) {
-        setGeneratingCode(true) 
-        
+        setGeneratingCode(true)
+
         await signUp.create({
           emailAddress: email,
           password: password,
@@ -181,7 +181,7 @@ export const useAuthSignUp = () => {
         setVerifying(true)
         setGeneratingCode(false)
         // Reset any previous OTP errors
-        setOtpError(null)
+        setSignUpError(null)
       } else {
         return toast("Error", {
           description: "No fields must be empty",
@@ -189,50 +189,22 @@ export const useAuthSignUp = () => {
       }
     } catch (error: any) {
       setGeneratingCode(false)
-      // Handle Clerk errors for the sign-up step
-      const errorMessage = getClerkErrorMessage(error)
-      toast("Error", {
-        description: errorMessage,
+      console.log("error onGenerateCode", error.message)
+
+      toast.error("Error", {
+        description: error.message,
       })
-      console.log("error", error)
-      console.error(JSON.stringify(error, null, 2))
+      setSignUpError(error.message)
+
     }
   }
 
-  // Helper function for Clerk error messages
-  const getClerkErrorMessage = (error: any): string => {
-    if (!error || !error.errors || !error.errors.length) {
-      return "An unknown error occurred";
-    }
 
-    const clerkError = error.errors[0];
-
-    switch (clerkError.code) {
-      case "form_identifier_exists":
-        return "An account with this email already exists";
-      case "form_password_pwned":
-        return "This password has been compromised in a data breach. Please use a more secure password";
-      case "form_param_format_invalid":
-        return clerkError.message || "Invalid input format";
-      case "verification_code_incorrect":
-        return "The verification code is incorrect";
-      case "verification_expired":
-        return "The verification code has expired. Please request a new one";
-      case "network_error":
-        return "Network error, please check your connection";
-      case "rate_limit_exceeded":
-        return "Too many attempts, please try again later";
-      default:
-        return clerkError.message || "An unexpected error occurred";
-    }
-  }
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode)
     setOtpValue('code', newCode)
-    if (otpError) {
-      setOtpError(null)
-    }
+    setSignUpError(null)
   }
 
   const onInitiateUserRegistration = handleOtpSubmit(async () => {
@@ -242,7 +214,7 @@ export const useAuthSignUp = () => {
       })
 
     if (!code || code.trim() === '') {
-      setOtpError("Verification code is required")
+      setSignUpError("Verification code is required")
       return
     }
 
@@ -254,7 +226,7 @@ export const useAuthSignUp = () => {
 
       if (completeSignUp.status !== "complete") {
         setCreating(false)
-        setOtpError("Verification failed. Please check your code and try again")
+        setSignUpError("Verification failed. Please check your code and try again")
         return toast("Error", {
           description: "Oops! something went wrong, verification incomplete",
         })
@@ -263,29 +235,36 @@ export const useAuthSignUp = () => {
       if (completeSignUp.status === "complete") {
         if (!signUp.createdUserId) {
           setCreating(false)
-          setOtpError("User ID not found. Please try again")
+          setSignUpError("User ID not found. Please try again")
           return
         }
-        
+
         const user = await onSignUpUser({
+          email: getValues("email"),
           firstname: getValues("firstname"),
           lastname: getValues("lastname"),
           clerkId: signUp.createdUserId,
           image: "",
         })
 
-        reset()
+        
 
         if (user.status === 200) {
+
+          console.log("status 200");
+          
           toast("Success", {
             description: user.message,
           })
           await setActive({
             session: completeSignUp.createdSessionId,
           })
-          router.push(`/builder`)
+          router.push(`/sign-in`)
         }
         if (user.status !== 200) {
+
+          console.log("status 200 değil");
+
           toast("Error", {
             description: user.message + " - action failed",
           })
@@ -297,13 +276,14 @@ export const useAuthSignUp = () => {
         console.error(JSON.stringify(completeSignUp, null, 2))
       }
     } catch (error: any) {
+
+      console.error(error.message)
+
       setCreating(false)
-      const errorMessage = getClerkErrorMessage(error)
-      setOtpError(errorMessage)
+  setSignUpError(error.message)
       toast("Error", {
-        description: errorMessage,
-      })
-      console.error(JSON.stringify(error, null, 2))
+        description: error.message,
+      }) 
     }
   })
 
@@ -318,7 +298,7 @@ export const useAuthSignUp = () => {
     code,
     setCode: handleCodeChange,
     getValues,
-    otpError,
+    signUpError,
     otpErrors,
     registerOtp,
   }

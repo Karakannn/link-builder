@@ -36,12 +36,14 @@ export const onAuthenticatedUser = async () => {
 }
 
 export const onSignUpUser = async (data: {
+  email: string,
   firstname: string
   lastname: string
   image: string
   clerkId: string
 }) => {
   try {
+
     const createdUser = await client.user.create({
       data: {
         ...data,
@@ -55,7 +57,6 @@ export const onSignUpUser = async (data: {
         id: createdUser.id,
       }
     }
-
     return {
       status: 400,
       message: "User could not be created! Try again",
@@ -104,7 +105,7 @@ export const getAuthUserDetails = async () => {
   const user = await currentUser();
 
   if (!user) {
-    return;
+    return false;
   }
 
   const userData = await client.user.findUnique({
