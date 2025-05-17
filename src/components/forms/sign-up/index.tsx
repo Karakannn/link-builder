@@ -1,7 +1,6 @@
 "use client"
 import { FormGenerator } from "@/components/global/form-generator"
 import { Loader } from "@/components/global/loader"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { CONSTANTS } from "@/constants"
 import { useAuthSignUp } from "@/hooks/use-authentication"
@@ -40,7 +39,6 @@ const SignUpForm = (props: Props) => {
     <form
       onSubmit={(e) => {
         e.preventDefault()
-        // Only proceed if we have an OTP code when in verifying state
         if (verifying && !isOtpValid) {
           return
         }
@@ -52,7 +50,6 @@ const SignUpForm = (props: Props) => {
         <div className="flex flex-col items-center gap-4 mb-5">
           <OtpInput otp={code} setOtp={setCode as any} />
 
-          {/* Display OTP errors */}
           {hasOtpError && (
             <div className="text-red-500 text-sm my-1">
               {otpError || otpErrors?.code?.message}

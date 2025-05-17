@@ -11,4 +11,5 @@ export const CONSTANTS: ConstantsProps = {
   landingPageMenu: LANDING_PAGE_MENU,
   signUpForm: SIGN_UP_FORM,
   signInForm: SIGN_IN_FORM,
+
 };

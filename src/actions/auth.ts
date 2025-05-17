@@ -74,7 +74,7 @@ export const onSignInUser = async (clerkId: string) => {
       where: {
         clerkId,
       },
-    
+
     })
 
     if (loggedInUser) {
@@ -98,4 +98,21 @@ export const onSignInUser = async (clerkId: string) => {
   }
 }
 
+
+
+export const getAuthUserDetails = async () => {
+  const user = await currentUser();
+
+  if (!user) {
+    return;
+  }
+
+  const userData = await client.user.findUnique({
+    where: {
+      clerkId: user.id,
+    },
+  });
+
+  return userData;
+};
 
