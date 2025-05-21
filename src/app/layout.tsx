@@ -29,18 +29,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <ReactQueryProvider>
-        <ClerkProvider>
-          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <ReactQueryProvider>
+          <ClerkProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-              <ModalProvider>
-                {children}
-              </ModalProvider>
+              <ModalProvider>{children}</ModalProvider>
             </ThemeProvider>
             <Toaster richColors />
-          </body>
-        </ClerkProvider>
-      </ReactQueryProvider>
+          </ClerkProvider>
+        </ReactQueryProvider>
+      </body>
     </html>
   );
 }

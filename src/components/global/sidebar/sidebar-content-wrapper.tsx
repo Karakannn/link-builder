@@ -8,8 +8,10 @@ import {
     IconDashboard,
     IconDatabase,
     IconSettings,
+    IconWorld,
 } from "@tabler/icons-react"
-import { Building2 } from 'lucide-react'
+import { Building2, File } from 'lucide-react'
+
 type Props = {}
 
 const data = {
@@ -20,9 +22,14 @@ const data = {
             icon: IconDashboard,
         },
         {
-            title: "Builder",
-            url: "/admin/builder",
-            icon: Building2,
+            title: "Pages",
+            url: "/admin/sites",
+            icon: File,
+        },
+        {
+            title: "Domains",
+            url: "/admin/domains",
+            icon: IconWorld,
         },
     ],
 
@@ -41,7 +48,6 @@ const data = {
         },
     ],
 }
-
 
 const SidebarContentWrapper = (props: Props) => {
     return (
