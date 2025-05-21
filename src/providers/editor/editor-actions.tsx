@@ -59,8 +59,8 @@ export type EditorAction =
         };
     }
     | {
-        type: "SET_FUNNEL_PAGE_ID";
+        type: "SET_PAGE_ID";
         payload: {
-            funnelPageId: string;
+            pageId: string;
         };
     };

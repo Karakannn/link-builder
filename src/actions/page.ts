@@ -1,8 +1,9 @@
 "use server";
 
 import { client } from "@/lib/prisma";
-import { User } from "@prisma/client";
+import { Page, User } from "@prisma/client";
 import { onAuthenticatedUser } from "./auth";
+import { revalidatePath } from "next/cache";
 
 export const createInitialPage = async (user: User) => {
   try {
@@ -96,7 +97,7 @@ export const createInitialPage = async (user: User) => {
 export const getAllSites = async () => {
   try {
     const user = await onAuthenticatedUser();
-    
+
     if (!user || !user.id) {
       return { status: 404, message: "User not found" };
     }
@@ -116,7 +117,6 @@ export const getAllSites = async () => {
     return { status: 400, message: "Failed to fetch sites" };
   }
 };
-
 
 export const getSitePages = async (siteId: string) => {
   try {
@@ -172,6 +172,47 @@ export const getPageBySlug = async (siteId: string, slug: string) => {
   }
 };
 
+export const getPageById = async (pageId: string) => {
+  try {
+    if (!pageId) {
+      return { status: 400, message: "Page ID is required" };
+    }
+
+    const page = await client.page.findUnique({
+      where: {
+        id: pageId,
+      },
+      include: {
+        site: {
+          select: {
+            name: true,
+            id: true,
+            userId: true,
+          },
+        },
+      },
+    });
+
+    if (!page) {
+      return { status: 404, message: "Page not found" };
+    }
+
+    // İsteğe bağlı güvenlik kontrolü: yalnızca kullanıcının kendi sayfalarına erişmesini sağlamak için
+    const user = await onAuthenticatedUser();
+    if (user.id && page.site.userId !== user.id) {
+      return { status: 403, message: "You don't have permission to access this page" };
+    }
+
+    return {
+      status: 200,
+      page,
+    };
+  } catch (error) {
+    console.error("Error fetching page by ID:", error);
+    return { status: 400, message: "Failed to fetch page" };
+  }
+};
+
 export const getHomePage = async (siteId: string) => {
   try {
     if (!siteId) {
@@ -202,7 +243,7 @@ export const getHomePage = async (siteId: string) => {
 export const getAllUserPages = async () => {
   try {
     const user = await onAuthenticatedUser();
-    
+
     if (!user || !user.id) {
       return { status: 404, message: "User not found" };
     }
@@ -223,7 +264,7 @@ export const getAllUserPages = async () => {
     }
 
     // Tüm sitelerin ID'lerini alın
-    const siteIds = sites.map(site => site.id);
+    const siteIds = sites.map((site) => site.id);
 
     // Bu sitelere ait tüm sayfaları alın
     const pages = await client.page.findMany({
@@ -250,5 +291,90 @@ export const getAllUserPages = async () => {
   } catch (error) {
     console.error("Error fetching user pages:", error);
     return { status: 400, message: "Failed to fetch user pages" };
+  }
+};
+
+export const upsertPage = async (
+  siteId: string,
+  page: Page
+) => {
+  try {
+    const user = await onAuthenticatedUser();
+
+    console.log("siteId", siteId);
+    
+    if (!user || !user.id || !siteId) return null;
+
+    // Sitenin kullanıcıya ait olduğunu kontrol et
+    const site = await client.site.findFirst({
+      where: {
+        id: siteId,
+        userId: user.id,
+      },
+    });
+
+     if (!site) {
+      return { status: 404, message: "Site not found" };
+    }
+
+    // Ana sayfa kontrolü
+    if (page.isHome) {
+      await client.page.updateMany({
+        where: {
+          siteId: siteId,
+          isHome: true,
+          id: { not: page.id || "" },
+        },
+        data: {
+          isHome: false,
+        },
+      });
+    }
+
+    // Varsayılan içerik (content null ise)
+    const defaultContent = [
+      {
+        id: "__body",
+        name: "Body",
+        type: "__body",
+        styles: {
+          backgroundColor: "white",
+          height: "100%",
+        },
+        content: [],
+      },
+    ];
+
+    // Sayfa upsert işlemi
+    const response = await client.page.upsert({
+      where: {
+        id: page.id || "",
+      },
+      update: {
+        title: page.title,
+        slug: page.slug,
+        isHome: page.isHome !== undefined ? page.isHome : undefined,
+        content: page.content !== undefined ? page.content : undefined,
+        seo: page.seo !== undefined ? page.seo : undefined,
+        updatedAt: new Date(),
+      },
+      create: {
+        title: page.title,
+        slug: page.slug,
+        isHome: page.isHome || false,
+        content: page.content || defaultContent, // JSON.stringify yapmaya gerek yok, Prisma Json tipi olarak işler
+        seo: page.seo,
+        siteId: siteId,
+      },
+    });
+
+    // İlgili sayfaları yeniden doğrula
+    revalidatePath(`/sites/${siteId}`);
+    revalidatePath(`/editor/${response.id}`);
+
+    return response;
+  } catch (error) {
+    console.error("Sayfa upsert hatası:", error);
+    return null;
   }
 };

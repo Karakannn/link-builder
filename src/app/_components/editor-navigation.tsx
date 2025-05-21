@@ -12,30 +12,29 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { FocusEventHandler, useEffect } from "react";
 import { toast } from "sonner";
-import { User } from "@prisma/client";
+import {  Page, User } from "@prisma/client";
+import { upsertPage } from "@/actions/page";
 
 interface Props {
     user: User;
-    funnelId: string;
-    funnelPageDetails: any;
-    subaccountId: string;
+    pageDetails: Page;
 }
 
-const FunnelEditorNavigation: React.FC<Props> = ({ user, funnelId, funnelPageDetails, subaccountId }) => {
+const FunnelEditorNavigation: React.FC<Props> = ({ user,  pageDetails }) => {
     const router = useRouter();
     const { state, dispatch } = useEditor();
 
     useEffect(() => {
         dispatch({
-            type: "SET_FUNNEL_PAGE_ID",
+            type: "SET_PAGE_ID",
             payload: {
-                funnelPageId: funnelPageDetails.id,
+                pageId: pageDetails.id,
             },
         });
-    }, [funnelPageDetails]);
+    }, [pageDetails]);
 
     const handleOnBlurTitleChange: FocusEventHandler<HTMLInputElement> = async (event) => {
-        if (event.target.value === funnelPageDetails.name) return;
+        if (event.target.value === pageDetails.site.name) return;
 
         if (event.target.value) {
             /*   await upsertFunnelPage(
@@ -56,7 +55,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, funnelId, funnelPageDet
             toast.message("Oppse", {
                 description: "Funnel page title cannot be empty",
             });
-            event.target.value = funnelPageDetails.name;
+            event.target.value = pageDetails.site.name;
         }
     };
 
@@ -73,23 +72,28 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, funnelId, funnelPageDet
     const handleOnSave = async () => {
         const content = JSON.stringify(state.editor.elements);
 
+        
+
         try {
-            /*   const response = await upsertFunnelPage(
-                  subaccountId,
+              const response = await upsertPage(
+                  siteId,
                   {
-                      ...funnelPageDetails,
+                      ...pageDetails,
                       content: content,
                   },
-                  funnelId
               );
+
+              console.log("response", response);
+              
+              
   
-              await saveActivityLogsNotification({
+         /*      await saveActivityLogsNotification({
                   agencyId: undefined,
                   description: `Updated a funnel page | ${response?.name}`,
                   subAccountId: subaccountId,
               }); */
             toast("Success", {
-                description: "Funnel page saved successfully",
+                description: "Page saved successfully",
             });
         } catch (error) {
             toast("Oppse!", {
@@ -106,12 +110,11 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, funnelId, funnelPageDet
                 })}
             >
                 <aside className="flex items-center gap-4 max-w-[260px] w-[300px]">
-                    <Link href={`/subaccount/${subaccountId}/funnels/${funnelId}`}>
+                    <Link href={`/admin/sites`}>
                         <ArrowLeftCircle />
                     </Link>
                     <div className="flex flex-col w-full">
-                        <Input defaultValue={funnelPageDetails.name} className="border-none h-5 m-0 p-0 text-lg" onBlur={handleOnBlurTitleChange} />
-                        <span className="text-sm text-muted-foreground">Path: /{funnelPageDetails.pathName}</span>
+                        <Input defaultValue={pageDetails.name} className="border-none h-5 m-0 p-0 text-lg" onBlur={handleOnBlurTitleChange} />
                     </div>
                 </aside>
                 <aside>

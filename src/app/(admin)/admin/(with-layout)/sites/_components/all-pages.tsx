@@ -21,7 +21,7 @@ const AllPages = ({ pagesData }: Props) => {
   const router = useRouter();
 
   const handleEdit = (pageId: string) => {
-    router.push("/admin/sites/" + pageId);
+    router.push("/admin/builder/" + pageId);
   };
 
   if (pagesData.status !== 200) {

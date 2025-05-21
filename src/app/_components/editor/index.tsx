@@ -1,15 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import { Button } from "@/components/ui/button";
-import { useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { EyeOff } from "lucide-react";
 import React, { useEffect } from "react";
 import Recursive from "./_components-editor/recursive";
 
-type Props = { funnelPageId: string; liveMode?: boolean };
+type Props = { pageDetails: EditorElement[]; liveMode?: boolean };
 
-const FunnelEditor = ({ funnelPageId, liveMode }: Props) => {
+const FunnelEditor = ({ pageDetails, liveMode }: Props) => {
     const { dispatch, state } = useEditor();
 
     useEffect(() => {
@@ -24,19 +24,18 @@ const FunnelEditor = ({ funnelPageId, liveMode }: Props) => {
     //CHALLENGE: make this more performant
     useEffect(() => {
         const fetchData = async () => {
-        /*     const response = await getFunnelPageDetails(funnelPageId);
-            if (!response) return;
+        
 
             dispatch({
                 type: "LOAD_DATA",
                 payload: {
-                    elements: response.content ? JSON.parse(response?.content) : "",
+                    elements: pageDetails,
                     withLive: !!liveMode,
                 },
-            }); */
+            });
         };
         fetchData();
-    }, [funnelPageId]);
+    }, [pageDetails]);
 
     const handleClick = () => {
         dispatch({
