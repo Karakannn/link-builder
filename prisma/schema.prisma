@@ -4,25 +4,102 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// prisma/schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
-  url       = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstname String
-  lastname  String
-  email     String
-  createdAt DateTime @default(now())
-  clerkId   String   @unique
-  image     String?
- 
+enum UserRole {
+  ADMIN
+  USER
 }
 
+model User {
+  id           String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstname    String
+  lastname     String
+  email        String
+  clerkId      String       @unique
+  image        String?
+  role         UserRole     @default(USER)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  
+  // Relations
+  sites        Site[]       // All sites created by the user
+  domains      Domain[]     // All domains added by the user
+}
 
+// Site created by the user
+model Site {
+  id            String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String       // Site name
+  description   String?      // Description
+  isPublished   Boolean      @default(false)
+  favIcon       String?      // Site favicon
+  isDefault     Boolean      @default(false)  // Is this the user's default site?
+  
+  // User relation
+  userId        String       @db.Uuid
+  user          User         @relation(fields: [userId], references: [id])
+  
+  // Relations
+  pages         Page[]       // Site pages
+  domains       Domain[]     // Domains connected to this site
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  @@index([userId])
+}
+
+// Each page of the site
+model Page {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title       String    // Page title
+  slug        String    // URL slug (e.g., about-us, contact)
+  isHome      Boolean   @default(false) // Is this the homepage?
+  content     Json      // Page content in JSON format (site builder data)
+  seo         Json?     // SEO metadata (title, description, keywords)
+  
+  // Site relation
+  siteId      String    @db.Uuid
+  site        Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@unique([siteId, slug]) // Two identical slugs cannot exist on the same site
+  @@index([siteId])
+}
+
+// Domain model
+model Domain {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String    @unique // E.g., "example.com"
+  
+  // User relation
+  userId         String    @db.Uuid
+  user           User      @relation(fields: [userId], references: [id])
+  
+  // Site relation (can be null - domain not yet connected to a site)
+  siteId         String?   @db.Uuid
+  site           Site?     @relation(fields: [siteId], references: [id])
+  
+  // Domain status
+  isVerified     Boolean   @default(false)
+  verificationId String    @unique // TXT record for DNS verification
+  sslStatus      String    @default("pending") // "pending", "active", "error"
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([siteId])
+}

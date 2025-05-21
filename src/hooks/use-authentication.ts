@@ -223,6 +223,7 @@ export const useAuthSignUp = () => {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
         code,
       })
+        console.log("completeSignUp", completeSignUp);
 
       if (completeSignUp.status !== "complete") {
         setCreating(false)
@@ -247,6 +248,7 @@ export const useAuthSignUp = () => {
           image: "",
         })
 
+        console.log("user", user);
         
 
         if (user.status === 200) {

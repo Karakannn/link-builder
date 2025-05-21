@@ -8,6 +8,8 @@ export default clerkMiddleware(async (auth, req) => {
   const session = await auth()
   const { userId } = session
 
+  console.log("userId", userId)
+  console.log("isProtectedRoute(req)", isProtectedRoute(req))
  
 
   if (!userId && isProtectedRoute(req)) {
