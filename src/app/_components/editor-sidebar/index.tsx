@@ -8,6 +8,7 @@ import ComponentsTab from "./tabs/components-tab";
 import TabList from "./tabs";
 import SettingsTab from "./tabs/settings-tab";
 import MediaBucketTab from "./tabs/media-bucket-tab";
+import LayersTab from "./tabs/layers-tab";
 
 type Props = {
     subaccountId: string;
@@ -51,6 +52,13 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
                                 <SheetDescription>Burdan komponentları alıp sayfaya sürükleyebilirsin</SheetDescription>
                             </SheetHeader>
                             <ComponentsTab />
+                        </TabsContent>
+                        <TabsContent value="Layers">
+                            <SheetHeader className="text-left p-6 ">
+                                <SheetTitle>Layers</SheetTitle>
+                                <SheetDescription>Sayfadaki tüm elemanları gözden geçir ve düzenle</SheetDescription>
+                            </SheetHeader>
+                            <LayersTab />
                         </TabsContent>
                     </div>
                 </SheetContent>

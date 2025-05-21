@@ -21,6 +21,13 @@ export type EditorAction =
         };
     }
     | {
+        type: "MOVE_ELEMENT";
+        payload: {
+            elementId: string;
+            targetContainerId: string;
+        };
+    }
+    | {
         type: "CHANGE_CLICKED_ELEMENT";
         payload: {
             elementDetails?:

@@ -97,6 +97,104 @@ const addAnElement = (editorArray: EditorElement[], action: EditorAction): Edito
   });
 };
 
+// Find an element by ID and its parent container
+const findElementAndParent = (
+  elements: EditorElement[],
+  elementId: string,
+  parent: EditorElement | null = null
+): { element: EditorElement | null; parent: EditorElement | null } => {
+  for (const item of elements) {
+    if (item.id === elementId) {
+      return { element: item, parent };
+    }
+    if (Array.isArray(item.content) && item.content.length > 0) {
+      const result = findElementAndParent(item.content, elementId, item);
+      if (result.element) return result;
+    }
+  }
+  return { element: null, parent: null };
+};
+
+// Move an element from one container to another
+const moveElement = (elements: EditorElement[], action: EditorAction): EditorElement[] => {
+  if (action.type !== "MOVE_ELEMENT") 
+    throw Error("You sent the wrong action type on the MOVE_ELEMENT editor State");
+  
+  const { elementId, targetContainerId } = action.payload;
+  
+  console.log("MOVE_ELEMENT - Element ID:", elementId);
+  console.log("MOVE_ELEMENT - Target Container ID:", targetContainerId);
+  
+  // Step 1: Find the element and its parent
+  const { element, parent } = findElementAndParent(elements, elementId);
+  
+  if (!element || !parent) {
+    console.error("Could not find element or its parent:", elementId);
+    return elements;
+  }
+  
+  console.log("Found element to move:", element);
+  console.log("Original parent:", parent.id);
+  console.log("Target container:", targetContainerId);
+  
+  // Check if trying to move to its own container
+  if (parent.id === targetContainerId) {
+    console.log("Element is already in this container, no need to move");
+    return elements;
+  }
+  
+  // Step 2: Create a deep copy of the elements to avoid mutation
+  const newElements = JSON.parse(JSON.stringify(elements));
+  
+  // Step 3: Find the element copy and parent copy
+  const { element: elementCopy, parent: parentCopy } = findElementAndParent(newElements, elementId);
+  
+  if (!elementCopy || !parentCopy || !Array.isArray(parentCopy.content)) {
+    console.error("Could not find element copy or parent copy or parent content is not an array");
+    return elements;
+  }
+  
+  console.log("Found element copy:", elementCopy);
+  
+  // Step 4: Find the target container in the copied elements
+  const findTargetContainer = (elements: EditorElement[], id: string): EditorElement | null => {
+    for (const element of elements) {
+      if (element.id === id) {
+        return element;
+      }
+      if (Array.isArray(element.content)) {
+        const found = findTargetContainer(element.content, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+  
+  const targetContainer = findTargetContainer(newElements, targetContainerId);
+  
+  if (!targetContainer) {
+    console.error("Target container not found:", targetContainerId);
+    return elements;
+  }
+  
+  if (!Array.isArray(targetContainer.content)) {
+    console.error("Target container doesn't have an array content");
+    return elements;
+  }
+  
+  console.log("Found target container:", targetContainer.id);
+  
+  // Step 5: Remove the element from its original parent
+  parentCopy.content = parentCopy.content.filter(item => item.id !== elementId);
+  
+  // Step 6: Add the element to the target container directly
+  targetContainer.content.push(elementCopy);
+  
+  console.log("Element moved successfully from", parentCopy.id, "to", targetContainer.id);
+  
+  return newElements;
+};
+
 const updateAnElement = (editorArray: EditorElement[], action: EditorAction): EditorElement[] => {
   if (action.type !== "UPDATE_ELEMENT") throw Error("You sent the wrong action type on the UPDATE_ELEMENT editor State");
 
@@ -333,6 +431,34 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
       };
 
       return updateEditor;
+
+    case "MOVE_ELEMENT":
+      const movedElements = moveElement(state.editor.elements, action);
+      
+      const updatedEditorStateAfterMove = {
+        ...state.editor,
+        elements: movedElements,
+      };
+      
+      const updatedHistoryAfterMove = [
+        ...state.history.history.slice(0, state.history.currentIndex + 1),
+        {
+          ...updatedEditorStateAfterMove,
+        },
+      ];
+      
+      const movedState = {
+        ...state,
+        editor: updatedEditorStateAfterMove,
+        history: {
+          ...state.history,
+          history: updatedHistoryAfterMove,
+          currentIndex: updatedHistoryAfterMove.length - 1,
+        },
+      };
+      
+      return movedState;
+      
     case "DELETE_ELEMENT":
       const updatedElementsAfterDelete = deleteAnElement(state.editor.elements, action);
 
