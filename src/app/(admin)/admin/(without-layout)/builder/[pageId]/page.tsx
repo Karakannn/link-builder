@@ -16,7 +16,7 @@ export default async function page({ params }: Props) {
 
   if (!page || !user) return <>loading...</>;
 
-  const pageContent = page.content as unknown as EditorElement[];
+  const pageContent = JSON.parse(page.content) as unknown as EditorElement[];
 
   console.log("page.site", page);
   

@@ -294,27 +294,65 @@ export const getAllUserPages = async () => {
   }
 };
 
-export const upsertPage = async (
-  siteId: string,
-  page: Page
-) => {
+export const upsertPage = async (page: Page) => {
   try {
     const user = await onAuthenticatedUser();
 
-    console.log("siteId", siteId);
-    
-    if (!user || !user.id || !siteId) return null;
+    if (!user || !user.id) {
+      return { status: 401, message: "Unauthorized" };
+    }
 
-    // Sitenin kullanıcıya ait olduğunu kontrol et
-    const site = await client.site.findFirst({
-      where: {
-        id: siteId,
-        userId: user.id,
-      },
-    });
+    let siteId: string | undefined;
+    let existingPage: any = null;
 
-     if (!site) {
-      return { status: 404, message: "Site not found" };
+    // Mevcut sayfa güncelleniyor mu?
+    if (page.id) {
+      // Sayfa ID ile sayfayı bul
+      existingPage = await client.page.findUnique({
+        where: {
+          id: page.id,
+        },
+        include: {
+          site: {
+            select: {
+              id: true,
+              userId: true,
+            },
+          },
+        },
+      });
+
+      // Sayfa bulunamadı
+      if (!existingPage) {
+        return { status: 404, message: "Page not found" };
+      }
+
+      // Sayfanın site ID'sini al
+      siteId = existingPage.siteId;
+
+      // Kullanıcının yetkisi var mı kontrol et
+      if (existingPage.site.userId !== user.id) {
+        return { status: 403, message: "You don't have permission to update this page" };
+      }
+    } else {
+      // Yeni sayfa oluşturuluyor - siteId zorunlu
+      siteId = page.siteId;
+      
+      if (!siteId) {
+        return { status: 400, message: "Site ID is required for creating a new page" };
+      }
+
+      // Sitenin kullanıcıya ait olduğunu kontrol et
+      const site = await client.site.findFirst({
+        where: {
+          id: siteId,
+          userId: user.id,
+        },
+      });
+
+      if (!site) {
+        return { status: 404, message: "Site not found or you don't have access" };
+      }
     }
 
     // Ana sayfa kontrolü
@@ -331,7 +369,7 @@ export const upsertPage = async (
       });
     }
 
-    // Varsayılan içerik (content null ise)
+    // Varsayılan içerik
     const defaultContent = [
       {
         id: "__body",
@@ -362,7 +400,7 @@ export const upsertPage = async (
         title: page.title,
         slug: page.slug,
         isHome: page.isHome || false,
-        content: page.content || defaultContent, // JSON.stringify yapmaya gerek yok, Prisma Json tipi olarak işler
+        content: page.content || defaultContent,
         seo: page.seo,
         siteId: siteId,
       },
@@ -370,11 +408,14 @@ export const upsertPage = async (
 
     // İlgili sayfaları yeniden doğrula
     revalidatePath(`/sites/${siteId}`);
-    revalidatePath(`/editor/${response.id}`);
 
-    return response;
+    return {
+      status: 200, 
+      message: page.id ? "Page updated successfully" : "Page created successfully",
+      page: response 
+    };
   } catch (error) {
-    console.error("Sayfa upsert hatası:", error);
-    return null;
+    console.error("Page upsert error:", error);
+    return { status: 500, message: "An error occurred", error };
   }
 };
