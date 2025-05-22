@@ -8,6 +8,10 @@ export type DeviceTypes = "Desktop" | "Mobile" | "Tablet";
 export type EditorElement = {
   id: string;
   styles: React.CSSProperties;
+  responsiveStyles?: {
+    Tablet?: React.CSSProperties;
+    Mobile?: React.CSSProperties;
+  };
   name: string;
   type: EditorBtns;
   content:
@@ -21,6 +25,28 @@ export type EditorElement = {
         shimmerDuration?: string;
         borderRadius?: string;
         background?: string;
+        responsiveContent?: {
+          Tablet?: {
+            href?: string;
+            innerText?: string;
+            src?: string;
+            shimmerColor?: string;
+            shimmerSize?: string;
+            shimmerDuration?: string;
+            borderRadius?: string;
+            background?: string;
+          };
+          Mobile?: {
+            href?: string;
+            innerText?: string;
+            src?: string;
+            shimmerColor?: string;
+            shimmerSize?: string;
+            shimmerDuration?: string;
+            borderRadius?: string;
+            background?: string;
+          };
+        };
       };
 };
 

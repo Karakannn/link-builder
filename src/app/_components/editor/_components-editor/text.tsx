@@ -1,5 +1,6 @@
 import { EditorBtns } from "@/lib/constants";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import { Trash } from "lucide-react";
 import React, { useEffect, useRef } from "react";
@@ -12,6 +13,9 @@ const TextComponent = ({ element }: Props) => {
     const { id, styles, content, type } = element;
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    
+    // Get computed styles based on current device
+    const computedStyles = getElementStyles(element, state.editor.device);
 
     const handleOnClickBody = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -124,7 +128,7 @@ const TextComponent = ({ element }: Props) => {
     return (
         <div
             ref={containerRef}
-            style={styles}
+            style={computedStyles}
             className={clsx("p-[2px] w-full m-[5px] relative text-[16px] transition-all", {
                 "!border-blue-500": state.editor.selectedElement.id === id,
                 "!border-solid": state.editor.selectedElement.id === id,

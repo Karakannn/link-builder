@@ -1,17 +1,57 @@
 "use client";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEditor } from "@/providers/editor/editor-provider";
-import { AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyEndIcon, AlignHorizontalJustifyStart, AlignHorizontalSpaceAround, AlignHorizontalSpaceBetween, AlignJustify, AlignLeft, AlignRight, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, ChevronsLeftRightIcon, LucideImageDown } from "lucide-react";
-import React, { ChangeEventHandler } from "react";
+import { DeviceTypes, useEditor } from "@/providers/editor/editor-provider";
+import { AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyEndIcon, AlignHorizontalJustifyStart, AlignHorizontalSpaceAround, AlignHorizontalSpaceBetween, AlignJustify, AlignLeft, AlignRight, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, ChevronsLeftRightIcon, Laptop, LucideImageDown, Smartphone, Tablet } from "lucide-react";
+import React, { ChangeEventHandler, useState, useEffect } from "react";
+import { getElementContent } from "@/lib/utils";
 
 const SettingsTab = () => {
     const { state, dispatch } = useEditor();
+    // Device selector for responsive styles
+    const [activeDevice, setActiveDevice] = useState<DeviceTypes>(state.editor.device);
 
+    // Function to get the current styles based on the active device
+    const getCurrentStyles = () => {
+        const element = state.editor.selectedElement;
+        if (activeDevice === "Desktop" || !element.responsiveStyles) {
+            return element.styles;
+        }
+        return {
+            ...element.styles,
+            ...element.responsiveStyles[activeDevice]
+        };
+    };
+    
+    // Function to get the current content based on active device
+    const getCurrentContent = () => {
+        return getElementContent(state.editor.selectedElement, activeDevice);
+    };
+    
+    // Reset responsive styles to desktop values
+    const handleResetToDesktop = () => {
+        if (activeDevice === "Desktop") return;
+        
+        dispatch({
+            type: "UPDATE_ELEMENT",
+            payload: {
+                elementDetails: {
+                    ...state.editor.selectedElement,
+                    responsiveStyles: {
+                        ...state.editor.selectedElement.responsiveStyles,
+                        [activeDevice]: {}
+                    }
+                }
+            }
+        });
+    };
+
+    // Handle changes to styles - now considers active device
     const handleOnChanges = (e: any) => {
         const styleSettings = e.target.id;
         let value = e.target.value;
@@ -19,18 +59,41 @@ const SettingsTab = () => {
             [styleSettings]: value,
         };
 
-        dispatch({
-            type: "UPDATE_ELEMENT",
-            payload: {
-                elementDetails: {
-                    ...state.editor.selectedElement,
-                    styles: {
-                        ...state.editor.selectedElement.styles,
-                        ...styleObject,
+        if (activeDevice === "Desktop") {
+            // Update desktop (base) styles
+            dispatch({
+                type: "UPDATE_ELEMENT",
+                payload: {
+                    elementDetails: {
+                        ...state.editor.selectedElement,
+                        styles: {
+                            ...state.editor.selectedElement.styles,
+                            ...styleObject,
+                        },
                     },
                 },
-            },
-        });
+            });
+        } else {
+            // Update responsive styles for the current device
+            const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
+            const deviceStyles = currentResponsiveStyles[activeDevice] || {};
+            
+            dispatch({
+                type: "UPDATE_ELEMENT",
+                payload: {
+                    elementDetails: {
+                        ...state.editor.selectedElement,
+                        responsiveStyles: {
+                            ...currentResponsiveStyles,
+                            [activeDevice]: {
+                                ...deviceStyles,
+                                ...styleObject
+                            }
+                        }
+                    },
+                },
+            });
+        }
     };
 
     const handleChangeCustomValues: ChangeEventHandler<HTMLInputElement> = (e) => {
@@ -40,36 +103,129 @@ const SettingsTab = () => {
             [settingProperty]: value,
         };
 
-        dispatch({
-            type: "UPDATE_ELEMENT",
-            payload: {
-                elementDetails: {
-                    ...state.editor.selectedElement,
-                    content: {
-                        ...state.editor.selectedElement.content,
-                        ...styleObject,
+        if (activeDevice === "Desktop") {
+            // Update base content values
+            dispatch({
+                type: "UPDATE_ELEMENT",
+                payload: {
+                    elementDetails: {
+                        ...state.editor.selectedElement,
+                        content: {
+                            ...state.editor.selectedElement.content,
+                            ...styleObject,
+                        },
                     },
                 },
-            },
-        });
+            });
+        } else {
+            // For responsive devices, update responsiveContent
+            const elementContent = state.editor.selectedElement.content;
+            
+            // Only proceed if we have object content (not array)
+            if (typeof elementContent === 'object' && !Array.isArray(elementContent)) {
+                const baseContent = elementContent;
+                const responsiveContent = baseContent.responsiveContent || {};
+                const deviceContent = responsiveContent[activeDevice] || {};
+                
+                dispatch({
+                    type: "UPDATE_ELEMENT",
+                    payload: {
+                        elementDetails: {
+                            ...state.editor.selectedElement,
+                            content: {
+                                ...baseContent,
+                                responsiveContent: {
+                                    ...responsiveContent,
+                                    [activeDevice]: {
+                                        ...deviceContent,
+                                        ...styleObject
+                                    }
+                                }
+                            },
+                        },
+                    },
+                });
+            }
+        }
+    };
+
+    // Update active device when editor device changes
+    useEffect(() => {
+        setActiveDevice(state.editor.device);
+    }, [state.editor.device]);
+
+    // Function to get device icon
+    const getDeviceIcon = (device: DeviceTypes) => {
+        switch (device) {
+            case "Desktop":
+                return <Laptop className="h-4 w-4" />;
+            case "Tablet":
+                return <Tablet className="h-4 w-4" />;
+            case "Mobile":
+                return <Smartphone className="h-4 w-4" />;
+        }
     };
 
     return (
         <Accordion type="multiple" className="w-full" defaultValue={["Typography", "Dimensions", "Decorations", "Flexbox"]}>
+            {/* Device selector for responsive styles */}
+            <div className="px-6 py-4 border-b flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">Device</Label>
+                    {activeDevice !== "Desktop" && (
+                        <Button 
+                            onClick={handleResetToDesktop}
+                            variant="outline" 
+                            size="sm" 
+                            className="h-8 text-xs"
+                        >
+                            Reset to Desktop
+                        </Button>
+                    )}
+                </div>
+                
+                <Tabs 
+                    value={activeDevice} 
+                    onValueChange={(value) => setActiveDevice(value as DeviceTypes)}
+                    className="w-full"
+                >
+                    <TabsList className="w-full grid grid-cols-3">
+                        <TabsTrigger value="Desktop" className="flex items-center gap-1.5">
+                            <Laptop className="h-4 w-4" />
+                            <span>Desktop</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="Tablet" className="flex items-center gap-1.5">
+                            <Tablet className="h-4 w-4" />
+                            <span>Tablet</span>
+                        </TabsTrigger>
+                        <TabsTrigger value="Mobile" className="flex items-center gap-1.5">
+                            <Smartphone className="h-4 w-4" />
+                            <span>Mobile</span>
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
+
+                {activeDevice !== "Desktop" && (
+                    <div className="bg-amber-50 text-amber-800 text-xs p-2 rounded mt-2">
+                        Editing styles for {activeDevice} device
+                    </div>
+                )}
+            </div>
+
             <AccordionItem value="custom" className="px-0 py-0">
                 <AccordionTrigger className="px-6 !no-underline">Custom</AccordionTrigger>
                 <AccordionContent className="px-6">
                     {state.editor.selectedElement.type === "link" && !Array.isArray(state.editor.selectedElement.content) && (
                         <div className="flex flex-col gap-2">
                             <p className="text-muted-foreground">Link Path</p>
-                            <Input id="href" placeholder="https://domain.example.com/pathname" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.href} />
+                            <Input id="href" placeholder="https://domain.example.com/pathname" onChange={handleChangeCustomValues} value={getCurrentContent().href} />
                         </div>
                     )}
                     {state.editor.selectedElement.type === "shimmerButton" && !Array.isArray(state.editor.selectedElement.content) && (
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Button Text</p>
-                                <Input id="innerText" placeholder="Button Text" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.innerText} />
+                                <Input id="innerText" placeholder="Button Text" onChange={handleChangeCustomValues} value={getCurrentContent().innerText} />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Shimmer Color</p>
@@ -77,23 +233,23 @@ const SettingsTab = () => {
                                     <div
                                         className="w-12"
                                         style={{
-                                            backgroundColor: state.editor.selectedElement.content.shimmerColor as string,
+                                            backgroundColor: getCurrentContent().shimmerColor as string,
                                         }}
                                     />
-                                    <Input id="shimmerColor" placeholder="#ffffff" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.shimmerColor} />
+                                    <Input id="shimmerColor" placeholder="#ffffff" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={getCurrentContent().shimmerColor} />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Shimmer Size</p>
-                                <Input id="shimmerSize" placeholder="0.05em" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.shimmerSize} />
+                                <Input id="shimmerSize" placeholder="0.05em" onChange={handleChangeCustomValues} value={getCurrentContent().shimmerSize} />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Shimmer Duration</p>
-                                <Input id="shimmerDuration" placeholder="3s" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.shimmerDuration} />
+                                <Input id="shimmerDuration" placeholder="3s" onChange={handleChangeCustomValues} value={getCurrentContent().shimmerDuration} />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Border Radius</p>
-                                <Input id="borderRadius" placeholder="100px" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.borderRadius} />
+                                <Input id="borderRadius" placeholder="100px" onChange={handleChangeCustomValues} value={getCurrentContent().borderRadius} />
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Background Color</p>
@@ -101,10 +257,10 @@ const SettingsTab = () => {
                                     <div
                                         className="w-12"
                                         style={{
-                                            backgroundColor: state.editor.selectedElement.content.background as string,
+                                            backgroundColor: getCurrentContent().background as string,
                                         }}
                                     />
-                                    <Input id="background" placeholder="rgba(0, 0, 0, 1)" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={state.editor.selectedElement.content.background} />
+                                    <Input id="background" placeholder="rgba(0, 0, 0, 1)" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={getCurrentContent().background} />
                                 </div>
                             </div>
                         </div>
@@ -125,7 +281,7 @@ const SettingsTab = () => {
                                     },
                                 })
                             }
-                            value={state.editor.selectedElement.styles.textAlign}
+                            value={getCurrentStyles().textAlign}
                         >
                             <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
                                 <TabsTrigger value="left" className="w-10 h-10 data-[state=action]:bg-muted">
@@ -142,11 +298,11 @@ const SettingsTab = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                         <p className="text-muted-foreground">Font Family</p>
-                        <Input id="DM Sans" placeholder="Arial, sans-serif" onChange={handleOnChanges} value={state.editor.selectedElement.styles.fontFamily} />
+                        <Input id="DM Sans" placeholder="Arial, sans-serif" onChange={handleOnChanges} value={getCurrentStyles().fontFamily} />
                     </div>
                     <div className="flex flex-col gap-2">
                         <p className="text-muted-foreground">Color</p>
-                        <Input id="color" onChange={handleOnChanges} value={state.editor.selectedElement.styles.color} />
+                        <Input id="color" onChange={handleOnChanges} value={getCurrentStyles().color} />
                     </div>
                     <div className="flex gap-4">
                         <div>
@@ -160,6 +316,7 @@ const SettingsTab = () => {
                                         },
                                     })
                                 }
+                                value={getCurrentStyles().fontWeight?.toString()}
                             >
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Select a weight" />
@@ -176,7 +333,7 @@ const SettingsTab = () => {
                         </div>
                         <div>
                             <Label className="text-muted-foreground">Size</Label>
-                            <Input placeholder="px" id="fontSize" onChange={handleOnChanges} value={state.editor.selectedElement.styles.fontSize} />
+                            <Input placeholder="px" id="fontSize" onChange={handleOnChanges} value={getCurrentStyles().fontSize} />
                         </div>
                     </div>
                 </AccordionContent>
@@ -190,11 +347,11 @@ const SettingsTab = () => {
                                 <div className="flex gap-4">
                                     <div>
                                         <Label className="text-muted-foreground">Height</Label>
-                                        <Input id="height" placeholder="px" onChange={handleOnChanges} value={state.editor.selectedElement.styles.height} />
+                                        <Input id="height" placeholder="px" onChange={handleOnChanges} value={getCurrentStyles().height} />
                                     </div>
                                     <div>
                                         <Label className="text-muted-foreground">Width</Label>
-                                        <Input placeholder="px" id="width" onChange={handleOnChanges} value={state.editor.selectedElement.styles.width} />
+                                        <Input placeholder="px" id="width" onChange={handleOnChanges} value={getCurrentStyles().width} />
                                     </div>
                                 </div>
                                 <p>Margin px</p>
@@ -202,21 +359,21 @@ const SettingsTab = () => {
                                     <div className="flex gap-4">
                                         <div>
                                             <Label className="text-muted-foreground">Top</Label>
-                                            <Input id="marginTop" placeholder="px" onChange={handleOnChanges} value={state.editor.selectedElement.styles.marginTop} />
+                                            <Input id="marginTop" placeholder="px" onChange={handleOnChanges} value={getCurrentStyles().marginTop} />
                                         </div>
                                         <div>
                                             <Label className="text-muted-foreground">Bottom</Label>
-                                            <Input placeholder="px" id="marginBottom" onChange={handleOnChanges} value={state.editor.selectedElement.styles.marginBottom} />
+                                            <Input placeholder="px" id="marginBottom" onChange={handleOnChanges} value={getCurrentStyles().marginBottom} />
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
                                         <div>
                                             <Label className="text-muted-foreground">Left</Label>
-                                            <Input placeholder="px" id="marginLeft" onChange={handleOnChanges} value={state.editor.selectedElement.styles.marginLeft} />
+                                            <Input placeholder="px" id="marginLeft" onChange={handleOnChanges} value={getCurrentStyles().marginLeft} />
                                         </div>
                                         <div>
                                             <Label className="text-muted-foreground">Right</Label>
-                                            <Input placeholder="px" id="marginRight" onChange={handleOnChanges} value={state.editor.selectedElement.styles.marginRight} />
+                                            <Input placeholder="px" id="marginRight" onChange={handleOnChanges} value={getCurrentStyles().marginRight} />
                                         </div>
                                     </div>
                                 </div>
@@ -227,21 +384,21 @@ const SettingsTab = () => {
                                     <div className="flex gap-4">
                                         <div>
                                             <Label className="text-muted-foreground">Top</Label>
-                                            <Input placeholder="px" id="paddingTop" onChange={handleOnChanges} value={state.editor.selectedElement.styles.paddingTop} />
+                                            <Input placeholder="px" id="paddingTop" onChange={handleOnChanges} value={getCurrentStyles().paddingTop} />
                                         </div>
                                         <div>
                                             <Label className="text-muted-foreground">Bottom</Label>
-                                            <Input placeholder="px" id="paddingBottom" onChange={handleOnChanges} value={state.editor.selectedElement.styles.paddingBottom} />
+                                            <Input placeholder="px" id="paddingBottom" onChange={handleOnChanges} value={getCurrentStyles().paddingBottom} />
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
                                         <div>
                                             <Label className="text-muted-foreground">Left</Label>
-                                            <Input placeholder="px" id="paddingLeft" onChange={handleOnChanges} value={state.editor.selectedElement.styles.paddingLeft} />
+                                            <Input placeholder="px" id="paddingLeft" onChange={handleOnChanges} value={getCurrentStyles().paddingLeft} />
                                         </div>
                                         <div>
                                             <Label className="text-muted-foreground">Right</Label>
-                                            <Input placeholder="px" id="paddingRight" onChange={handleOnChanges} value={state.editor.selectedElement.styles.paddingRight} />
+                                            <Input placeholder="px" id="paddingRight" onChange={handleOnChanges} value={getCurrentStyles().paddingRight} />
                                         </div>
                                     </div>
                                 </div>
@@ -256,7 +413,16 @@ const SettingsTab = () => {
                     <div>
                         <Label className="text-muted-foreground">Opacity</Label>
                         <div className="flex items-center justify-end">
-                            <small className="p-2">{typeof state.editor.selectedElement.styles?.opacity === "number" ? state.editor.selectedElement.styles?.opacity : parseFloat((state.editor.selectedElement.styles?.opacity || "0").replace("%", "")) || 0}%</small>
+                            <small className="p-2">
+                                {(() => {
+                                    const opacity = getCurrentStyles().opacity;
+                                    if (typeof opacity === "number") return opacity;
+                                    if (typeof opacity === "string") {
+                                        return parseFloat(opacity.replace("%", "")) || 0;
+                                    }
+                                    return 0;
+                                })()}%
+                            </small>
                         </div>
                         <Slider
                             onValueChange={(e) => {
@@ -267,7 +433,14 @@ const SettingsTab = () => {
                                     },
                                 });
                             }}
-                            defaultValue={[typeof state.editor.selectedElement.styles?.opacity === "number" ? state.editor.selectedElement.styles?.opacity : parseFloat((state.editor.selectedElement.styles?.opacity || "0").replace("%", "")) || 0]}
+                            defaultValue={[(() => {
+                                const opacity = getCurrentStyles().opacity;
+                                if (typeof opacity === "number") return opacity;
+                                if (typeof opacity === "string") {
+                                    return parseFloat(opacity.replace("%", "")) || 0;
+                                }
+                                return 0;
+                            })()]}
                             max={100}
                             step={1}
                         />
@@ -276,7 +449,14 @@ const SettingsTab = () => {
                         <Label className="text-muted-foreground">Border Radius</Label>
                         <div className="flex items-center justify-end">
                             <small className="p-2">
-                                {typeof state.editor.selectedElement.styles?.borderRadius === "number" ? state.editor.selectedElement.styles?.borderRadius : parseFloat((state.editor.selectedElement.styles?.borderRadius || "0").replace("px", "")) || 0}
+                                {(() => {
+                                    const borderRadius = getCurrentStyles().borderRadius;
+                                    if (typeof borderRadius === "number") return borderRadius;
+                                    if (typeof borderRadius === "string") {
+                                        return parseFloat(borderRadius.replace("px", "")) || 0;
+                                    }
+                                    return 0;
+                                })()}
                                 px
                             </small>
                         </div>
@@ -289,7 +469,14 @@ const SettingsTab = () => {
                                     },
                                 });
                             }}
-                            defaultValue={[typeof state.editor.selectedElement.styles?.borderRadius === "number" ? state.editor.selectedElement.styles?.borderRadius : parseFloat((state.editor.selectedElement.styles?.borderRadius || "0").replace("%", "")) || 0]}
+                            defaultValue={[(() => {
+                                const borderRadius = getCurrentStyles().borderRadius;
+                                if (typeof borderRadius === "number") return borderRadius;
+                                if (typeof borderRadius === "string") {
+                                    return parseFloat(borderRadius.replace("px", "")) || 0;
+                                }
+                                return 0;
+                            })()]}
                             max={100}
                             step={1}
                         />
@@ -300,10 +487,10 @@ const SettingsTab = () => {
                             <div
                                 className="w-12 "
                                 style={{
-                                    backgroundColor: state.editor.selectedElement.styles.backgroundColor,
+                                    backgroundColor: getCurrentStyles().backgroundColor,
                                 }}
                             />
-                            <Input placeholder="#HFI245" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundColor" onChange={handleOnChanges} value={state.editor.selectedElement.styles.backgroundColor} />
+                            <Input placeholder="#HFI245" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundColor" onChange={handleOnChanges} value={getCurrentStyles().backgroundColor} />
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -312,10 +499,10 @@ const SettingsTab = () => {
                             <div
                                 className="w-12"
                                 style={{
-                                    backgroundImage: state.editor.selectedElement.styles.backgroundImage,
+                                    backgroundImage: getCurrentStyles().backgroundImage,
                                 }}
                             />
-                            <Input placeholder="url()" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundImage" onChange={handleOnChanges} value={state.editor.selectedElement.styles.backgroundImage} />
+                            <Input placeholder="url()" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundImage" onChange={handleOnChanges} value={getCurrentStyles().backgroundImage} />
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -329,7 +516,7 @@ const SettingsTab = () => {
                                     },
                                 })
                             }
-                            value={state.editor.selectedElement.styles.backgroundSize?.toString()}
+                            value={getCurrentStyles().backgroundSize?.toString()}
                         >
                             <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
                                 <TabsTrigger value="cover" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
@@ -359,7 +546,7 @@ const SettingsTab = () => {
                                 },
                             })
                         }
-                        value={state.editor.selectedElement.styles.justifyContent}
+                        value={getCurrentStyles().justifyContent}
                     >
                         <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
                             <TabsTrigger value="space-between" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
@@ -389,7 +576,7 @@ const SettingsTab = () => {
                                 },
                             })
                         }
-                        value={state.editor.selectedElement.styles.alignItems}
+                        value={getCurrentStyles().alignItems}
                     >
                         <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
                             <TabsTrigger value="center" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
@@ -419,8 +606,206 @@ const SettingsTab = () => {
                     </div>
                     <div>
                         <Label className="text-muted-foreground"> Direction</Label>
-                        <Input placeholder="px" id="flexDirection" onChange={handleOnChanges} value={state.editor.selectedElement.styles.flexDirection} />
+                        <Input placeholder="px" id="flexDirection" onChange={handleOnChanges} value={getCurrentStyles().flexDirection} />
                     </div>
+                </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="quickactions" className="px-0 py-0">
+                <AccordionTrigger className="px-6 !no-underline">Quick Actions</AccordionTrigger>
+                <AccordionContent className="px-6 flex flex-col gap-4">
+                    {/* Quick action for 2Col containers to stack vertically on mobile */}
+                    {state.editor.selectedElement.type === "2Col" && activeDevice === "Mobile" && (
+                        <div className="flex flex-col gap-2">
+                            <Label className="text-muted-foreground">Layout Actions</Label>
+                            <Button
+                                variant="outline"
+                                onClick={() => {
+                                    const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
+                                    const deviceStyles = currentResponsiveStyles[activeDevice] || {};
+                                    
+                                    dispatch({
+                                        type: "UPDATE_ELEMENT",
+                                        payload: {
+                                            elementDetails: {
+                                                ...state.editor.selectedElement,
+                                                responsiveStyles: {
+                                                    ...currentResponsiveStyles,
+                                                    [activeDevice]: {
+                                                        ...deviceStyles,
+                                                        flexDirection: "column"
+                                                    }
+                                                }
+                                            },
+                                        },
+                                    });
+                                }}
+                                className="flex items-center gap-2"
+                            >
+                                <Smartphone className="h-4 w-4" />
+                                <span>Stack Vertically</span>
+                            </Button>
+                        </div>
+                    )}
+                    
+                    {/* Quick action for links to have responsive text */}
+                    {state.editor.selectedElement.type === "link" && activeDevice !== "Desktop" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-2">
+                            <Label className="text-muted-foreground">Responsive Link Text</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
+                                        
+                                        const baseContent = state.editor.selectedElement.content;
+                                        const responsiveContent = baseContent.responsiveContent || {};
+                                        const deviceContent = responsiveContent[activeDevice] || {};
+                                        
+                                        dispatch({
+                                            type: "UPDATE_ELEMENT",
+                                            payload: {
+                                                elementDetails: {
+                                                    ...state.editor.selectedElement,
+                                                    content: {
+                                                        ...baseContent,
+                                                        responsiveContent: {
+                                                            ...responsiveContent,
+                                                            [activeDevice]: {
+                                                                ...deviceContent,
+                                                                innerText: activeDevice === "Mobile" ? "Mobile Link" : "Tablet Link"
+                                                            }
+                                                        }
+                                                    },
+                                                },
+                                            },
+                                        });
+                                    }}
+                                    className="flex items-center justify-center gap-2"
+                                >
+                                    <span>Set {activeDevice} Text</span>
+                                </Button>
+                                
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
+                                        
+                                        const baseContent = state.editor.selectedElement.content;
+                                        const responsiveContent = baseContent.responsiveContent || {};
+                                        
+                                        // Reset the text for this device by removing innerText from device content
+                                        const newResponsiveContent = { ...responsiveContent };
+                                        if (newResponsiveContent[activeDevice]) {
+                                            const { innerText, ...restDeviceContent } = newResponsiveContent[activeDevice];
+                                            newResponsiveContent[activeDevice] = restDeviceContent;
+                                        }
+                                        
+                                        dispatch({
+                                            type: "UPDATE_ELEMENT",
+                                            payload: {
+                                                elementDetails: {
+                                                    ...state.editor.selectedElement,
+                                                    content: {
+                                                        ...baseContent,
+                                                        responsiveContent: newResponsiveContent
+                                                    },
+                                                },
+                                            },
+                                        });
+                                    }}
+                                    className="flex items-center justify-center gap-2"
+                                >
+                                    <span>Reset to Desktop</span>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Quick action for ShimmerButton to adjust for mobile */}
+                    {state.editor.selectedElement.type === "shimmerButton" && activeDevice !== "Desktop" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-2">
+                            <Label className="text-muted-foreground">Responsive Button</Label>
+                            <div className="grid grid-cols-2 gap-2">
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
+                                        
+                                        const baseContent = state.editor.selectedElement.content;
+                                        const responsiveContent = baseContent.responsiveContent || {};
+                                        const deviceContent = responsiveContent[activeDevice] || {};
+                                        
+                                        // Set smaller size for mobile, a bit larger for tablet
+                                        dispatch({
+                                            type: "UPDATE_ELEMENT",
+                                            payload: {
+                                                elementDetails: {
+                                                    ...state.editor.selectedElement,
+                                                    content: {
+                                                        ...baseContent,
+                                                        responsiveContent: {
+                                                            ...responsiveContent,
+                                                            [activeDevice]: {
+                                                                ...deviceContent,
+                                                                innerText: activeDevice === "Mobile" ? "Mobil" : "Tablet",
+                                                                shimmerSize: activeDevice === "Mobile" ? "0.05em" : "0.08em"
+                                                            }
+                                                        }
+                                                    },
+                                                    // Also adjust the width in responsive styles
+                                                    responsiveStyles: {
+                                                        ...state.editor.selectedElement.responsiveStyles,
+                                                        [activeDevice]: {
+                                                            ...(state.editor.selectedElement.responsiveStyles?.[activeDevice] || {}),
+                                                            width: activeDevice === "Mobile" ? "100%" : "80%"
+                                                        }
+                                                    }
+                                                },
+                                            },
+                                        });
+                                    }}
+                                    className="flex items-center justify-center gap-2"
+                                >
+                                    <span>Optimize for {activeDevice}</span>
+                                </Button>
+                                
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
+                                        
+                                        const baseContent = state.editor.selectedElement.content;
+                                        const responsiveContent = baseContent.responsiveContent || {};
+                                        
+                                        // Reset the content for this device
+                                        const newResponsiveContent = { ...responsiveContent };
+                                        delete newResponsiveContent[activeDevice]; // Remove all overrides
+                                        
+                                        dispatch({
+                                            type: "UPDATE_ELEMENT",
+                                            payload: {
+                                                elementDetails: {
+                                                    ...state.editor.selectedElement,
+                                                    content: {
+                                                        ...baseContent,
+                                                        responsiveContent: newResponsiveContent
+                                                    },
+                                                    // Also reset responsive styles
+                                                    responsiveStyles: {
+                                                        ...state.editor.selectedElement.responsiveStyles,
+                                                        [activeDevice]: {}
+                                                    }
+                                                },
+                                            },
+                                        });
+                                    }}
+                                    className="flex items-center justify-center gap-2"
+                                >
+                                    <span>Reset to Desktop</span>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
                 </AccordionContent>
             </AccordionItem>
         </Accordion>

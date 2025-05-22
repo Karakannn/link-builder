@@ -1,10 +1,11 @@
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { Badge, Trash } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
 import Recursive from "./recursive";
 import { defaultStyles, EditorBtns } from "@/lib/constants";
 import { v4 } from "uuid";
+import { getElementStyles } from "@/lib/utils";
 
 type Props = { element: EditorElement };
 
@@ -15,6 +16,9 @@ const Container = ({ element }: Props) => {
     const [isDraggingOver, setIsDraggingOver] = useState(false);
     const [elementBeingDragged, setElementBeingDragged] = useState<EditorElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+
+    // Get computed styles based on current device
+    const computedStyles = getElementStyles(element, state.editor.device);
 
     // Debug log when this component renders
     useEffect(() => {
@@ -450,7 +454,7 @@ const Container = ({ element }: Props) => {
     return (
         <div
             ref={containerRef}
-            style={styles}
+            style={computedStyles}
             className={clsx("relative p-6 transition-all group", {
                 "max-w-full w-full": type === "container" || type === "2Col",
                 "h-fit": type === "container",

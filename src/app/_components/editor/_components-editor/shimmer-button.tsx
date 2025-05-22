@@ -1,9 +1,10 @@
 import { EditorBtns } from "@/lib/constants";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { Trash } from "lucide-react";
 import clsx from "clsx";
 import React, { CSSProperties, useEffect, useRef } from "react";
+import { getElementContent, getElementStyles } from "@/lib/utils";
 
 type Props = {
     element: EditorElement;
@@ -14,6 +15,12 @@ const ShimmerButtonComponent = ({ element }: Props) => {
     const { id, styles, content, type } = element;
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    
+    // Get computed styles based on current device
+    const computedStyles = getElementStyles(element, state.editor.device);
+    
+    // Get computed content based on current device
+    const computedContent = getElementContent(element, state.editor.device);
 
     const handleOnClickBody = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -102,7 +109,7 @@ const ShimmerButtonComponent = ({ element }: Props) => {
     };
 
     // Extract shimmer button specific props from content with defaults
-    const shimmerProps = !Array.isArray(content) ? content : {};
+    const shimmerProps = !Array.isArray(computedContent) ? computedContent : {};
     const shimmerColor = shimmerProps.shimmerColor as string || "#ffffff";
     const shimmerSize = shimmerProps.shimmerSize as string || "0.1em";
     const shimmerDuration = shimmerProps.shimmerDuration as string || "2s";
@@ -113,7 +120,7 @@ const ShimmerButtonComponent = ({ element }: Props) => {
     return (
         <div
             ref={containerRef}
-            style={styles}
+            style={computedStyles}
             className={clsx("p-[2px] relative transition-all", {
                 "!border-blue-500": state.editor.selectedElement.id === id,
                 "!border-solid": state.editor.selectedElement.id === id,

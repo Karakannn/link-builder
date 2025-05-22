@@ -1,10 +1,11 @@
 "use client";
 import { EditorBtns } from "@/lib/constants";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { Badge, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useRef } from "react";
+import { getElementContent, getElementStyles } from "@/lib/utils";
 
 type Props = {
     element: EditorElement;
@@ -14,6 +15,12 @@ const LinkComponent = ({ element }: Props) => {
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const { dispatch, state } = useEditor();
     const { id, styles, content } = element;
+    
+    // Get computed styles based on current device
+    const computedStyles = getElementStyles(element, state.editor.device);
+    
+    // Get computed content based on current device
+    const computedContent = getElementContent(element, state.editor.device);
 
     const handleDragStart = (e: React.DragEvent, type: EditorBtns) => {
         if (type === null) return;
@@ -56,14 +63,14 @@ const LinkComponent = ({ element }: Props) => {
     };
 
     useEffect(() => {
-        if (spanRef.current && !Array.isArray(content)) {
-            spanRef.current.innerText = content.innerText as string;
+        if (spanRef.current && !Array.isArray(computedContent)) {
+            spanRef.current.innerText = computedContent.innerText as string;
         }
-    }, [content]);
+    }, [computedContent]);
 
     return (
         <div
-            style={styles}
+            style={computedStyles}
             draggable
             onDragStart={(e) => handleDragStart(e, "link")}
             className={clsx("p-[2px] w-full m-[5px] relative text-[16px] transition-all", {
@@ -75,7 +82,7 @@ const LinkComponent = ({ element }: Props) => {
         >
             {state.editor.selectedElement.id === id && !state.editor.liveMode && <Badge className="absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg ">{state.editor.selectedElement.name}</Badge>}
 
-            {!Array.isArray(content) && (state.editor.previewMode || state.editor.liveMode) && <Link href={content.href || "#"}>{content.innerText}</Link>}
+            {!Array.isArray(computedContent) && (state.editor.previewMode || state.editor.liveMode) && <Link href={computedContent.href || "#"}>{computedContent.innerText}</Link>}
 
             {!state.editor.previewMode && !state.editor.liveMode && <span ref={spanRef} contentEditable={!state.editor.liveMode} onBlur={handleBlurElement} />}
 
