@@ -2,6 +2,8 @@
 
 import { Active, DragOverlay, useDndMonitor } from "@dnd-kit/core";
 import { useState } from "react";
+import { EditorBtns } from "@/lib/constants";
+import SidebarEditorButtonOverlay from "./sidebar-editor-buttons-overlay";
 
 export const DragOverlayWrapper = () => {
   
@@ -21,7 +23,29 @@ export const DragOverlayWrapper = () => {
     },
   });
 
-  const node = <div>no drag overlay</div>;
+  // Determine what to render based on the dragged item
+  const renderDragOverlay = () => {
+    if (!draggedItem) return null;
 
-  return <DragOverlay>{node}</DragOverlay>;
+    // Check if it's a sidebar element (from dnd-kit with data.type)
+    if (draggedItem.data?.current?.type && draggedItem.data?.current?.isSidebarElement) {
+      const elementType = draggedItem.data.current.type as EditorBtns;
+      return <SidebarEditorButtonOverlay type={elementType} />;
+    }
+
+    // Check if it's an editor element being moved
+    if (draggedItem.data?.current?.type && draggedItem.data?.current?.isEditorElement) {
+      const elementType = draggedItem.data.current.type as EditorBtns;
+      return <SidebarEditorButtonOverlay type={elementType} />;
+    }
+
+    // Fallback for unknown drag items
+    return (
+      <div className="h-14 w-14 bg-muted rounded-lg flex items-center justify-center opacity-80 border-2 border-gray-500">
+        <div className="text-xs text-muted-foreground">Dragging...</div>
+      </div>
+    );
+  };
+
+  return <DragOverlay>{renderDragOverlay()}</DragOverlay>;
 };

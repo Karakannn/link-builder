@@ -21,8 +21,8 @@ export default async function page({ params }: Props) {
   const pageContent = JSON.parse(page.content as any) as unknown as EditorElement[];
 
   return (
-    <DndContextProvider>
-      <EditorProvider siteId={page.id} pageDetails={pageContent}>
+    <EditorProvider siteId={page.id} pageDetails={pageContent}>
+      <DndContextProvider>
         <div className="flex flex-col h-full">
           <FunnelEditorNavigation user={user} pageDetails={page} />
           <div className="h-full flex justify-center">
@@ -30,8 +30,8 @@ export default async function page({ params }: Props) {
           </div>
           <FunnelEditorSidebar subaccountId={""} />
         </div>
-      </EditorProvider>
-      <DragOverlayWrapper />
-    </DndContextProvider>
+        <DragOverlayWrapper />
+      </DndContextProvider>
+    </EditorProvider>
   );
 }
