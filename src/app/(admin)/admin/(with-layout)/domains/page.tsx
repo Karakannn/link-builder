@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import React from "react";
 import { DomainList } from "./_components/domain-list";
 import { getUserDomains } from "@/actions/domain";
