@@ -4,11 +4,13 @@ import FunnelEditor from "@/app/_components/editor";
 import { EditorElement } from "@/providers/editor/editor-provider";
 
 interface Props {
-  params: { domain: string };
+  params: Promise<{ domain: string }>;
 }
 
 export default async function PublicSitePage({ params }: Props) {
-  const { domain } = params;
+  
+  const resolvedParams = await params;
+  const domain = resolvedParams.domain;
 
   // Domain'i bul
   const domainData = await client.domain.findUnique({
@@ -29,7 +31,7 @@ export default async function PublicSitePage({ params }: Props) {
   }
 
   const site = domainData.site;
-  
+
   if (!site.isPublished) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -39,7 +41,7 @@ export default async function PublicSitePage({ params }: Props) {
   }
 
   const homePage = site.pages[0];
-  
+
   if (!homePage) {
     return (
       <div className="flex items-center justify-center h-screen">

@@ -392,8 +392,8 @@ export const upsertPage = async (page: Page) => {
         title: page.title,
         slug: page.slug,
         isHome: page.isHome !== undefined ? page.isHome : undefined,
-        content: page.content !== undefined ? page.content : undefined,
-        seo: page.seo !== undefined ? page.seo : undefined,
+        content: page.content !== undefined ? page.content as any : undefined,
+        seo: page.seo !== undefined ? page.seo as any : undefined,
         updatedAt: new Date(),
       },
       create: {
@@ -401,8 +401,8 @@ export const upsertPage = async (page: Page) => {
         slug: page.slug,
         isHome: page.isHome || false,
         content: page.content || defaultContent,
-        seo: page.seo,
-        siteId: siteId,
+        seo: page.seo as any,
+        siteId: siteId as any,
       },
     });
 

@@ -8,10 +8,12 @@ import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 
 type Props = {
-  params: { pageId: string };
+  params: Promise<{ pageId: string }>
 };
 export default async function page({ params }: Props) {
-  const pageId = params.pageId;
+
+  const resolvedParams = await params;
+  const pageId = resolvedParams.pageId;
 
   const user = await getAuthUserDetails();
   const { page } = await getPageById(pageId);

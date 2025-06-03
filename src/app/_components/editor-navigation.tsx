@@ -34,7 +34,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
   }, [pageDetails]);
 
   const handleOnBlurTitleChange: FocusEventHandler<HTMLInputElement> = async (event) => {
-    if (event.target.value === pageDetails.site.name) return;
+    if (event.target.value === pageDetails.title) return;
 
     if (event.target.value) {
       /*   await upsertFunnelPage(
@@ -55,7 +55,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
       toast.message("Oppse", {
         description: "Funnel page title cannot be empty",
       });
-      event.target.value = pageDetails.site.name;
+      event.target.value = pageDetails.title;
     }
   };
 
@@ -107,7 +107,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
             <ArrowLeftCircle />
           </Link>
           <div className="flex flex-col w-full">
-            <Input defaultValue={pageDetails.name} className="border-none h-5 m-0 p-0 text-lg" onBlur={handleOnBlurTitleChange} />
+            <Input defaultValue={pageDetails.title} className="border-none h-5 m-0 p-0 text-lg" onBlur={handleOnBlurTitleChange} />
           </div>
         </aside>
         <aside>
