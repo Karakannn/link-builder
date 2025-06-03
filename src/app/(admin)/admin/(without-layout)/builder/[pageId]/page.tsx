@@ -3,6 +3,8 @@ import { getPageById } from "@/actions/page";
 import FunnelEditor from "@/app/_components/editor";
 import FunnelEditorNavigation from "@/app/_components/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
+import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/components-tab/drag-overlay-wrapper";
+import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 
 type Props = {
@@ -16,19 +18,20 @@ export default async function page({ params }: Props) {
 
   if (!page || !user) return <>loading...</>;
 
-  const pageContent = JSON.parse(page.content) as unknown as EditorElement[];
+  const pageContent = JSON.parse(page.content as any) as unknown as EditorElement[];
 
-  console.log("page.site", page);
-  
   return (
     <EditorProvider siteId={page.id} pageDetails={pageContent}>
-      <div className="flex flex-col h-full">
-        <FunnelEditorNavigation user={user}   pageDetails={page} />
-        <div className="h-full flex justify-center">
-          <FunnelEditor pageDetails={pageContent} />
+      <DndContextProvider>
+        <div className="flex flex-col h-full">
+          <FunnelEditorNavigation user={user} pageDetails={page} />
+          <div className="h-full flex justify-center">
+            <FunnelEditor pageDetails={pageContent} />
+          </div>
+          <FunnelEditorSidebar subaccountId={""} />
         </div>
-        <FunnelEditorSidebar subaccountId={""} />
-      </div>
+        <DragOverlayWrapper />
+      </DndContextProvider>
     </EditorProvider>
   );
 }

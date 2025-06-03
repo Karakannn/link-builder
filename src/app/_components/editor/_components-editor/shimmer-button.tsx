@@ -1,156 +1,111 @@
-import { EditorBtns } from "@/lib/constants";
-import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { ShimmerButton } from "@/components/ui/shimmer-button";
 import { Trash } from "lucide-react";
 import clsx from "clsx";
 import React, { CSSProperties, useEffect, useRef } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import { useDraggable } from "@dnd-kit/core";
 
 type Props = {
-    element: EditorElement;
+  element: EditorElement;
 };
 
 const ShimmerButtonComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
-    const { id, styles, content, type } = element;
-    const buttonRef = useRef<HTMLButtonElement | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
-    
-    // Get computed styles based on current device
-    const computedStyles = getElementStyles(element, state.editor.device);
-    
-    // Get computed content based on current device
-    const computedContent = getElementContent(element, state.editor.device);
+  const { state, dispatch } = useEditor();
+  const { id, styles, content, type } = element;
+  const buttonRef = useRef<HTMLButtonElement | null>(null);
 
-    const handleOnClickBody = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        dispatch({
-            type: "CHANGE_CLICKED_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
-    };
+  // dnd-kit draggable
+  const draggable = useDraggable({
+    id: `draggable-${id}`,
+    data: {
+      type: "shimmerButton",
+      elementId: id,
+      name: "Shimmer Button",
+      isSidebarElement: false,
+      isEditorElement: true,
+    },
+    disabled: state.editor.liveMode,
+  });
 
-    const handleDragStart = (e: React.DragEvent) => {
-        e.stopPropagation();
-        console.log("=== SHIMMER BUTTON ELEMENT DRAG START ===");
-        console.log("Element being dragged - ID:", id);
-        console.log("Element being dragged - Type:", type);
-        
-        if (!type) {
-            console.log("Type is null, cannot set drag data");
-            return;
-        }
-        
-        // Create a custom drag image for just this element
-        if (containerRef.current) {
-            // Create a clone of the element for the drag image
-            const rect = containerRef.current.getBoundingClientRect();
-            const ghostElement = containerRef.current.cloneNode(true) as HTMLElement;
-            
-            // Style the ghost element
-            ghostElement.style.width = `${rect.width}px`;
-            ghostElement.style.height = `${rect.height}px`;
-            ghostElement.style.transform = 'translateX(-999px)';
-            ghostElement.style.position = 'absolute';
-            ghostElement.style.top = '0';
-            ghostElement.style.left = '0';
-            ghostElement.style.zIndex = '-1';
-            ghostElement.style.opacity = '0.8';
-            ghostElement.style.pointerEvents = 'none';
-            
-            // Add it to the document temporarily
-            document.body.appendChild(ghostElement);
-            
-            // Set as drag image
-            e.dataTransfer.setDragImage(ghostElement, rect.width / 2, rect.height / 2);
-            
-            // Remove after a short delay
-            setTimeout(() => {
-                document.body.removeChild(ghostElement);
-            }, 100);
-        }
-        
-        // Store information about the element being dragged
-        e.dataTransfer.setData("type", type);
-        e.dataTransfer.setData("elementId", id);
-        
-        // Also store the whole element for reference
-        try {
-            const elementForTransfer = {
-                id,
-                type,
-                name: "Shimmer Button",
-                // Don't include the full content/styles to avoid circular refs
-            };
-            e.dataTransfer.setData("elementDetails", JSON.stringify(elementForTransfer));
-            console.log("Element details stored in dataTransfer:", elementForTransfer);
-        } catch (error) {
-            console.log("Error storing element details:", error);
-        }
-        
-        // Set the drag effect to move to indicate this is a reordering operation
-        e.dataTransfer.effectAllowed = "move";
-    };
-    
-    const handleDragEnd = (e: React.DragEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-    };
+  // Get computed styles based on current device
+  const computedStyles = getElementStyles(element, state.editor.device);
 
-    const handleDeleteElement = () => {
-        dispatch({
-            type: "DELETE_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
-    };
+  // Get computed content based on current device
+  const computedContent = getElementContent(element, state.editor.device);
 
-    // Extract shimmer button specific props from content with defaults
-    const shimmerProps = !Array.isArray(computedContent) ? computedContent : {};
-    const shimmerColor = shimmerProps.shimmerColor as string || "#ffffff";
-    const shimmerSize = shimmerProps.shimmerSize as string || "0.1em";
-    const shimmerDuration = shimmerProps.shimmerDuration as string || "2s";
-    const borderRadius = shimmerProps.borderRadius as string || "10px";
-    const background = shimmerProps.background as string || "rgba(99, 102, 241, 1)";
-    const buttonText = shimmerProps.innerText || "Tıkla";
-    
-    return (
-        <div
-            ref={containerRef}
-            style={computedStyles}
-            className={clsx("p-[2px] relative transition-all", {
-                "!border-blue-500": state.editor.selectedElement.id === id,
-                "!border-solid": state.editor.selectedElement.id === id,
-                "!border-dashed border border-slate-300": !state.editor.liveMode,
-                "cursor-move": !state.editor.liveMode,
-            })}
-            onClick={handleOnClickBody}
-            draggable={!state.editor.liveMode}
-            onDragStart={handleDragStart}
-            onDragEnd={handleDragEnd}
-        >
-            <ShimmerButton
-                ref={buttonRef}
-                shimmerColor={shimmerColor}
-                shimmerSize={shimmerSize}
-                shimmerDuration={shimmerDuration}
-                borderRadius={borderRadius}
-                background={background}
-                className="w-full"
-            >
-                {buttonText}
-            </ShimmerButton>
+  const handleOnClickBody = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("ShimmerButton clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
+    // Sadece edit mode'da ve drag değilken çalışsın
+    if (!state.editor.liveMode && !draggable.isDragging) {
+      console.log("Selecting shimmer button:", id);
+      dispatch({
+        type: "CHANGE_CLICKED_ELEMENT",
+        payload: {
+          elementDetails: element,
+        },
+      });
+    }
+  };
 
-            {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-                    <Trash className="cursor-pointer" size={16} onClick={handleDeleteElement} />
-                </div>
-            )}
+  const handleDeleteElement = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    dispatch({
+      type: "DELETE_ELEMENT",
+      payload: {
+        elementDetails: element,
+      },
+    });
+  };
+
+  // Extract shimmer button specific props from content with defaults
+  const shimmerProps = !Array.isArray(computedContent) ? computedContent : {};
+  const shimmerColor = (shimmerProps.shimmerColor as string) || "#ffffff";
+  const shimmerSize = (shimmerProps.shimmerSize as string) || "0.1em";
+  const shimmerDuration = (shimmerProps.shimmerDuration as string) || "2s";
+  const borderRadius = (shimmerProps.borderRadius as string) || "10px";
+  const background = (shimmerProps.background as string) || "rgba(99, 102, 241, 1)";
+  const buttonText = shimmerProps.innerText || "Tıkla";
+
+  return (
+    <div
+      ref={draggable.setNodeRef}
+      style={computedStyles}
+      className={clsx("p-[2px] relative transition-all", {
+        "!border-blue-500": state.editor.selectedElement.id === id,
+        "!border-solid": state.editor.selectedElement.id === id,
+        "!border-dashed border border-slate-300": !state.editor.liveMode,
+        "cursor-grab": !state.editor.liveMode,
+        "cursor-grabbing": draggable.isDragging,
+        "opacity-50": draggable.isDragging,
+      })}
+      onClick={handleOnClickBody}
+      // Sadece edit mode'da drag listeners ekle
+      {...(!state.editor.liveMode ? draggable.listeners : {})}
+      {...(!state.editor.liveMode ? draggable.attributes : {})}
+    >
+      <ShimmerButton
+        ref={buttonRef}
+        shimmerColor={shimmerColor}
+        shimmerSize={shimmerSize}
+        shimmerDuration={shimmerDuration}
+        borderRadius={borderRadius}
+        background={background}
+        className={clsx("w-full", {
+          "pointer-events-none": !state.editor.liveMode, // Edit mode'da button tıklanabilir olmasın
+        })}
+      >
+        {buttonText}
+      </ShimmerButton>
+
+      {state.editor.selectedElement.id === id && !state.editor.liveMode && (
+        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
+          <Trash className="cursor-pointer" size={16} onClick={handleDeleteElement} />
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
-export default ShimmerButtonComponent; 
+export default ShimmerButtonComponent;
