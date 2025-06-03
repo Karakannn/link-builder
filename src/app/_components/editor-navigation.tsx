@@ -32,7 +32,6 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
       },
     });
   }, [pageDetails]);
-
   const handleOnBlurTitleChange: FocusEventHandler<HTMLInputElement> = async (event) => {
     if (event.target.value === pageDetails.title) return;
 
