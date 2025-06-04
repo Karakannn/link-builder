@@ -7,6 +7,7 @@ import { v4 as uuidv4 } from "uuid";
 import { revalidatePath } from "next/cache";
 import dns from "dns";
 import { promisify } from "util";
+import { vercelAPI } from "@/lib/vercel";
 
 const resolveTxt = promisify(dns.resolveTxt);
 
@@ -20,6 +21,12 @@ export const addDomain = async (data: { name: string; siteId: string }) => {
     });
 
     if (!userData) return { status: 404, message: "User not found" };
+
+    // Validate domain format
+    const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?)*$/;
+    if (!domainRegex.test(data.name)) {
+      return { status: 400, message: "Invalid domain format" };
+    }
 
     // Check if domain already exists
     const existingDomain = await client.domain.findUnique({
@@ -42,6 +49,18 @@ export const addDomain = async (data: { name: string; siteId: string }) => {
       return { status: 404, message: "Site not found or access denied" };
     }
 
+    console.log("data.name", data.name);
+    
+    // Add domain to Vercel first
+    const vercelResult = await vercelAPI.addDomain(data.name);
+    if (!vercelResult.success) {
+      console.error("Vercel domain addition failed:", vercelResult.error);
+      return { 
+        status: 400, 
+        message: `Failed to configure domain: ${vercelResult.error}` 
+      };
+    }
+
     // Create domain with verification ID
     const verificationId = `linkbuilder-verify-${uuidv4()}`;
 
@@ -60,6 +79,7 @@ export const addDomain = async (data: { name: string; siteId: string }) => {
       status: 200,
       message: "Domain added successfully",
       domain,
+      vercelData: vercelResult.data,
     };
   } catch (error) {
     console.error("Error adding domain:", error);
@@ -89,41 +109,57 @@ export const verifyDomain = async (domainId: string) => {
       return { status: 404, message: "Domain not found" };
     }
 
-    // Check DNS TXT record
+    // Check DNS TXT record for ownership verification
     try {
       const records = await resolveTxt(`_linkbuilder-verify.${domain.name}`);
-      const isVerified = records.some((record) =>
+      const isOwnershipVerified = records.some((record) =>
         record.some((txt) => txt === domain.verificationId)
       );
 
-      if (isVerified) {
-        await client.domain.update({
-          where: { id: domainId },
-          data: {
-            isVerified: true,
-            sslStatus: "pending", // Start SSL provisioning
-          },
-        });
-
-        // Here you would trigger SSL certificate provisioning
-        // This depends on your hosting provider (Vercel, Netlify, etc.)
-
-        revalidatePath("/admin/domains");
-
-        return {
-          status: 200,
-          message: "Domain verified successfully",
-        };
-      } else {
+      if (!isOwnershipVerified) {
         return {
           status: 400,
-          message: "Verification TXT record not found",
+          message: "Ownership verification TXT record not found. Please add the TXT record and try again.",
         };
       }
     } catch (dnsError) {
       return {
         status: 400,
-        message: "Could not verify domain. Please check DNS settings.",
+        message: "Could not verify domain ownership. Please check DNS settings and try again.",
+      };
+    }
+
+    // Check Vercel domain verification
+    const vercelVerification = await vercelAPI.checkDomainVerification(domain.name);
+    if (!vercelVerification.success) {
+      return {
+        status: 400,
+        message: `Vercel verification failed: ${vercelVerification.error}`,
+      };
+    }
+
+    const isVerified = vercelVerification.isVerified;
+
+    if (isVerified) {
+      await client.domain.update({
+        where: { id: domainId },
+        data: {
+          isVerified: true,
+          sslStatus: "active", // Vercel automatically provisions SSL
+        },
+      });
+
+      revalidatePath("/admin/domains");
+
+      return {
+        status: 200,
+        message: "Domain verified successfully",
+      };
+    } else {
+      return {
+        status: 400,
+        message: "Domain verification is still pending. Please ensure your domain points to our servers and try again in a few minutes.",
+        verification: vercelVerification.verification,
       };
     }
   } catch (error) {
@@ -152,6 +188,13 @@ export const deleteDomain = async (domainId: string) => {
 
     if (!domain) {
       return { status: 404, message: "Domain not found" };
+    }
+
+    // Remove domain from Vercel first
+    const vercelResult = await vercelAPI.removeDomain(domain.name);
+    if (!vercelResult.success) {
+      console.warn("Failed to remove domain from Vercel:", vercelResult.error);
+      // Continue with database deletion even if Vercel removal fails
     }
 
     await client.domain.delete({
@@ -194,5 +237,25 @@ export const getUserDomains = async () => {
   } catch (error) {
     console.error("Error fetching domains:", error);
     return { status: 500, domains: [] };
+  }
+};
+
+export const getDomainSetupInfo = async (domainName: string) => {
+  try {
+    const cnameTarget = vercelAPI.getCnameTarget();
+    const aRecord = vercelAPI.getARecord();
+
+    return {
+      status: 200,
+      cnameTarget,
+      aRecord,
+      domain: domainName,
+    };
+  } catch (error) {
+    console.error("Error getting domain setup info:", error);
+    return { 
+      status: 500, 
+      message: "Failed to get domain setup information" 
+    };
   }
 };

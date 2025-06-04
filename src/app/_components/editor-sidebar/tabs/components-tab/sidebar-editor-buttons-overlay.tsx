@@ -5,7 +5,6 @@ import React from "react";
 type Props = {
   type: EditorBtns;
 };
-
 const SidebarEditorButtonOverlay = ({ type }: Props) => {
   switch (type) {
     case "text":
