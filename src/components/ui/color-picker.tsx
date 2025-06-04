@@ -21,6 +21,7 @@ import {
   useState,
 } from 'react';
 import { createContext, useContext } from 'react';
+
 interface ColorPickerContextValue {
   hue: number;
   saturation: number;
@@ -33,9 +34,11 @@ interface ColorPickerContextValue {
   setAlpha: (alpha: number) => void;
   setMode: (mode: string) => void;
 }
+
 const ColorPickerContext = createContext<ColorPickerContextValue | undefined>(
   undefined
 );
+
 export const useColorPicker = () => {
   const context = useContext(ColorPickerContext);
   if (!context) {
@@ -43,51 +46,77 @@ export const useColorPicker = () => {
   }
   return context;
 };
+
 export type ColorPickerProps = HTMLAttributes<HTMLDivElement> & {
   value?: Parameters<typeof Color>[0];
   defaultValue?: Parameters<typeof Color>[0];
   onChange?: (value: Parameters<typeof Color.rgb>[0]) => void;
+  onChangeComplete?: (value: Parameters<typeof Color.rgb>[0]) => void;
 };
+
 export const ColorPicker = ({
   value,
   defaultValue = '#000000',
   onChange,
+  onChangeComplete,
   className,
   ...props
 }: ColorPickerProps) => {
-  const selectedColor = Color(value);
-  const defaultColor = Color(defaultValue);
-  const [hue, setHue] = useState(
-    selectedColor.hue() || defaultColor.hue() || 0
-  );
-  const [saturation, setSaturation] = useState(
-    selectedColor.saturationl() || defaultColor.saturationl() || 100
-  );
-  const [lightness, setLightness] = useState(
-    selectedColor.lightness() || defaultColor.lightness() || 50
-  );
-  const [alpha, setAlpha] = useState(
-    selectedColor.alpha() * 100 || defaultColor.alpha() * 100
-  );
+  // Initialize with proper defaults
+  const initColor = Color(value || defaultValue);
+  const [hue, setHue] = useState(initColor.hue() || 0);
+  const [saturation, setSaturation] = useState(initColor.saturationl() || 100);
+  const [lightness, setLightness] = useState(initColor.lightness() || 50);
+  const [alpha, setAlpha] = useState((initColor.alpha() || 1) * 100);
   const [mode, setMode] = useState('hex');
-  // Update color when controlled value changes
+  const [isInternalUpdate, setIsInternalUpdate] = useState(false);
+
+  // Update color when controlled value changes (only from external sources)
   useEffect(() => {
-    if (value) {
-      const color = Color.rgb(value).rgb().object();
-      setHue(color.r);
-      setSaturation(color.g);
-      setLightness(color.b);
-      setAlpha(color.a);
+    if (value && !isInternalUpdate) {
+      try {
+        const color = Color(value);
+        setHue(color.hue() || 0);
+        setSaturation(color.saturationl() || 100);
+        setLightness(color.lightness() || 50);
+        setAlpha((color.alpha() || 1) * 100);
+      } catch (error) {
+        console.warn('Invalid color value:', value);
+      }
     }
-  }, [value]);
-  // Notify parent of changes
+    setIsInternalUpdate(false);
+  }, [value, isInternalUpdate]);
+
+  // Internal onChange for real-time updates while dragging
   useEffect(() => {
     if (onChange) {
-      const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
-      const rgba = color.rgb().array();
-      onChange([rgba[0], rgba[1], rgba[2], alpha / 100]);
+      const timeoutId = setTimeout(() => {
+        try {
+          const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
+          const rgba = color.rgb().array();
+          onChange([Math.round(rgba[0]), Math.round(rgba[1]), Math.round(rgba[2]), alpha / 100]);
+        } catch (error) {
+          console.warn('Error creating color:', error);
+        }
+      }, 0);
+
+      return () => clearTimeout(timeoutId);
     }
   }, [hue, saturation, lightness, alpha, onChange]);
+
+  // Function to trigger onChangeComplete
+  const triggerChangeComplete = useCallback(() => {
+    if (onChangeComplete) {
+      try {
+        const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
+        const rgba = color.rgb().array();
+        onChangeComplete([Math.round(rgba[0]), Math.round(rgba[1]), Math.round(rgba[2]), alpha / 100]);
+      } catch (error) {
+        console.warn('Error creating color:', error);
+      }
+    }
+  }, [hue, saturation, lightness, alpha, onChangeComplete]);
+
   return (
     <ColorPickerContext.Provider
       value={{
@@ -105,12 +134,15 @@ export const ColorPicker = ({
     >
       <div
         className={cn('flex size-full flex-col gap-4', className)}
+        onPointerUp={triggerChangeComplete}
         {...props}
       />
     </ColorPickerContext.Provider>
   );
 };
+
 export type ColorPickerSelectionProps = HTMLAttributes<HTMLDivElement>;
+
 export const ColorPickerSelection = ({
   className,
   ...props
@@ -119,6 +151,7 @@ export const ColorPickerSelection = ({
   const [isDragging, setIsDragging] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const { hue, setSaturation, setLightness } = useColorPicker();
+
   const handlePointerMove = useCallback(
     (event: PointerEvent) => {
       if (!isDragging || !containerRef.current) {
@@ -141,6 +174,7 @@ export const ColorPickerSelection = ({
     },
     [isDragging, setSaturation, setLightness]
   );
+
   useEffect(() => {
     const handlePointerUp = () => setIsDragging(false);
     if (isDragging) {
@@ -152,6 +186,7 @@ export const ColorPickerSelection = ({
       window.removeEventListener('pointerup', handlePointerUp);
     };
   }, [isDragging, handlePointerMove]);
+
   return (
     <div
       ref={containerRef}
@@ -179,7 +214,9 @@ export const ColorPickerSelection = ({
     </div>
   );
 };
+
 export type ColorPickerHueProps = ComponentProps<typeof Root>;
+
 export const ColorPickerHue = ({
   className,
   ...props
@@ -201,7 +238,9 @@ export const ColorPickerHue = ({
     </Root>
   );
 };
+
 export type ColorPickerAlphaProps = ComponentProps<typeof Root>;
+
 export const ColorPickerAlpha = ({
   className,
   ...props
@@ -230,12 +269,15 @@ export const ColorPickerAlpha = ({
     </Root>
   );
 };
+
 export type ColorPickerEyeDropperProps = ComponentProps<typeof Button>;
+
 export const ColorPickerEyeDropper = ({
   className,
   ...props
 }: ColorPickerEyeDropperProps) => {
   const { setHue, setSaturation, setLightness, setAlpha } = useColorPicker();
+
   const handleEyeDropper = async () => {
     try {
       // @ts-ignore - EyeDropper API is experimental
@@ -251,6 +293,7 @@ export const ColorPickerEyeDropper = ({
       console.error('EyeDropper failed:', error);
     }
   };
+
   return (
     <Button
       variant="outline"
@@ -263,8 +306,11 @@ export const ColorPickerEyeDropper = ({
     </Button>
   );
 };
+
 export type ColorPickerOutputProps = ComponentProps<typeof SelectTrigger>;
+
 const formats = ['hex', 'rgb', 'css', 'hsl'];
+
 export const ColorPickerOutput = ({
   className,
   ...props
@@ -285,7 +331,9 @@ export const ColorPickerOutput = ({
     </Select>
   );
 };
+
 type PercentageInputProps = ComponentProps<typeof Input>;
+
 const PercentageInput = ({ className, ...props }: PercentageInputProps) => {
   return (
     <div className="relative">
@@ -304,109 +352,121 @@ const PercentageInput = ({ className, ...props }: PercentageInputProps) => {
     </div>
   );
 };
+
 export type ColorPickerFormatProps = HTMLAttributes<HTMLDivElement>;
+
 export const ColorPickerFormat = ({
   className,
   ...props
 }: ColorPickerFormatProps) => {
   const { hue, saturation, lightness, alpha, mode } = useColorPicker();
-  const color = Color.hsl(hue, saturation, lightness, alpha / 100);
-  if (mode === 'hex') {
-    const hex = color.hex();
-    return (
-      <div
-        className={cn(
-          '-space-x-px relative flex w-full items-center rounded-md shadow-sm',
-          className
-        )}
-        {...props}
-      >
-        <Input
-          type="text"
-          value={hex}
-          readOnly
-          className="h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none"
-        />
-        <PercentageInput value={alpha} />
-      </div>
-    );
-  }
-  if (mode === 'rgb') {
-    const rgb = color
-      .rgb()
-      .array()
-      .map((value) => Math.round(value));
-    return (
-      <div
-        className={cn(
-          '-space-x-px flex items-center rounded-md shadow-sm',
-          className
-        )}
-        {...props}
-      >
-        {rgb.map((value, index) => (
-          <Input
-            key={index}
-            type="text"
-            value={value}
-            readOnly
-            className={cn(
-              'h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none',
-              index && 'rounded-l-none',
-              className
-            )}
-          />
-        ))}
-        <PercentageInput value={alpha} />
-      </div>
-    );
-  }
-  if (mode === 'css') {
-    const rgb = color
-      .rgb()
-      .array()
-      .map((value) => Math.round(value));
-    return (
-      <div className={cn('w-full rounded-md shadow-sm', className)} {...props}>
-        <Input
-          type="text"
-          className="h-8 w-full bg-secondary px-2 text-xs shadow-none"
-          value={`rgba(${rgb.join(', ')}, ${alpha}%)`}
-          readOnly
+  
+  try {
+    const color = Color.hsl(hue, saturation, lightness, alpha / 100);
+
+    if (mode === 'hex') {
+      const hex = color.hex();
+      return (
+        <div
+          className={cn(
+            '-space-x-px relative flex w-full items-center rounded-md shadow-sm',
+            className
+          )}
           {...props}
-        />
-      </div>
-    );
-  }
-  if (mode === 'hsl') {
-    const hsl = color
-      .hsl()
-      .array()
-      .map((value) => Math.round(value));
-    return (
-      <div
-        className={cn(
-          '-space-x-px flex items-center rounded-md shadow-sm',
-          className
-        )}
-        {...props}
-      >
-        {hsl.map((value, index) => (
+        >
           <Input
-            key={index}
             type="text"
-            value={value}
+            value={hex}
             readOnly
-            className={cn(
-              'h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none',
-              index && 'rounded-l-none',
-              className
-            )}
+            className="h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none"
           />
-        ))}
-        <PercentageInput value={alpha} />
-      </div>
-    );
+          <PercentageInput value={Math.round(alpha)} />
+        </div>
+      );
+    }
+    
+    if (mode === 'rgb') {
+      const rgb = color
+        .rgb()
+        .array()
+        .map((value) => Math.round(value));
+      return (
+        <div
+          className={cn(
+            '-space-x-px flex items-center rounded-md shadow-sm',
+            className
+          )}
+          {...props}
+        >
+          {rgb.map((value, index) => (
+            <Input
+              key={index}
+              type="text"
+              value={value}
+              readOnly
+              className={cn(
+                'h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none',
+                index && 'rounded-l-none',
+                className
+              )}
+            />
+          ))}
+          <PercentageInput value={Math.round(alpha)} />
+        </div>
+      );
+    }
+    
+    if (mode === 'css') {
+      const rgb = color
+        .rgb()
+        .array()
+        .map((value) => Math.round(value));
+      return (
+        <div className={cn('w-full rounded-md shadow-sm', className)} {...props}>
+          <Input
+            type="text"
+            className="h-8 w-full bg-secondary px-2 text-xs shadow-none"
+            value={`rgba(${rgb.join(', ')}, ${(alpha / 100).toFixed(2)})`}
+            readOnly
+            {...props}
+          />
+        </div>
+      );
+    }
+    
+    if (mode === 'hsl') {
+      const hsl = color
+        .hsl()
+        .array()
+        .map((value) => Math.round(value));
+      return (
+        <div
+          className={cn(
+            '-space-x-px flex items-center rounded-md shadow-sm',
+            className
+          )}
+          {...props}
+        >
+          {hsl.map((value, index) => (
+            <Input
+              key={index}
+              type="text"
+              value={value}
+              readOnly
+              className={cn(
+                'h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none',
+                index && 'rounded-l-none',
+                className
+              )}
+            />
+          ))}
+          <PercentageInput value={Math.round(alpha)} />
+        </div>
+      );
+    }
+  } catch (error) {
+    console.warn('Error displaying color format:', error);
   }
+  
   return null;
 };

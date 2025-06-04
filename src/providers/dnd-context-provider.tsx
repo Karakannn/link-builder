@@ -223,6 +223,252 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             });
             break;
 
+          // New Button Types
+          case "animatedShinyButton":
+            console.log("Adding ANIMATED SHINY BUTTON via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    innerText: "Shiny Button",
+                    buttonClass: "default",
+                  },
+                  id: v4(),
+                  name: "Animated Shiny Button",
+                  styles: {
+                    width: "200px",
+                    textAlign: "center",
+                    margin: "10px auto",
+                    ...defaultStyles,
+                  },
+                  type: "animatedShinyButton",
+                },
+              },
+            });
+            break;
+
+          case "neonGradientButton":
+            console.log("Adding NEON GRADIENT BUTTON via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    innerText: "Neon Button",
+                    firstColor: "#ff00aa",
+                    secondColor: "#00FFF1",
+                    borderSize: 2,
+                    borderRadius: "20",
+                  },
+                  id: v4(),
+                  name: "Neon Gradient Button",
+                  styles: {
+                    width: "200px",
+                    textAlign: "center",
+                    margin: "10px auto",
+                    ...defaultStyles,
+                  },
+                  type: "neonGradientButton",
+                },
+              },
+            });
+            break;
+
+          case "animatedBorderButton":
+            console.log("Adding ANIMATED BORDER BUTTON via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    innerText: "Border Button",
+                    buttonClass: "default",
+                  },
+                  id: v4(),
+                  name: "Animated Border Button",
+                  styles: {
+                    width: "200px",
+                    textAlign: "center",
+                    margin: "10px auto",
+                    ...defaultStyles,
+                  },
+                  type: "animatedBorderButton",
+                },
+              },
+            });
+            break;
+
+          case "animatedTextButton":
+            console.log("Adding ANIMATED TEXT BUTTON via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    innerText: "Text Button",
+                    buttonClass: "default",
+                  },
+                  id: v4(),
+                  name: "Animated Text Button",
+                  styles: {
+                    width: "200px",
+                    textAlign: "center",
+                    margin: "10px auto",
+                    ...defaultStyles,
+                  },
+                  type: "animatedTextButton",
+                },
+              },
+            });
+            break;
+
+          // Background Types
+          case "animatedGridPattern":
+            console.log("Adding ANIMATED GRID PATTERN via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    width: 40,
+                    height: 40,
+                    numSquares: 50,
+                    maxOpacity: 0.5,
+                    duration: 4,
+                    repeatDelay: 0.5,
+                  },
+                  id: v4(),
+                  name: "Animated Grid Pattern",
+                  styles: {
+                    width: "100%",
+                    height: "200px",
+                    position: "relative",
+                    ...defaultStyles,
+                  },
+                  type: "animatedGridPattern",
+                },
+              },
+            });
+            break;
+
+          case "interactiveGridPattern":
+            console.log("Adding INTERACTIVE GRID PATTERN via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    width: 40,
+                    height: 40,
+                    squares: [24, 24],
+                  },
+                  id: v4(),
+                  name: "Interactive Grid Pattern",
+                  styles: {
+                    width: "100%",
+                    height: "200px",
+                    position: "relative",
+                    ...defaultStyles,
+                  },
+                  type: "interactiveGridPattern",
+                },
+              },
+            });
+            break;
+
+          case "retroGrid":
+            console.log("Adding RETRO GRID via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    angle: 65,
+                    cellSize: 60,
+                    opacity: 0.5,
+                    lightLineColor: "gray",
+                    darkLineColor: "gray",
+                  },
+                  id: v4(),
+                  name: "Retro Grid",
+                  styles: {
+                    width: "100%",
+                    height: "200px",
+                    position: "relative",
+                    ...defaultStyles,
+                  },
+                  type: "retroGrid",
+                },
+              },
+            });
+            break;
+
+          case "dotPattern":
+            console.log("Adding DOT PATTERN via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    width: 16,
+                    height: 16,
+                    cx: 1,
+                    cy: 1,
+                    cr: 1,
+                  },
+                  id: v4(),
+                  name: "Dot Pattern",
+                  styles: {
+                    width: "100%",
+                    height: "200px",
+                    position: "relative",
+                    ...defaultStyles,
+                  },
+                  type: "dotPattern",
+                },
+              },
+            });
+            break;
+
+          case "marquee":
+            console.log("Adding MARQUEE via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    direction: "left",
+                    speed: 50,
+                    pauseOnHover: true,
+                    items: [
+                      { type: "text", content: "Sample Text 1" },
+                      { type: "text", content: "Sample Text 2" },
+                      { type: "text", content: "Sample Text 3" },
+                    ],
+                  },
+                  id: v4(),
+                  name: "Marquee",
+                  styles: {
+                    width: "100%",
+                    height: "80px",
+                    ...defaultStyles,
+                  },
+                  type: "marquee",
+                },
+              },
+            });
+            break;
+
           default:
             console.log("Unknown dnd-kit element type:", draggedType);
             break;

@@ -17,14 +17,59 @@ export type EditorElement = {
   content:
     | EditorElement[]
     | {
+        // Common content properties
         href?: string;
         innerText?: string;
         src?: string;
+        
+        // Shimmer button properties
         shimmerColor?: string;
         shimmerSize?: string;
         shimmerDuration?: string;
         borderRadius?: string;
         background?: string;
+        
+        // Neon gradient button properties
+        firstColor?: string;
+        secondColor?: string;
+        borderSize?: number;
+        
+        // Button common properties
+        buttonClass?: string;
+        
+        // Grid pattern properties
+        width?: number;
+        height?: number;
+        numSquares?: number;
+        maxOpacity?: number;
+        duration?: number;
+        repeatDelay?: number;
+        squares?: [number, number];
+        
+        // Retro grid properties
+        angle?: number;
+        cellSize?: number;
+        opacity?: number;
+        lightLineColor?: string;
+        darkLineColor?: string;
+        
+        // Dot pattern properties
+        cx?: number;
+        cy?: number;
+        cr?: number;
+        
+        // Marquee properties
+        direction?: "left" | "right";
+        speed?: number;
+        pauseOnHover?: boolean;
+        items?: Array<{
+          type: "text" | "image";
+          content: string;
+          alt?: string;
+          width?: number;
+          height?: number;
+        }>;
+        
         responsiveContent?: {
           Tablet?: {
             href?: string;
@@ -35,6 +80,35 @@ export type EditorElement = {
             shimmerDuration?: string;
             borderRadius?: string;
             background?: string;
+            firstColor?: string;
+            secondColor?: string;
+            borderSize?: number;
+            buttonClass?: string;
+            width?: number;
+            height?: number;
+            numSquares?: number;
+            maxOpacity?: number;
+            duration?: number;
+            repeatDelay?: number;
+            squares?: [number, number];
+            angle?: number;
+            cellSize?: number;
+            opacity?: number;
+            lightLineColor?: string;
+            darkLineColor?: string;
+            cx?: number;
+            cy?: number;
+            cr?: number;
+            direction?: "left" | "right";
+            speed?: number;
+            pauseOnHover?: boolean;
+            items?: Array<{
+              type: "text" | "image";
+              content: string;
+              alt?: string;
+              width?: number;
+              height?: number;
+            }>;
           };
           Mobile?: {
             href?: string;
@@ -45,6 +119,35 @@ export type EditorElement = {
             shimmerDuration?: string;
             borderRadius?: string;
             background?: string;
+            firstColor?: string;
+            secondColor?: string;
+            borderSize?: number;
+            buttonClass?: string;
+            width?: number;
+            height?: number;
+            numSquares?: number;
+            maxOpacity?: number;
+            duration?: number;
+            repeatDelay?: number;
+            squares?: [number, number];
+            angle?: number;
+            cellSize?: number;
+            opacity?: number;
+            lightLineColor?: string;
+            darkLineColor?: string;
+            cx?: number;
+            cy?: number;
+            cr?: number;
+            direction?: "left" | "right";
+            speed?: number;
+            pauseOnHover?: boolean;
+            items?: Array<{
+              type: "text" | "image";
+              content: string;
+              alt?: string;
+              width?: number;
+              height?: number;
+            }>;
           };
         };
       };

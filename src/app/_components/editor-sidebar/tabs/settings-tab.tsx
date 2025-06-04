@@ -6,8 +6,17 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+    ColorPicker,
+    ColorPickerSelection,
+    ColorPickerHue,
+    ColorPickerAlpha,
+    ColorPickerOutput,
+    ColorPickerFormat
+} from "@/components/ui/color-picker";
 import { DeviceTypes, useEditor } from "@/providers/editor/editor-provider";
-import { AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyEndIcon, AlignHorizontalJustifyStart, AlignHorizontalSpaceAround, AlignHorizontalSpaceBetween, AlignJustify, AlignLeft, AlignRight, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, ChevronsLeftRightIcon, Laptop, LucideImageDown, Smartphone, Tablet } from "lucide-react";
+import { AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyEndIcon, AlignHorizontalJustifyStart, AlignHorizontalSpaceAround, AlignHorizontalSpaceBetween, AlignJustify, AlignLeft, AlignRight, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, ChevronsLeftRightIcon, Laptop, LucideImageDown, Smartphone, Tablet, Plus, Minus, Palette } from "lucide-react";
 import React, { ChangeEventHandler, useState, useEffect } from "react";
 import { getElementContent } from "@/lib/utils";
 
@@ -27,16 +36,64 @@ const SettingsTab = () => {
             ...element.responsiveStyles[activeDevice]
         };
     };
-    
+
     // Function to get the current content based on active device
     const getCurrentContent = () => {
         return getElementContent(state.editor.selectedElement, activeDevice);
     };
-    
+
+    const handleColorChange = (property: string, value: any) => {
+        let colorValue: string;
+
+        if (Array.isArray(value) && value.length >= 3) {
+            // Ensure we have valid numbers and handle potential floating point issues
+            const r = Math.round(Number(value[0]) || 0);
+            const g = Math.round(Number(value[1]) || 0);
+            const b = Math.round(Number(value[2]) || 0);
+            const a = Number(value[3]) !== undefined ? Number(value[3]) : 1;
+            colorValue = `rgba(${r}, ${g}, ${b}, ${a})`;
+        } else if (typeof value === 'string' && value.length > 0) {
+            colorValue = value;
+        } else {
+            colorValue = "#000000"; // fallback
+        }
+
+        handleChangeCustomValues({
+            target: {
+                id: property,
+                value: colorValue
+            }
+        } as any);
+    };
+
+    // Handle color changes for styles (onChangeComplete version)
+    const handleStyleColorChangeComplete = (property: string, value: any) => {
+        let colorValue: string;
+
+        if (Array.isArray(value) && value.length >= 3) {
+            const r = Math.round(Number(value[0]) || 0);
+            const g = Math.round(Number(value[1]) || 0);
+            const b = Math.round(Number(value[2]) || 0);
+            const a = Number(value[3]) !== undefined ? Number(value[3]) : 1;
+            colorValue = `rgba(${r}, ${g}, ${b}, ${a})`;
+        } else if (typeof value === 'string' && value.length > 0) {
+            colorValue = value;
+        } else {
+            colorValue = "#000000";
+        }
+
+        handleOnChanges({
+            target: {
+                id: property,
+                value: colorValue
+            }
+        } as any);
+    };
+
     // Reset responsive styles to desktop values
     const handleResetToDesktop = () => {
         if (activeDevice === "Desktop") return;
-        
+
         dispatch({
             type: "UPDATE_ELEMENT",
             payload: {
@@ -77,7 +134,7 @@ const SettingsTab = () => {
             // Update responsive styles for the current device
             const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
             const deviceStyles = currentResponsiveStyles[activeDevice] || {};
-            
+
             dispatch({
                 type: "UPDATE_ELEMENT",
                 payload: {
@@ -120,13 +177,13 @@ const SettingsTab = () => {
         } else {
             // For responsive devices, update responsiveContent
             const elementContent = state.editor.selectedElement.content;
-            
+
             // Only proceed if we have object content (not array)
             if (typeof elementContent === 'object' && !Array.isArray(elementContent)) {
                 const baseContent = elementContent;
                 const responsiveContent = baseContent.responsiveContent || {};
                 const deviceContent = responsiveContent[activeDevice] || {};
-                
+
                 dispatch({
                     type: "UPDATE_ELEMENT",
                     payload: {
@@ -149,6 +206,7 @@ const SettingsTab = () => {
         }
     };
 
+
     // Update active device when editor device changes
     useEffect(() => {
         setActiveDevice(state.editor.device);
@@ -166,6 +224,55 @@ const SettingsTab = () => {
         }
     };
 
+    // Add marquee item handler
+    const handleAddMarqueeItem = () => {
+        if (state.editor.selectedElement.type !== "marquee") return;
+
+        const currentContent = getCurrentContent();
+        const items = currentContent.items || [];
+        const newItems = [...items, { type: "text", content: "New Item" }];
+
+        handleChangeCustomValues({
+            target: {
+                id: "items",
+                value: newItems
+            }
+        } as any);
+    };
+
+    // Remove marquee item handler
+    const handleRemoveMarqueeItem = (index: number) => {
+        if (state.editor.selectedElement.type !== "marquee") return;
+
+        const currentContent = getCurrentContent();
+        const items = currentContent.items || [];
+        const newItems = items.filter((_: any, i: number) => i !== index);
+
+        handleChangeCustomValues({
+            target: {
+                id: "items",
+                value: newItems
+            }
+        } as any);
+    };
+
+    // Update marquee item handler
+    const handleUpdateMarqueeItem = (index: number, field: string, value: any) => {
+        if (state.editor.selectedElement.type !== "marquee") return;
+
+        const currentContent = getCurrentContent();
+        const items = currentContent.items || [];
+        const newItems = [...items];
+        newItems[index] = { ...newItems[index], [field]: value };
+
+        handleChangeCustomValues({
+            target: {
+                id: "items",
+                value: newItems
+            }
+        } as any);
+    };
+
     return (
         <Accordion type="multiple" className="w-full" defaultValue={["Typography", "Dimensions", "Decorations", "Flexbox"]}>
             {/* Device selector for responsive styles */}
@@ -173,19 +280,19 @@ const SettingsTab = () => {
                 <div className="flex items-center justify-between">
                     <Label className="text-sm font-medium">Device</Label>
                     {activeDevice !== "Desktop" && (
-                        <Button 
+                        <Button
                             onClick={handleResetToDesktop}
-                            variant="outline" 
-                            size="sm" 
+                            variant="outline"
+                            size="sm"
                             className="h-8 text-xs"
                         >
                             Reset to Desktop
                         </Button>
                     )}
                 </div>
-                
-                <Tabs 
-                    value={activeDevice} 
+
+                <Tabs
+                    value={activeDevice}
                     onValueChange={(value) => setActiveDevice(value as DeviceTypes)}
                     className="w-full"
                 >
@@ -215,12 +322,15 @@ const SettingsTab = () => {
             <AccordionItem value="custom" className="px-0 py-0">
                 <AccordionTrigger className="px-6 !no-underline">Custom</AccordionTrigger>
                 <AccordionContent className="px-6">
+                    {/* Link Settings */}
                     {state.editor.selectedElement.type === "link" && !Array.isArray(state.editor.selectedElement.content) && (
                         <div className="flex flex-col gap-2">
                             <p className="text-muted-foreground">Link Path</p>
                             <Input id="href" placeholder="https://domain.example.com/pathname" onChange={handleChangeCustomValues} value={getCurrentContent().href} />
                         </div>
                     )}
+
+                    {/* Shimmer Button Settings */}
                     {state.editor.selectedElement.type === "shimmerButton" && !Array.isArray(state.editor.selectedElement.content) && (
                         <div className="flex flex-col gap-4">
                             <div className="flex flex-col gap-2">
@@ -229,14 +339,34 @@ const SettingsTab = () => {
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Shimmer Color</p>
-                                <div className="flex border-[1px] rounded-md overflow-clip">
-                                    <div
-                                        className="w-12"
-                                        style={{
-                                            backgroundColor: getCurrentContent().shimmerColor as string,
-                                        }}
-                                    />
-                                    <Input id="shimmerColor" placeholder="#ffffff" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={getCurrentContent().shimmerColor} />
+                                <div className="flex items-center gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                                <div
+                                                    className="w-4 h-4 rounded"
+                                                    style={{ backgroundColor: getCurrentContent().shimmerColor as string }}
+                                                />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                            <ColorPicker
+                                                value={getCurrentContent().shimmerColor || "#ffffff"}
+                                                onChangeComplete={(value) => handleColorChange('shimmerColor', value)}
+                                            >
+                                                <ColorPickerSelection className="h-32" />
+                                                <div className="flex flex-col gap-2 mt-4">
+                                                    <ColorPickerHue />
+                                                    <ColorPickerAlpha />
+                                                    <div className="flex items-center gap-2">
+                                                        <ColorPickerOutput />
+                                                        <ColorPickerFormat />
+                                                    </div>
+                                                </div>
+                                            </ColorPicker>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Input id="shimmerColor" placeholder="#ffffff" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().shimmerColor} />
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2">
@@ -253,20 +383,326 @@ const SettingsTab = () => {
                             </div>
                             <div className="flex flex-col gap-2">
                                 <p className="text-muted-foreground">Background Color</p>
-                                <div className="flex border-[1px] rounded-md overflow-clip">
-                                    <div
-                                        className="w-12"
-                                        style={{
-                                            backgroundColor: getCurrentContent().background as string,
-                                        }}
-                                    />
-                                    <Input id="background" placeholder="rgba(0, 0, 0, 1)" className="!border-y-0 rounded-none !border-r-0 mr-2" onChange={handleChangeCustomValues} value={getCurrentContent().background} />
+                                <div className="flex items-center gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                                <div
+                                                    className="w-4 h-4 rounded"
+                                                    style={{ backgroundColor: getCurrentContent().background as string }}
+                                                />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                            <ColorPicker
+                                                value={getCurrentContent().background}
+                                                onChangeComplete={(value) => handleColorChange('background', value)}
+                                            >
+                                                <ColorPickerSelection className="h-32" />
+                                                <div className="flex flex-col gap-2 mt-4">
+                                                    <ColorPickerHue />
+                                                    <ColorPickerAlpha />
+                                                    <div className="flex items-center gap-2">
+                                                        <ColorPickerOutput />
+                                                        <ColorPickerFormat />
+                                                    </div>
+                                                </div>
+                                            </ColorPicker>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Input id="background" placeholder="rgba(0, 0, 0, 1)" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().background} />
                                 </div>
                             </div>
                         </div>
                     )}
+
+                    {/* New Button Settings */}
+                    {(state.editor.selectedElement.type === "animatedShinyButton" ||
+                        state.editor.selectedElement.type === "animatedBorderButton" ||
+                        state.editor.selectedElement.type === "animatedTextButton") &&
+                        !Array.isArray(state.editor.selectedElement.content) && (
+                            <div className="flex flex-col gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-muted-foreground">Button Text</p>
+                                    <Input id="innerText" placeholder="Button Text" onChange={handleChangeCustomValues} value={getCurrentContent().innerText} />
+                                </div>
+                            </div>
+                        )}
+
+                    {/* Neon Gradient Button Settings */}
+                    {state.editor.selectedElement.type === "neonGradientButton" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Button Text</p>
+                                <Input id="innerText" placeholder="Button Text" onChange={handleChangeCustomValues} value={getCurrentContent().innerText} />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">First Color</p>
+                                <div className="flex items-center gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                                <div
+                                                    className="w-4 h-4 rounded"
+                                                    style={{ backgroundColor: getCurrentContent().firstColor as string }}
+                                                />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                            <ColorPicker
+                                                value={getCurrentContent().firstColor}
+                                                onChangeComplete={(value) => handleColorChange('firstColor', value)}
+                                            >
+                                                <ColorPickerSelection className="h-32" />
+                                                <div className="flex flex-col gap-2 mt-4">
+                                                    <ColorPickerHue />
+                                                    <ColorPickerAlpha />
+                                                    <div className="flex items-center gap-2">
+                                                        <ColorPickerOutput />
+                                                        <ColorPickerFormat />
+                                                    </div>
+                                                </div>
+                                            </ColorPicker>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Input id="firstColor" placeholder="#ff00aa" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().firstColor} />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Second Color</p>
+                                <div className="flex items-center gap-2">
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                                <div
+                                                    className="w-4 h-4 rounded"
+                                                    style={{ backgroundColor: getCurrentContent().secondColor as string }}
+                                                />
+                                            </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-80">
+                                            <ColorPicker
+                                                value={getCurrentContent().secondColor}
+                                                onChangeComplete={(value) => handleColorChange('secondColor', value)}
+                                            >
+                                                <ColorPickerSelection className="h-32" />
+                                                <div className="flex flex-col gap-2 mt-4">
+                                                    <ColorPickerHue />
+                                                    <ColorPickerAlpha />
+                                                    <div className="flex items-center gap-2">
+                                                        <ColorPickerOutput />
+                                                        <ColorPickerFormat />
+                                                    </div>
+                                                </div>
+                                            </ColorPicker>
+                                        </PopoverContent>
+                                    </Popover>
+                                    <Input id="secondColor" placeholder="#00FFF1" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().secondColor} />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Border Size</p>
+                                <Input id="borderSize" type="number" placeholder="2" onChange={handleChangeCustomValues} value={getCurrentContent().borderSize} />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Border Radius</p>
+                                <Input id="borderRadius" type="number" placeholder="20" onChange={handleChangeCustomValues} value={getCurrentContent().borderRadius} />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Marquee Settings */}
+                    {state.editor.selectedElement.type === "marquee" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Direction</p>
+                                <Select
+                                    onValueChange={(value) => handleChangeCustomValues({
+                                        target: { id: "direction", value }
+                                    } as any)}
+                                    value={getCurrentContent().direction}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select direction" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="left">Left</SelectItem>
+                                        <SelectItem value="right">Right</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Speed</p>
+                                <Input id="speed" type="number" placeholder="50" onChange={handleChangeCustomValues} value={getCurrentContent().speed} />
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="pauseOnHover"
+                                    checked={getCurrentContent().pauseOnHover}
+                                    onChange={(e) => handleChangeCustomValues({
+                                        target: { id: "pauseOnHover", value: e.target.checked }
+                                    } as any)}
+                                />
+                                <Label htmlFor="pauseOnHover">Pause on Hover</Label>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-muted-foreground">Marquee Items</p>
+                                    <Button size="sm" onClick={handleAddMarqueeItem}>
+                                        <Plus className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                <div className="space-y-2 max-h-40 overflow-y-auto">
+                                    {(getCurrentContent().items || []).map((item: any, index: number) => (
+                                        <div key={index} className="border p-2 rounded space-y-2">
+                                            <div className="flex items-center justify-between">
+                                                <Select
+                                                    value={item.type}
+                                                    onValueChange={(value) => handleUpdateMarqueeItem(index, "type", value)}
+                                                >
+                                                    <SelectTrigger className="w-24">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="text">Text</SelectItem>
+                                                        <SelectItem value="image">Image</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button size="sm" variant="destructive" onClick={() => handleRemoveMarqueeItem(index)}>
+                                                    <Minus className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                            <Input
+                                                placeholder={item.type === "image" ? "Image URL" : "Text content"}
+                                                value={item.content}
+                                                onChange={(e) => handleUpdateMarqueeItem(index, "content", e.target.value)}
+                                            />
+                                            {item.type === "image" && (
+                                                <>
+                                                    <Input
+                                                        placeholder="Alt text"
+                                                        value={item.alt || ""}
+                                                        onChange={(e) => handleUpdateMarqueeItem(index, "alt", e.target.value)}
+                                                    />
+                                                    <div className="flex gap-2">
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="Width"
+                                                            value={item.width || 100}
+                                                            onChange={(e) => handleUpdateMarqueeItem(index, "width", parseInt(e.target.value))}
+                                                        />
+                                                        <Input
+                                                            type="number"
+                                                            placeholder="Height"
+                                                            value={item.height || 100}
+                                                            onChange={(e) => handleUpdateMarqueeItem(index, "height", parseInt(e.target.value))}
+                                                        />
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Background Pattern Settings */}
+                    {(state.editor.selectedElement.type === "animatedGridPattern" ||
+                        state.editor.selectedElement.type === "interactiveGridPattern" ||
+                        state.editor.selectedElement.type === "retroGrid" ||
+                        state.editor.selectedElement.type === "dotPattern") &&
+                        !Array.isArray(state.editor.selectedElement.content) && (
+                            <div className="flex flex-col gap-4">
+                                {state.editor.selectedElement.type === "animatedGridPattern" && (
+                                    <>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Grid Width</p>
+                                            <Input id="width" type="number" placeholder="40" onChange={handleChangeCustomValues} value={getCurrentContent().width} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Grid Height</p>
+                                            <Input id="height" type="number" placeholder="40" onChange={handleChangeCustomValues} value={getCurrentContent().height} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Number of Squares</p>
+                                            <Input id="numSquares" type="number" placeholder="50" onChange={handleChangeCustomValues} value={getCurrentContent().numSquares} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Max Opacity</p>
+                                            <Slider
+                                                value={[getCurrentContent().maxOpacity * 100 || 50]}
+                                                onValueChange={(value) => handleChangeCustomValues({
+                                                    target: { id: "maxOpacity", value: value[0] / 100 }
+                                                } as any)}
+                                                max={100}
+                                                step={1}
+                                            />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Duration (seconds)</p>
+                                            <Input id="duration" type="number" placeholder="4" onChange={handleChangeCustomValues} value={getCurrentContent().duration} />
+                                        </div>
+                                    </>
+                                )}
+
+                                {state.editor.selectedElement.type === "retroGrid" && (
+                                    <>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Angle</p>
+                                            <Input id="angle" type="number" placeholder="65" onChange={handleChangeCustomValues} value={getCurrentContent().angle} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Cell Size</p>
+                                            <Input id="cellSize" type="number" placeholder="60" onChange={handleChangeCustomValues} value={getCurrentContent().cellSize} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Light Line Color</p>
+                                            <Input id="lightLineColor" placeholder="gray" onChange={handleChangeCustomValues} value={getCurrentContent().lightLineColor} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Dark Line Color</p>
+                                            <Input id="darkLineColor" placeholder="gray" onChange={handleChangeCustomValues} value={getCurrentContent().darkLineColor} />
+                                        </div>
+                                    </>
+                                )}
+
+                                {state.editor.selectedElement.type === "dotPattern" && (
+                                    <>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Pattern Width</p>
+                                            <Input id="width" type="number" placeholder="16" onChange={handleChangeCustomValues} value={getCurrentContent().width} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Pattern Height</p>
+                                            <Input id="height" type="number" placeholder="16" onChange={handleChangeCustomValues} value={getCurrentContent().height} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Circle Radius</p>
+                                            <Input id="cr" type="number" placeholder="1" onChange={handleChangeCustomValues} value={getCurrentContent().cr} />
+                                        </div>
+                                    </>
+                                )}
+
+                                {state.editor.selectedElement.type === "interactiveGridPattern" && (
+                                    <>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Cell Width</p>
+                                            <Input id="width" type="number" placeholder="40" onChange={handleChangeCustomValues} value={getCurrentContent().width} />
+                                        </div>
+                                        <div className="flex flex-col gap-2">
+                                            <p className="text-muted-foreground">Cell Height</p>
+                                            <Input id="height" type="number" placeholder="40" onChange={handleChangeCustomValues} value={getCurrentContent().height} />
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
                 </AccordionContent>
             </AccordionItem>
+
             <AccordionItem value="Typography" className="px-0 py-0 border-y">
                 <AccordionTrigger className="px-6 !no-underline">Typography</AccordionTrigger>
                 <AccordionContent className="flex flex-col gap-2 px-6">
@@ -302,7 +738,35 @@ const SettingsTab = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                         <p className="text-muted-foreground">Color</p>
-                        <Input id="color" onChange={handleOnChanges} value={getCurrentStyles().color} />
+                        <div className="flex items-center gap-2">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                        <div
+                                            className="w-4 h-4 rounded"
+                                            style={{ backgroundColor: getCurrentStyles().color as string }}
+                                        />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <ColorPicker
+                                        value={getCurrentStyles().color}
+                                        onChangeComplete={(value) => handleStyleColorChangeComplete("color", value)}
+                                    >
+                                        <ColorPickerSelection className="h-32" />
+                                        <div className="flex flex-col gap-2 mt-4">
+                                            <ColorPickerHue />
+                                            <ColorPickerAlpha />
+                                            <div className="flex items-center gap-2">
+                                                <ColorPickerOutput />
+                                                <ColorPickerFormat />
+                                            </div>
+                                        </div>
+                                    </ColorPicker>
+                                </PopoverContent>
+                            </Popover>
+                            <Input id="color" className="flex-1" onChange={handleOnChanges} value={getCurrentStyles().color} />
+                        </div>
                     </div>
                     <div className="flex gap-4">
                         <div>
@@ -338,6 +802,7 @@ const SettingsTab = () => {
                     </div>
                 </AccordionContent>
             </AccordionItem>
+
             <AccordionItem value="Dimensions" className="px-0 py-0 border-y">
                 <AccordionTrigger className="px-6 !no-underline">Dimensions</AccordionTrigger>
                 <AccordionContent className="px-6">
@@ -407,6 +872,7 @@ const SettingsTab = () => {
                     </div>
                 </AccordionContent>
             </AccordionItem>
+
             <AccordionItem value="Decorations" className="px-0 py-0 ">
                 <AccordionTrigger className="px-6 !no-underline">Decorations</AccordionTrigger>
                 <AccordionContent className="px-6 flex flex-col gap-4">
@@ -483,14 +949,34 @@ const SettingsTab = () => {
                     </div>
                     <div className="flex flex-col gap-2">
                         <Label className="text-muted-foreground">Background Color</Label>
-                        <div className="flex  border-[1px] rounded-md overflow-clip">
-                            <div
-                                className="w-12 "
-                                style={{
-                                    backgroundColor: getCurrentStyles().backgroundColor,
-                                }}
-                            />
-                            <Input placeholder="#HFI245" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundColor" onChange={handleOnChanges} value={getCurrentStyles().backgroundColor} />
+                        <div className="flex items-center gap-2">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                        <div
+                                            className="w-4 h-4 rounded"
+                                            style={{ backgroundColor: getCurrentStyles().backgroundColor as string }}
+                                        />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <ColorPicker
+                                        value={getCurrentStyles().backgroundColor}
+                                        onChangeComplete={(value) => handleStyleColorChangeComplete("backgroundColor", value)}
+                                    >
+                                        <ColorPickerSelection className="h-32" />
+                                        <div className="flex flex-col gap-2 mt-4">
+                                            <ColorPickerHue />
+                                            <ColorPickerAlpha />
+                                            <div className="flex items-center gap-2">
+                                                <ColorPickerOutput />
+                                                <ColorPickerFormat />
+                                            </div>
+                                        </div>
+                                    </ColorPicker>
+                                </PopoverContent>
+                            </Popover>
+                            <Input placeholder="#HFI245" className="flex-1" id="backgroundColor" onChange={handleOnChanges} value={getCurrentStyles().backgroundColor} />
                         </div>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -533,6 +1019,7 @@ const SettingsTab = () => {
                     </div>
                 </AccordionContent>
             </AccordionItem>
+
             <AccordionItem value="Flexbox" className="px-0 py-0">
                 <AccordionTrigger className="px-6 !no-underline">Flexbox</AccordionTrigger>
                 <AccordionContent className="px-6 gap-2 flex flex-col">
@@ -608,204 +1095,6 @@ const SettingsTab = () => {
                         <Label className="text-muted-foreground"> Direction</Label>
                         <Input placeholder="px" id="flexDirection" onChange={handleOnChanges} value={getCurrentStyles().flexDirection} />
                     </div>
-                </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="quickactions" className="px-0 py-0">
-                <AccordionTrigger className="px-6 !no-underline">Quick Actions</AccordionTrigger>
-                <AccordionContent className="px-6 flex flex-col gap-4">
-                    {/* Quick action for 2Col containers to stack vertically on mobile */}
-                    {state.editor.selectedElement.type === "2Col" && activeDevice === "Mobile" && (
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-muted-foreground">Layout Actions</Label>
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
-                                    const deviceStyles = currentResponsiveStyles[activeDevice] || {};
-                                    
-                                    dispatch({
-                                        type: "UPDATE_ELEMENT",
-                                        payload: {
-                                            elementDetails: {
-                                                ...state.editor.selectedElement,
-                                                responsiveStyles: {
-                                                    ...currentResponsiveStyles,
-                                                    [activeDevice]: {
-                                                        ...deviceStyles,
-                                                        flexDirection: "column"
-                                                    }
-                                                }
-                                            },
-                                        },
-                                    });
-                                }}
-                                className="flex items-center gap-2"
-                            >
-                                <Smartphone className="h-4 w-4" />
-                                <span>Stack Vertically</span>
-                            </Button>
-                        </div>
-                    )}
-                    
-                    {/* Quick action for links to have responsive text */}
-                    {state.editor.selectedElement.type === "link" && activeDevice !== "Desktop" && !Array.isArray(state.editor.selectedElement.content) && (
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-muted-foreground">Responsive Link Text</Label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
-                                        
-                                        const baseContent = state.editor.selectedElement.content;
-                                        const responsiveContent = baseContent.responsiveContent || {};
-                                        const deviceContent = responsiveContent[activeDevice] || {};
-                                        
-                                        dispatch({
-                                            type: "UPDATE_ELEMENT",
-                                            payload: {
-                                                elementDetails: {
-                                                    ...state.editor.selectedElement,
-                                                    content: {
-                                                        ...baseContent,
-                                                        responsiveContent: {
-                                                            ...responsiveContent,
-                                                            [activeDevice]: {
-                                                                ...deviceContent,
-                                                                innerText: activeDevice === "Mobile" ? "Mobile Link" : "Tablet Link"
-                                                            }
-                                                        }
-                                                    },
-                                                },
-                                            },
-                                        });
-                                    }}
-                                    className="flex items-center justify-center gap-2"
-                                >
-                                    <span>Set {activeDevice} Text</span>
-                                </Button>
-                                
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
-                                        
-                                        const baseContent = state.editor.selectedElement.content;
-                                        const responsiveContent = baseContent.responsiveContent || {};
-                                        
-                                        // Reset the text for this device by removing innerText from device content
-                                        const newResponsiveContent = { ...responsiveContent };
-                                        if (newResponsiveContent[activeDevice]) {
-                                            const { innerText, ...restDeviceContent } = newResponsiveContent[activeDevice];
-                                            newResponsiveContent[activeDevice] = restDeviceContent;
-                                        }
-                                        
-                                        dispatch({
-                                            type: "UPDATE_ELEMENT",
-                                            payload: {
-                                                elementDetails: {
-                                                    ...state.editor.selectedElement,
-                                                    content: {
-                                                        ...baseContent,
-                                                        responsiveContent: newResponsiveContent
-                                                    },
-                                                },
-                                            },
-                                        });
-                                    }}
-                                    className="flex items-center justify-center gap-2"
-                                >
-                                    <span>Reset to Desktop</span>
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Quick action for ShimmerButton to adjust for mobile */}
-                    {state.editor.selectedElement.type === "shimmerButton" && activeDevice !== "Desktop" && !Array.isArray(state.editor.selectedElement.content) && (
-                        <div className="flex flex-col gap-2">
-                            <Label className="text-muted-foreground">Responsive Button</Label>
-                            <div className="grid grid-cols-2 gap-2">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
-                                        
-                                        const baseContent = state.editor.selectedElement.content;
-                                        const responsiveContent = baseContent.responsiveContent || {};
-                                        const deviceContent = responsiveContent[activeDevice] || {};
-                                        
-                                        // Set smaller size for mobile, a bit larger for tablet
-                                        dispatch({
-                                            type: "UPDATE_ELEMENT",
-                                            payload: {
-                                                elementDetails: {
-                                                    ...state.editor.selectedElement,
-                                                    content: {
-                                                        ...baseContent,
-                                                        responsiveContent: {
-                                                            ...responsiveContent,
-                                                            [activeDevice]: {
-                                                                ...deviceContent,
-                                                                innerText: activeDevice === "Mobile" ? "Mobil" : "Tablet",
-                                                                shimmerSize: activeDevice === "Mobile" ? "0.05em" : "0.08em"
-                                                            }
-                                                        }
-                                                    },
-                                                    // Also adjust the width in responsive styles
-                                                    responsiveStyles: {
-                                                        ...state.editor.selectedElement.responsiveStyles,
-                                                        [activeDevice]: {
-                                                            ...(state.editor.selectedElement.responsiveStyles?.[activeDevice] || {}),
-                                                            width: activeDevice === "Mobile" ? "100%" : "80%"
-                                                        }
-                                                    }
-                                                },
-                                            },
-                                        });
-                                    }}
-                                    className="flex items-center justify-center gap-2"
-                                >
-                                    <span>Optimize for {activeDevice}</span>
-                                </Button>
-                                
-                                <Button
-                                    variant="outline"
-                                    onClick={() => {
-                                        if (typeof state.editor.selectedElement.content !== 'object' || Array.isArray(state.editor.selectedElement.content)) return;
-                                        
-                                        const baseContent = state.editor.selectedElement.content;
-                                        const responsiveContent = baseContent.responsiveContent || {};
-                                        
-                                        // Reset the content for this device
-                                        const newResponsiveContent = { ...responsiveContent };
-                                        delete newResponsiveContent[activeDevice]; // Remove all overrides
-                                        
-                                        dispatch({
-                                            type: "UPDATE_ELEMENT",
-                                            payload: {
-                                                elementDetails: {
-                                                    ...state.editor.selectedElement,
-                                                    content: {
-                                                        ...baseContent,
-                                                        responsiveContent: newResponsiveContent
-                                                    },
-                                                    // Also reset responsive styles
-                                                    responsiveStyles: {
-                                                        ...state.editor.selectedElement.responsiveStyles,
-                                                        [activeDevice]: {}
-                                                    }
-                                                },
-                                            },
-                                        });
-                                    }}
-                                    className="flex items-center justify-center gap-2"
-                                >
-                                    <span>Reset to Desktop</span>
-                                </Button>
-                            </div>
-                        </div>
-                    )}
                 </AccordionContent>
             </AccordionItem>
         </Accordion>
