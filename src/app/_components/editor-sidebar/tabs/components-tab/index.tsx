@@ -24,14 +24,16 @@ import RetroGridPlaceholder from "./retro-grid-placeholder";
 import DotPatternPlaceholder from "./dot-pattern-placeholder";
 import MarqueePlaceholder from "./marquee-placeholder";
 
-// Marquee component
+// New layout and media components
+import GridLayoutPlaceholder from "./grid-layout-placeholder";
+import GifPlaceholder from "./gif-placeholder";
 
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
         label: string;
         id: EditorBtns;
-        category: "layout" | "buttons" | "backgrounds" | "marquee" | "text";
+        category: "layout" | "buttons" | "backgrounds" | "marquee" | "text" | "media";
     }[] = [
         // Layout Elements
         {
@@ -46,6 +48,12 @@ const ComponentsTab = () => {
             id: "2Col",
             category: "layout",
         },
+        {
+            Component: <GridLayoutPlaceholder />,
+            label: "Grid Layout",
+            id: "gridLayout",
+            category: "layout",
+        },
         
         // Text Elements
         {
@@ -53,6 +61,26 @@ const ComponentsTab = () => {
             label: "Text",
             id: "text",
             category: "text",
+        },
+        {
+            Component: <LinkPlaceholder />,
+            label: "Link",
+            id: "link",
+            category: "text",
+        },
+        
+        // Media Elements
+        {
+            Component: <VideoPlaceholder />,
+            label: "Video",
+            id: "video",
+            category: "media",
+        },
+        {
+            Component: <GifPlaceholder />,
+            label: "GIF",
+            id: "gif",
+            category: "media",
         },
         
         // Button Elements
@@ -121,30 +149,19 @@ const ComponentsTab = () => {
             category: "marquee",
         },
         
-        // Other Elements (keeping existing ones)
-        {
-            Component: <VideoPlaceholder />,
-            label: "Video",
-            id: "video",
-            category: "layout",
-        },
+        // Other Elements
         {
             Component: <ContactFormComponentPlaceholder />,
             label: "Contact",
             id: "contactForm",
             category: "layout",
         },
-        {
-            Component: <LinkPlaceholder />,
-            label: "Link",
-            id: "link",
-            category: "text",
-        },
     ];
 
     const categories = [
         { id: "layout", name: "Layout", defaultOpen: true },
         { id: "text", name: "Text", defaultOpen: true },
+        { id: "media", name: "Media", defaultOpen: true },
         { id: "buttons", name: "Buttons", defaultOpen: true },
         { id: "backgrounds", name: "Backgrounds", defaultOpen: false },
         { id: "marquee", name: "Marquee", defaultOpen: false },

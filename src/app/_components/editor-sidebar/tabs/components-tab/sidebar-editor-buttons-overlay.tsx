@@ -13,7 +13,9 @@ import {
   MousePointer,
   Layers,
   MoreHorizontal,
-  ArrowRight
+  ArrowRight,
+  FileImage,
+  Play
 } from "lucide-react";
 import React from "react";
 
@@ -47,10 +49,38 @@ const SidebarEditorButtonOverlay = ({ type }: Props) => {
         </div>
       );
 
+    case "gridLayout":
+      return (
+        <div className="h-14 w-14 bg-muted/70 rounded-lg p-2 flex flex-col gap-[2px] opacity-80 border-2 border-blue-500">
+          <div className="flex gap-[2px] h-full">
+            <div className="border-dashed border-[1px] h-full rounded-sm bg-muted border-muted-foreground/50 w-full" />
+            <div className="border-dashed border-[1px] h-full rounded-sm bg-muted border-muted-foreground/50 w-full" />
+            <div className="border-dashed border-[1px] h-full rounded-sm bg-muted border-muted-foreground/50 w-full" />
+          </div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Grid3X3 size={20} className="text-muted-foreground/70" />
+          </div>
+        </div>
+      );
+
     case "video":
       return (
         <div className={baseClasses}>
           <Youtube size={40} className="text-muted-foreground" />
+        </div>
+      );
+
+    case "gif":
+      return (
+        <div className={`${baseClasses} bg-gradient-to-br from-purple-100 to-pink-100 relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-pink-400/20 to-purple-400/20" />
+          <FileImage size={32} className="text-purple-600 relative z-10" />
+          <div className="absolute bottom-1 right-1 bg-purple-600 rounded-full p-1">
+            <Play size={10} className="text-white fill-current" />
+          </div>
+          <div className="absolute top-1 left-1 bg-purple-600 text-white text-[8px] px-1 rounded font-bold">
+            GIF
+          </div>
         </div>
       );
 

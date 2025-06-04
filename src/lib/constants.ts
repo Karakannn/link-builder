@@ -20,6 +20,8 @@ export type EditorBtns =
   | "dotPattern"
   | "marquee"
   | "3Col"
+  | "gridLayout"
+  | "gif"
   | null;
 
 export const defaultStyles: React.CSSProperties = {

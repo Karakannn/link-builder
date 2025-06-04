@@ -15,29 +15,91 @@ export type EditorElement = {
   name: string;
   type: EditorBtns;
   content:
-    | EditorElement[]
-    | {
-        // Common content properties
+  | EditorElement[]
+  | {
+    // Common content properties
+    href?: string;
+    innerText?: string;
+    src?: string;
+
+    // Shimmer button properties
+    shimmerColor?: string;
+    shimmerSize?: string;
+    shimmerDuration?: string;
+    borderRadius?: string;
+    background?: string;
+
+    // Neon gradient button properties
+    firstColor?: string;
+    secondColor?: string;
+    borderSize?: number;
+
+    // Button common properties
+    buttonClass?: string;
+
+    // Grid pattern properties
+    width?: number;
+    height?: number;
+    numSquares?: number;
+    maxOpacity?: number;
+    duration?: number;
+    repeatDelay?: number;
+    squares?: [number, number];
+
+    // Retro grid properties
+    angle?: number;
+    cellSize?: number;
+    opacity?: number;
+    lightLineColor?: string;
+    darkLineColor?: string;
+
+    // Dot pattern properties
+    cx?: number;
+    cy?: number;
+    cr?: number;
+
+    // Marquee properties
+    direction?: "left" | "right";
+    speed?: number;
+    pauseOnHover?: boolean;
+    items?: Array<{
+      type: "text" | "image";
+      content: string;
+      alt?: string;
+      width?: number;
+      height?: number;
+    }>;
+
+    // Grid Layout properties
+    columns?: number;
+    gap?: string;
+    minColumnWidth?: string;
+    autoFit?: boolean;
+    template?: string;
+    templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+
+    // GIF properties
+    alt?: string;
+    autoplay?: boolean;
+    loop?: boolean;
+    controls?: boolean;
+    loading?: "lazy" | "eager";
+
+    responsiveContent?: {
+      Tablet?: {
+        // All the above properties can be responsive
         href?: string;
         innerText?: string;
         src?: string;
-        
-        // Shimmer button properties
         shimmerColor?: string;
         shimmerSize?: string;
         shimmerDuration?: string;
         borderRadius?: string;
         background?: string;
-        
-        // Neon gradient button properties
         firstColor?: string;
         secondColor?: string;
         borderSize?: number;
-        
-        // Button common properties
         buttonClass?: string;
-        
-        // Grid pattern properties
         width?: number;
         height?: number;
         numSquares?: number;
@@ -45,20 +107,14 @@ export type EditorElement = {
         duration?: number;
         repeatDelay?: number;
         squares?: [number, number];
-        
-        // Retro grid properties
         angle?: number;
         cellSize?: number;
         opacity?: number;
         lightLineColor?: string;
         darkLineColor?: string;
-        
-        // Dot pattern properties
         cx?: number;
         cy?: number;
         cr?: number;
-        
-        // Marquee properties
         direction?: "left" | "right";
         speed?: number;
         pauseOnHover?: boolean;
@@ -69,88 +125,75 @@ export type EditorElement = {
           width?: number;
           height?: number;
         }>;
-        
-        responsiveContent?: {
-          Tablet?: {
-            href?: string;
-            innerText?: string;
-            src?: string;
-            shimmerColor?: string;
-            shimmerSize?: string;
-            shimmerDuration?: string;
-            borderRadius?: string;
-            background?: string;
-            firstColor?: string;
-            secondColor?: string;
-            borderSize?: number;
-            buttonClass?: string;
-            width?: number;
-            height?: number;
-            numSquares?: number;
-            maxOpacity?: number;
-            duration?: number;
-            repeatDelay?: number;
-            squares?: [number, number];
-            angle?: number;
-            cellSize?: number;
-            opacity?: number;
-            lightLineColor?: string;
-            darkLineColor?: string;
-            cx?: number;
-            cy?: number;
-            cr?: number;
-            direction?: "left" | "right";
-            speed?: number;
-            pauseOnHover?: boolean;
-            items?: Array<{
-              type: "text" | "image";
-              content: string;
-              alt?: string;
-              width?: number;
-              height?: number;
-            }>;
-          };
-          Mobile?: {
-            href?: string;
-            innerText?: string;
-            src?: string;
-            shimmerColor?: string;
-            shimmerSize?: string;
-            shimmerDuration?: string;
-            borderRadius?: string;
-            background?: string;
-            firstColor?: string;
-            secondColor?: string;
-            borderSize?: number;
-            buttonClass?: string;
-            width?: number;
-            height?: number;
-            numSquares?: number;
-            maxOpacity?: number;
-            duration?: number;
-            repeatDelay?: number;
-            squares?: [number, number];
-            angle?: number;
-            cellSize?: number;
-            opacity?: number;
-            lightLineColor?: string;
-            darkLineColor?: string;
-            cx?: number;
-            cy?: number;
-            cr?: number;
-            direction?: "left" | "right";
-            speed?: number;
-            pauseOnHover?: boolean;
-            items?: Array<{
-              type: "text" | "image";
-              content: string;
-              alt?: string;
-              width?: number;
-              height?: number;
-            }>;
-          };
-        };
+        // Grid Layout responsive properties
+        columns?: number;
+        gap?: string;
+        minColumnWidth?: string;
+        autoFit?: boolean;
+        template?: string;
+        templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+        // GIF responsive properties
+        alt?: string;
+        autoplay?: boolean;
+        loop?: boolean;
+        controls?: boolean;
+        loading?: "lazy" | "eager";
       };
+      Mobile?: {
+        // Same properties as Tablet
+        href?: string;
+        innerText?: string;
+        src?: string;
+        shimmerColor?: string;
+        shimmerSize?: string;
+        shimmerDuration?: string;
+        borderRadius?: string;
+        background?: string;
+        firstColor?: string;
+        secondColor?: string;
+        borderSize?: number;
+        buttonClass?: string;
+        width?: number;
+        height?: number;
+        numSquares?: number;
+        maxOpacity?: number;
+        duration?: number;
+        repeatDelay?: number;
+        squares?: [number, number];
+        angle?: number;
+        cellSize?: number;
+        opacity?: number;
+        lightLineColor?: string;
+        darkLineColor?: string;
+        cx?: number;
+        cy?: number;
+        cr?: number;
+        direction?: "left" | "right";
+        speed?: number;
+        pauseOnHover?: boolean;
+        items?: Array<{
+          type: "text" | "image";
+          content: string;
+          alt?: string;
+          width?: number;
+          height?: number;
+        }>;
+        // Grid Layout responsive properties
+        columns?: number;
+        gap?: string;
+        minColumnWidth?: string;
+        autoFit?: boolean;
+        template?: string;
+        templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+        // GIF responsive properties
+        alt?: string;
+        autoplay?: boolean;
+        loop?: boolean;
+        controls?: boolean;
+        loading?: "lazy" | "eager";
+      };
+    };
+  };
 };
 
 export type Editor = {
@@ -246,45 +289,45 @@ const findElementAndParent = (
 
 // Move an element from one container to another
 const moveElement = (elements: EditorElement[], action: EditorAction): EditorElement[] => {
-  if (action.type !== "MOVE_ELEMENT") 
+  if (action.type !== "MOVE_ELEMENT")
     throw Error("You sent the wrong action type on the MOVE_ELEMENT editor State");
-  
+
   const { elementId, targetContainerId } = action.payload;
-  
+
   console.log("MOVE_ELEMENT - Element ID:", elementId);
   console.log("MOVE_ELEMENT - Target Container ID:", targetContainerId);
-  
+
   // Step 1: Find the element and its parent
   const { element, parent } = findElementAndParent(elements, elementId);
-  
+
   if (!element || !parent) {
     console.error("Could not find element or its parent:", elementId);
     return elements;
   }
-  
+
   console.log("Found element to move:", element);
   console.log("Original parent:", parent.id);
   console.log("Target container:", targetContainerId);
-  
+
   // Check if trying to move to its own container
   if (parent.id === targetContainerId) {
     console.log("Element is already in this container, no need to move");
     return elements;
   }
-  
+
   // Step 2: Create a deep copy of the elements to avoid mutation
   const newElements = JSON.parse(JSON.stringify(elements));
-  
+
   // Step 3: Find the element copy and parent copy
   const { element: elementCopy, parent: parentCopy } = findElementAndParent(newElements, elementId);
-  
+
   if (!elementCopy || !parentCopy || !Array.isArray(parentCopy.content)) {
     console.error("Could not find element copy or parent copy or parent content is not an array");
     return elements;
   }
-  
+
   console.log("Found element copy:", elementCopy);
-  
+
   // Step 4: Find the target container in the copied elements
   const findTargetContainer = (elements: EditorElement[], id: string): EditorElement | null => {
     for (const element of elements) {
@@ -298,29 +341,29 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
     }
     return null;
   };
-  
+
   const targetContainer = findTargetContainer(newElements, targetContainerId);
-  
+
   if (!targetContainer) {
     console.error("Target container not found:", targetContainerId);
     return elements;
   }
-  
+
   if (!Array.isArray(targetContainer.content)) {
     console.error("Target container doesn't have an array content");
     return elements;
   }
-  
+
   console.log("Found target container:", targetContainer.id);
-  
+
   // Step 5: Remove the element from its original parent
   parentCopy.content = parentCopy.content.filter(item => item.id !== elementId);
-  
+
   // Step 6: Add the element to the target container directly
   targetContainer.content.push(elementCopy);
-  
+
   console.log("Element moved successfully from", parentCopy.id, "to", targetContainer.id);
-  
+
   return newElements;
 };
 
@@ -534,12 +577,12 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         selectedElement: updatedElementIsSelected
           ? action.payload.elementDetails
           : {
-              id: "",
-              content: [],
-              name: "",
-              styles: {},
-              type: null,
-            },
+            id: "",
+            content: [],
+            name: "",
+            styles: {},
+            type: null,
+          },
       };
 
       const updatedHistoryWithUpdate = [
@@ -563,19 +606,19 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
 
     case "MOVE_ELEMENT":
       const movedElements = moveElement(state.editor.elements, action);
-      
+
       const updatedEditorStateAfterMove = {
         ...state.editor,
         elements: movedElements,
       };
-      
+
       const updatedHistoryAfterMove = [
         ...state.history.history.slice(0, state.history.currentIndex + 1),
         {
           ...updatedEditorStateAfterMove,
         },
       ];
-      
+
       const movedState = {
         ...state,
         editor: updatedEditorStateAfterMove,
@@ -585,9 +628,9 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
           currentIndex: updatedHistoryAfterMove.length - 1,
         },
       };
-      
+
       return movedState;
-      
+
     case "DELETE_ELEMENT":
       const updatedElementsAfterDelete = deleteAnElement(state.editor.elements, action);
 

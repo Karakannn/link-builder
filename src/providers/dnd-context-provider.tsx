@@ -132,6 +132,42 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             });
             break;
 
+          case "gridLayout":
+            console.log("Adding GRID LAYOUT via dnd-kit to container:", containerId);
+            // Create 3 container children by default
+            const gridContainers = Array.from({ length: 3 }, () => ({
+              content: [],
+              id: v4(),
+              name: "Grid Item",
+              styles: {
+                ...defaultStyles,
+                minHeight: "100px",
+              },
+              type: "container" as const,
+            }));
+
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    columns: 3,
+                    gap: "1rem",
+                    minColumnWidth: "200px",
+                  },
+                  id: v4(),
+                  name: "Grid Layout",
+                  styles: {
+                    display: "grid",
+                    ...defaultStyles,
+                  },
+                  type: "gridLayout",
+                },
+              },
+            });
+            break;
+
           case "video":
             console.log("Adding VIDEO via dnd-kit to container:", containerId);
             dispatch({
@@ -150,6 +186,33 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
                     ...defaultStyles,
                   },
                   type: "video",
+                },
+              },
+            });
+            break;
+
+          case "gif":
+            console.log("Adding GIF via dnd-kit to container:", containerId);
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: {
+                containerId: containerId,
+                elementDetails: {
+                  content: {
+                    src: "",
+                    alt: "GIF",
+                    autoplay: true,
+                    loop: true,
+                    controls: false,
+                  },
+                  id: v4(),
+                  name: "GIF",
+                  styles: {
+                    width: "300px",
+                    height: "auto",
+                    ...defaultStyles,
+                  },
+                  type: "gif",
                 },
               },
             });

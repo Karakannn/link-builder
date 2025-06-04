@@ -21,6 +21,10 @@ import DotPatternComponent from "./dot-pattern";
 // Import marquee component
 import MarqueeComponent from "./marquee";
 
+// Import new layout and media components
+import GridLayoutComponent from "./grid-layout";
+import GifComponent from "./gif";
+
 type Props = {
     element: EditorElement;
 };
@@ -67,6 +71,12 @@ const Recursive = ({ element }: Props) => {
         // Marquee component
         case "marquee":
             return <MarqueeComponent element={element} />;
+        
+        // New layout and media components
+        case "gridLayout":
+            return <GridLayoutComponent element={element} />;
+        case "gif":
+            return <GifComponent element={element} />;
         
         default:
             return null;

@@ -37,6 +37,7 @@ const SettingsTab = () => {
         };
     };
 
+
     // Function to get the current content based on active device
     const getCurrentContent = () => {
         return getElementContent(state.editor.selectedElement, activeDevice);
@@ -700,6 +701,278 @@ const SettingsTab = () => {
                                 )}
                             </div>
                         )}
+                        
+                    {/* Grid Layout Settings */}
+                    {state.editor.selectedElement.type === "gridLayout" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Number of Columns</p>
+                                <Input
+                                    id="columns"
+                                    type="number"
+                                    placeholder="3"
+                                    min="1"
+                                    max="12"
+                                    onChange={handleChangeCustomValues}
+                                    value={getCurrentContent().columns || 3}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Grid Gap</p>
+                                <Select
+                                    onValueChange={(value) => handleChangeCustomValues({
+                                        target: { id: "gap", value }
+                                    } as any)}
+                                    value={getCurrentContent().gap || "1rem"}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select gap size" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="0.25rem">0.25rem (4px)</SelectItem>
+                                        <SelectItem value="0.5rem">0.5rem (8px)</SelectItem>
+                                        <SelectItem value="1rem">1rem (16px)</SelectItem>
+                                        <SelectItem value="1.5rem">1.5rem (24px)</SelectItem>
+                                        <SelectItem value="2rem">2rem (32px)</SelectItem>
+                                        <SelectItem value="3rem">3rem (48px)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Minimum Column Width</p>
+                                <Input
+                                    id="minColumnWidth"
+                                    placeholder="200px"
+                                    onChange={handleChangeCustomValues}
+                                    value={getCurrentContent().minColumnWidth || "200px"}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="autoFit"
+                                    checked={getCurrentContent().autoFit || false}
+                                    onChange={(e) => handleChangeCustomValues({
+                                        target: { id: "autoFit", value: e.target.checked }
+                                    } as any)}
+                                />
+                                <Label htmlFor="autoFit">Auto-fit columns</Label>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Grid Template</p>
+                                <Select
+                                    onValueChange={(value) => {
+                                        const templates = {
+                                            "equal": { columns: getCurrentContent().columns || 3, template: "" },
+                                            "sidebar": { columns: 2, template: "1fr 300px" },
+                                            "hero": { columns: 2, template: "2fr 1fr" },
+                                            "thirds": { columns: 3, template: "1fr 2fr 1fr" },
+                                            "custom": { columns: getCurrentContent().columns || 3, template: getCurrentContent().template || "" }
+                                        };
+
+                                        const selected = templates[value as keyof typeof templates];
+                                        handleChangeCustomValues({
+                                            target: { id: "template", value: selected.template }
+                                        } as any);
+
+                                        if (value !== "custom") {
+                                            handleChangeCustomValues({
+                                                target: { id: "columns", value: selected.columns }
+                                            } as any);
+                                        }
+                                    }}
+                                    value={getCurrentContent().templateType || "equal"}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select template" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="equal">Equal Columns</SelectItem>
+                                        <SelectItem value="sidebar">Sidebar Layout</SelectItem>
+                                        <SelectItem value="hero">Hero Layout</SelectItem>
+                                        <SelectItem value="thirds">Hero + Sides</SelectItem>
+                                        <SelectItem value="custom">Custom</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            {getCurrentContent().templateType === "custom" && (
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-muted-foreground">Custom Template</p>
+                                    <Input
+                                        id="template"
+                                        placeholder="1fr 2fr 1fr"
+                                        onChange={handleChangeCustomValues}
+                                        value={getCurrentContent().template || ""}
+                                    />
+                                    <span className="text-xs text-muted-foreground">
+                                        Example: "1fr 2fr 1fr" or "200px 1fr 200px"
+                                    </span>
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/*  GIF Settings */}
+                    {state.editor.selectedElement.type === "gif" && !Array.isArray(state.editor.selectedElement.content) && (
+                        <div className="flex flex-col gap-4">
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">GIF URL</p>
+                                <Input
+                                    id="src"
+                                    placeholder="https://example.com/animation.gif"
+                                    onChange={handleChangeCustomValues}
+                                    value={getCurrentContent().src || ""}
+                                />
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Alt Text</p>
+                                <Input
+                                    id="alt"
+                                    placeholder="Describe the GIF"
+                                    onChange={handleChangeCustomValues}
+                                    value={getCurrentContent().alt || ""}
+                                />
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="autoplay"
+                                    checked={getCurrentContent().autoplay !== false}
+                                    onChange={(e) => handleChangeCustomValues({
+                                        target: { id: "autoplay", value: e.target.checked }
+                                    } as any)}
+                                />
+                                <Label htmlFor="autoplay">Autoplay</Label>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="loop"
+                                    checked={getCurrentContent().loop !== false}
+                                    onChange={(e) => handleChangeCustomValues({
+                                        target: { id: "loop", value: e.target.checked }
+                                    } as any)}
+                                />
+                                <Label htmlFor="loop">Loop</Label>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="controls"
+                                    checked={getCurrentContent().controls || false}
+                                    onChange={(e) => handleChangeCustomValues({
+                                        target: { id: "controls", value: e.target.checked }
+                                    } as any)}
+                                />
+                                <Label htmlFor="controls">Show play/pause controls</Label>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Loading Behavior</p>
+                                <Select
+                                    onValueChange={(value) => handleChangeCustomValues({
+                                        target: { id: "loading", value }
+                                    } as any)}
+                                    value={getCurrentContent().loading || "lazy"}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select loading behavior" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="lazy">Lazy (Load when visible)</SelectItem>
+                                        <SelectItem value="eager">Eager (Load immediately)</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <p className="text-muted-foreground">Object Fit</p>
+                                <Select
+                                    onValueChange={(value) => {
+                                        handleOnChanges({
+                                            target: { id: "objectFit", value }
+                                        } as any);
+                                    }}
+                                    value={getCurrentStyles().objectFit as string || "cover"}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select fit" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="cover">Cover</SelectItem>
+                                        <SelectItem value="contain">Contain</SelectItem>
+                                        <SelectItem value="fill">Fill</SelectItem>
+                                        <SelectItem value="none">None</SelectItem>
+                                        <SelectItem value="scale-down">Scale Down</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-muted-foreground">Max Width</p>
+                                    <Input
+                                        id="maxWidth"
+                                        placeholder="500px"
+                                        onChange={handleOnChanges}
+                                        value={getCurrentStyles().maxWidth || ""}
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <p className="text-muted-foreground">Max Height</p>
+                                    <Input
+                                        id="maxHeight"
+                                        placeholder="300px"
+                                        onChange={handleOnChanges}
+                                        value={getCurrentStyles().maxHeight || ""}
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="rounded"
+                                    checked={(getCurrentStyles().borderRadius as string)?.includes('px') || false}
+                                    onChange={(e) => {
+                                        handleOnChanges({
+                                            target: {
+                                                id: "borderRadius",
+                                                value: e.target.checked ? "8px" : "0px"
+                                            }
+                                        } as any);
+                                    }}
+                                />
+                                <Label htmlFor="rounded">Rounded corners</Label>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="checkbox"
+                                    id="shadow"
+                                    checked={(getCurrentStyles().boxShadow as string)?.length > 0 || false}
+                                    onChange={(e) => {
+                                        handleOnChanges({
+                                            target: {
+                                                id: "boxShadow",
+                                                value: e.target.checked ? "0 4px 6px -1px rgb(0 0 0 / 0.1)" : "none"
+                                            }
+                                        } as any);
+                                    }}
+                                />
+                                <Label htmlFor="shadow">Drop shadow</Label>
+                            </div>
+                        </div>
+                    )}
                 </AccordionContent>
             </AccordionItem>
 
