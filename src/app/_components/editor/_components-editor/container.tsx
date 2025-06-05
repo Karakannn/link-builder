@@ -6,6 +6,7 @@ import Recursive from "./recursive";
 import { EditorBtns } from "@/lib/constants";
 import { getElementStyles } from "@/lib/utils";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
+import DropZoneWrapper from "./dropzone-wrapper";
 
 type Props = { element: EditorElement };
 
@@ -16,12 +17,12 @@ const Container = ({ element }: Props) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // dnd-kit droppable for receiving drops
-  const droppable = useDroppable({ 
+  const droppable = useDroppable({
     id: `droppable-${id}`,
     data: {
-      type: 'container',
-      containerId: id
-    }
+      type: "container",
+      containerId: id,
+    },
   });
 
   // dnd-kit draggable for moving this container (if it's not __body)
@@ -124,7 +125,12 @@ const Container = ({ element }: Props) => {
         </div>
       )}
 
-      {Array.isArray(content) && content.map((childElement) => <Recursive key={childElement.id} element={childElement} />)}
+      {Array.isArray(content) &&
+        content.map((childElement, index) => (
+          <DropZoneWrapper key={childElement.id} elementId={childElement.id} containerId={id} index={index}>
+            <Recursive element={childElement} />
+          </DropZoneWrapper>
+        ))}
 
       {state.editor.selectedElement.id === element.id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body" && (
         <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg ">

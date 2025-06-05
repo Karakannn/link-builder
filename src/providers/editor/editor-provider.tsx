@@ -15,91 +15,29 @@ export type EditorElement = {
   name: string;
   type: EditorBtns;
   content:
-  | EditorElement[]
-  | {
-    // Common content properties
-    href?: string;
-    innerText?: string;
-    src?: string;
-
-    // Shimmer button properties
-    shimmerColor?: string;
-    shimmerSize?: string;
-    shimmerDuration?: string;
-    borderRadius?: string;
-    background?: string;
-
-    // Neon gradient button properties
-    firstColor?: string;
-    secondColor?: string;
-    borderSize?: number;
-
-    // Button common properties
-    buttonClass?: string;
-
-    // Grid pattern properties
-    width?: number;
-    height?: number;
-    numSquares?: number;
-    maxOpacity?: number;
-    duration?: number;
-    repeatDelay?: number;
-    squares?: [number, number];
-
-    // Retro grid properties
-    angle?: number;
-    cellSize?: number;
-    opacity?: number;
-    lightLineColor?: string;
-    darkLineColor?: string;
-
-    // Dot pattern properties
-    cx?: number;
-    cy?: number;
-    cr?: number;
-
-    // Marquee properties
-    direction?: "left" | "right";
-    speed?: number;
-    pauseOnHover?: boolean;
-    items?: Array<{
-      type: "text" | "image";
-      content: string;
-      alt?: string;
-      width?: number;
-      height?: number;
-    }>;
-
-    // Grid Layout properties
-    columns?: number;
-    gap?: string;
-    minColumnWidth?: string;
-    autoFit?: boolean;
-    template?: string;
-    templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-
-    // GIF properties
-    alt?: string;
-    autoplay?: boolean;
-    loop?: boolean;
-    controls?: boolean;
-    loading?: "lazy" | "eager";
-
-    responsiveContent?: {
-      Tablet?: {
-        // All the above properties can be responsive
+    | EditorElement[]
+    | {
+        // Common content properties
         href?: string;
         innerText?: string;
         src?: string;
+
+        // Shimmer button properties
         shimmerColor?: string;
         shimmerSize?: string;
         shimmerDuration?: string;
         borderRadius?: string;
         background?: string;
+
+        // Neon gradient button properties
         firstColor?: string;
         secondColor?: string;
         borderSize?: number;
+
+        // Button common properties
         buttonClass?: string;
+
+        // Grid pattern properties
         width?: number;
         height?: number;
         numSquares?: number;
@@ -107,14 +45,20 @@ export type EditorElement = {
         duration?: number;
         repeatDelay?: number;
         squares?: [number, number];
+
+        // Retro grid properties
         angle?: number;
         cellSize?: number;
         opacity?: number;
         lightLineColor?: string;
         darkLineColor?: string;
+
+        // Dot pattern properties
         cx?: number;
         cy?: number;
         cr?: number;
+
+        // Marquee properties
         direction?: "left" | "right";
         speed?: number;
         pauseOnHover?: boolean;
@@ -125,75 +69,131 @@ export type EditorElement = {
           width?: number;
           height?: number;
         }>;
-        // Grid Layout responsive properties
+
+        // Grid Layout properties
         columns?: number;
         gap?: string;
         minColumnWidth?: string;
         autoFit?: boolean;
         template?: string;
         templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-        // GIF responsive properties
+
+        // GIF properties
         alt?: string;
         autoplay?: boolean;
         loop?: boolean;
         controls?: boolean;
         loading?: "lazy" | "eager";
+
+        responsiveContent?: {
+          Tablet?: {
+            // All the above properties can be responsive
+            href?: string;
+            innerText?: string;
+            src?: string;
+            shimmerColor?: string;
+            shimmerSize?: string;
+            shimmerDuration?: string;
+            borderRadius?: string;
+            background?: string;
+            firstColor?: string;
+            secondColor?: string;
+            borderSize?: number;
+            buttonClass?: string;
+            width?: number;
+            height?: number;
+            numSquares?: number;
+            maxOpacity?: number;
+            duration?: number;
+            repeatDelay?: number;
+            squares?: [number, number];
+            angle?: number;
+            cellSize?: number;
+            opacity?: number;
+            lightLineColor?: string;
+            darkLineColor?: string;
+            cx?: number;
+            cy?: number;
+            cr?: number;
+            direction?: "left" | "right";
+            speed?: number;
+            pauseOnHover?: boolean;
+            items?: Array<{
+              type: "text" | "image";
+              content: string;
+              alt?: string;
+              width?: number;
+              height?: number;
+            }>;
+            // Grid Layout responsive properties
+            columns?: number;
+            gap?: string;
+            minColumnWidth?: string;
+            autoFit?: boolean;
+            template?: string;
+            templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+            // GIF responsive properties
+            alt?: string;
+            autoplay?: boolean;
+            loop?: boolean;
+            controls?: boolean;
+            loading?: "lazy" | "eager";
+          };
+          Mobile?: {
+            // Same properties as Tablet
+            href?: string;
+            innerText?: string;
+            src?: string;
+            shimmerColor?: string;
+            shimmerSize?: string;
+            shimmerDuration?: string;
+            borderRadius?: string;
+            background?: string;
+            firstColor?: string;
+            secondColor?: string;
+            borderSize?: number;
+            buttonClass?: string;
+            width?: number;
+            height?: number;
+            numSquares?: number;
+            maxOpacity?: number;
+            duration?: number;
+            repeatDelay?: number;
+            squares?: [number, number];
+            angle?: number;
+            cellSize?: number;
+            opacity?: number;
+            lightLineColor?: string;
+            darkLineColor?: string;
+            cx?: number;
+            cy?: number;
+            cr?: number;
+            direction?: "left" | "right";
+            speed?: number;
+            pauseOnHover?: boolean;
+            items?: Array<{
+              type: "text" | "image";
+              content: string;
+              alt?: string;
+              width?: number;
+              height?: number;
+            }>;
+            // Grid Layout responsive properties
+            columns?: number;
+            gap?: string;
+            minColumnWidth?: string;
+            autoFit?: boolean;
+            template?: string;
+            templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+            // GIF responsive properties
+            alt?: string;
+            autoplay?: boolean;
+            loop?: boolean;
+            controls?: boolean;
+            loading?: "lazy" | "eager";
+          };
+        };
       };
-      Mobile?: {
-        // Same properties as Tablet
-        href?: string;
-        innerText?: string;
-        src?: string;
-        shimmerColor?: string;
-        shimmerSize?: string;
-        shimmerDuration?: string;
-        borderRadius?: string;
-        background?: string;
-        firstColor?: string;
-        secondColor?: string;
-        borderSize?: number;
-        buttonClass?: string;
-        width?: number;
-        height?: number;
-        numSquares?: number;
-        maxOpacity?: number;
-        duration?: number;
-        repeatDelay?: number;
-        squares?: [number, number];
-        angle?: number;
-        cellSize?: number;
-        opacity?: number;
-        lightLineColor?: string;
-        darkLineColor?: string;
-        cx?: number;
-        cy?: number;
-        cr?: number;
-        direction?: "left" | "right";
-        speed?: number;
-        pauseOnHover?: boolean;
-        items?: Array<{
-          type: "text" | "image";
-          content: string;
-          alt?: string;
-          width?: number;
-          height?: number;
-        }>;
-        // Grid Layout responsive properties
-        columns?: number;
-        gap?: string;
-        minColumnWidth?: string;
-        autoFit?: boolean;
-        template?: string;
-        templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-        // GIF responsive properties
-        alt?: string;
-        autoplay?: boolean;
-        loop?: boolean;
-        controls?: boolean;
-        loading?: "lazy" | "eager";
-      };
-    };
-  };
 };
 
 export type Editor = {
@@ -289,8 +289,7 @@ const findElementAndParent = (
 
 // Move an element from one container to another
 const moveElement = (elements: EditorElement[], action: EditorAction): EditorElement[] => {
-  if (action.type !== "MOVE_ELEMENT")
-    throw Error("You sent the wrong action type on the MOVE_ELEMENT editor State");
+  if (action.type !== "MOVE_ELEMENT") throw Error("You sent the wrong action type on the MOVE_ELEMENT editor State");
 
   const { elementId, targetContainerId } = action.payload;
 
@@ -357,7 +356,7 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
   console.log("Found target container:", targetContainer.id);
 
   // Step 5: Remove the element from its original parent
-  parentCopy.content = parentCopy.content.filter(item => item.id !== elementId);
+  parentCopy.content = parentCopy.content.filter((item) => item.id !== elementId);
 
   // Step 6: Add the element to the target container directly
   targetContainer.content.push(elementCopy);
@@ -545,6 +544,114 @@ const handleLoadData = (initialState: EditorState, initialEditorState: EditorSta
   };
 };
 
+const insertAnElement = (editorArray: EditorElement[], action: EditorAction): EditorElement[] => {
+  if (action.type !== "INSERT_ELEMENT") throw Error("You sent the wrong action type on the INSERT_ELEMENT editor State");
+
+  console.log("📥 INSERT_ELEMENT function called");
+  console.log("   - Container ID:", action.payload.containerId);
+  console.log("   - Insert Index:", action.payload.insertIndex);
+  console.log("   - Element:", action.payload.elementDetails.name);
+
+  return editorArray.map((item) => {
+    if (item.id === action.payload.containerId && Array.isArray(item.content)) {
+      console.log("   - Found container, inserting element at index", action.payload.insertIndex);
+      const newContent = [...item.content];
+      newContent.splice(action.payload.insertIndex, 0, action.payload.elementDetails);
+      console.log("   - New content length:", newContent.length);
+
+      return {
+        ...item,
+        content: newContent,
+      };
+    } else if (item.content && Array.isArray(item.content)) {
+      return {
+        ...item,
+        content: insertAnElement(item.content, action),
+      };
+    }
+    return item;
+  });
+};
+
+const reorderElement = (elements: EditorElement[], action: EditorAction): EditorElement[] => {
+  if (action.type !== "REORDER_ELEMENT") throw Error("You sent the wrong action type on the REORDER_ELEMENT editor State");
+
+  const { elementId, containerId, insertIndex } = action.payload;
+
+  console.log("🔄 REORDER_ELEMENT function called");
+  console.log("   - Element ID:", elementId);
+  console.log("   - Container ID:", containerId);
+  console.log("   - Insert Index:", insertIndex);
+
+  // Find the element and its parent
+  const { element, parent } = findElementAndParent(elements, elementId);
+
+  if (!element || !parent) {
+    console.error("   ❌ Could not find element or its parent:", elementId);
+    return elements;
+  }
+
+  console.log("   - Found element:", element.name);
+  console.log("   - Current parent:", parent.id);
+
+  // Create a deep copy of the elements
+  const newElements = JSON.parse(JSON.stringify(elements));
+
+  // Find the element copy and parent copy in new structure
+  const { element: elementCopy, parent: parentCopy } = findElementAndParent(newElements, elementId);
+
+  if (!elementCopy || !parentCopy || !Array.isArray(parentCopy.content)) {
+    console.error("   ❌ Could not find element copy or parent copy");
+    return elements;
+  }
+
+  // Find current index of element
+  const currentIndex = parentCopy.content.findIndex((item) => item.id === elementId);
+  console.log("   - Current index:", currentIndex);
+
+  // Remove the element from its current position
+  parentCopy.content = parentCopy.content.filter((item) => item.id !== elementId);
+  console.log("   - Removed element from current position");
+
+  // Find the target container
+  const findTargetContainer = (elements: EditorElement[], id: string): EditorElement | null => {
+    for (const element of elements) {
+      if (element.id === id) {
+        return element;
+      }
+      if (Array.isArray(element.content)) {
+        const found = findTargetContainer(element.content, id);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const targetContainer = findTargetContainer(newElements, containerId);
+
+  if (!targetContainer || !Array.isArray(targetContainer.content)) {
+    console.error("   ❌ Target container not found or doesn't have array content");
+    return elements;
+  }
+
+  console.log("   - Found target container:", targetContainer.id);
+  console.log("   - Target container current length:", targetContainer.content.length);
+
+  // If moving within same container, adjust index if needed
+  let finalInsertIndex = insertIndex;
+  if (containerId === parent.id && currentIndex < insertIndex) {
+    finalInsertIndex = insertIndex - 1;
+    console.log("   - Adjusted insert index for same container:", finalInsertIndex);
+  }
+
+  // Insert the element at the specified index
+  targetContainer.content.splice(finalInsertIndex, 0, elementCopy);
+  console.log("   ✅ Element inserted at index:", finalInsertIndex);
+  console.log("   - Target container new length:", targetContainer.content.length);
+
+  return newElements;
+};
+
 const editorReducer = (state: EditorState = initialState, action: EditorAction): EditorState => {
   switch (action.type) {
     case "ADD_ELEMENT":
@@ -577,12 +684,12 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         selectedElement: updatedElementIsSelected
           ? action.payload.elementDetails
           : {
-            id: "",
-            content: [],
-            name: "",
-            styles: {},
-            type: null,
-          },
+              id: "",
+              content: [],
+              name: "",
+              styles: {},
+              type: null,
+            },
       };
 
       const updatedHistoryWithUpdate = [
@@ -655,6 +762,54 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         },
       };
       return deletedState;
+    case "INSERT_ELEMENT":
+      console.log("🚀 INSERT_ELEMENT case triggered");
+      const insertedElements = insertAnElement(state.editor.elements, action);
+
+      const updatedEditorStateAfterInsert = {
+        ...state.editor,
+        elements: insertedElements,
+      };
+
+      const updatedHistoryAfterInsert = [...state.history.history.slice(0, state.history.currentIndex + 1), { ...updatedEditorStateAfterInsert }];
+
+      const insertedState = {
+        ...state,
+        editor: updatedEditorStateAfterInsert,
+        history: {
+          ...state.history,
+          history: updatedHistoryAfterInsert,
+          currentIndex: updatedHistoryAfterInsert.length - 1,
+        },
+      };
+
+      console.log("✅ INSERT_ELEMENT completed");
+      return insertedState;
+
+    case "REORDER_ELEMENT":
+      console.log("🚀 REORDER_ELEMENT case triggered");
+      const reorderedElements = reorderElement(state.editor.elements, action);
+
+      const updatedEditorStateAfterReorder = {
+        ...state.editor,
+        elements: reorderedElements,
+      };
+
+      const updatedHistoryAfterReorder = [...state.history.history.slice(0, state.history.currentIndex + 1), { ...updatedEditorStateAfterReorder }];
+
+      const reorderedState = {
+        ...state,
+        editor: updatedEditorStateAfterReorder,
+        history: {
+          ...state.history,
+          history: updatedHistoryAfterReorder,
+          currentIndex: updatedHistoryAfterReorder.length - 1,
+        },
+      };
+
+      console.log("✅ REORDER_ELEMENT completed");
+      return reorderedState;
+
     case "CHANGE_CLICKED_ELEMENT":
       const clickedState = handleClickedElement(state, action);
       return clickedState;

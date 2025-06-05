@@ -36,56 +36,37 @@ const DropZoneWrapper = ({ children, elementId, containerId, index }: DropZoneWr
     }
   });
 
-  // Live mode veya preview mode'da drop zone'ları gösterme
+  // Live mode veya preview mode'da hiçbir wrapper eklemeden döndür
   if (state.editor.liveMode || state.editor.previewMode) {
-    return <div className="relative">{children}</div>;
+    return <>{children}</>;
   }
 
   return (
-    <div className="relative">
-      {/* Top Drop Zone */}
+    <div className="relative w-full max-w-full">
+      {/* Top Drop Zone - Element'in üzerinde overlay */}
       <div
         ref={topDroppable.setNodeRef}
-        className={cn(
-          "absolute -top-1 left-0 right-0 h-2 z-40 transition-all duration-200",
-          {
-            "bg-blue-500/30": topDroppable.isOver,
-            "hover:bg-blue-500/10": !topDroppable.isOver,
-          }
-        )}
+        className="absolute -top-2 left-0 right-0 h-4 z-40 w-full"
       >
         {topDroppable.isOver && (
-          <div className="absolute top-0 left-0 right-0 h-0.5 bg-blue-500 shadow-lg animate-pulse" />
+          <div className="w-full h-0.5 bg-blue-500 shadow-lg animate-pulse" 
+               style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)' }} />
         )}
       </div>
 
-      {/* Element Content */}
-      <div className="relative z-10">
-        {children}
-      </div>
+      {/* Element Content - TAMAMEN NORMAL */}
+      {children}
 
-      {/* Bottom Drop Zone */}
+      {/* Bottom Drop Zone - Element'in altında overlay */}
       <div
         ref={bottomDroppable.setNodeRef}
-        className={cn(
-          "absolute -bottom-1 left-0 right-0 h-2 z-40 transition-all duration-200",
-          {
-            "bg-blue-500/30": bottomDroppable.isOver,
-            "hover:bg-blue-500/10": !bottomDroppable.isOver,
-          }
-        )}
+        className="absolute -bottom-2 left-0 right-0 h-4 z-40 w-full"
       >
         {bottomDroppable.isOver && (
-          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 shadow-lg animate-pulse" />
+          <div className="w-full h-0.5 bg-blue-500 shadow-lg animate-pulse"
+               style={{ position: 'absolute', bottom: '50%', transform: 'translateY(50%)' }} />
         )}
       </div>
-
-      {/* Debug info - development için (production'da kaldırılabilir) */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="absolute top-0 right-0 text-xs bg-gray-800 text-white px-1 rounded opacity-0 hover:opacity-100 transition-opacity z-50">
-          idx: {index}
-        </div>
-      )}
     </div>
   );
 };

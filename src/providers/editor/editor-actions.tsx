@@ -9,6 +9,14 @@ export type EditorAction =
         };
     }
     | {
+        type: "INSERT_ELEMENT";
+        payload: {
+            containerId: string;
+            insertIndex: number;
+            elementDetails: EditorElement;
+        };
+    }
+    | {
         type: "UPDATE_ELEMENT";
         payload: {
             elementDetails: EditorElement;
@@ -25,6 +33,14 @@ export type EditorAction =
         payload: {
             elementId: string;
             targetContainerId: string;
+        };
+    }
+    | {
+        type: "REORDER_ELEMENT";
+        payload: {
+            elementId: string;
+            containerId: string;
+            insertIndex: number;
         };
     }
     | {

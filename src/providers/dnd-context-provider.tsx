@@ -1,7 +1,7 @@
 "use client";
 
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
-import { useEditor } from "@/providers/editor/editor-provider";
+import { useEditor, EditorElement } from "@/providers/editor/editor-provider";
 import { v4 } from "uuid";
 import { defaultStyles } from "@/lib/constants";
 
@@ -21,543 +21,469 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     })
   );
 
+  // Helper function to create new element based on type
+  const createElement = (type: string): EditorElement | null => {
+    console.log("🔧 Creating new element of type:", type);
+    
+    const baseElement = {
+      id: v4(),
+      styles: { ...defaultStyles } as React.CSSProperties,
+    };
+
+    switch (type) {
+      case "text":
+        return {
+          ...baseElement,
+          name: "Text",
+          content: { innerText: "Text Element" },
+          type: "text",
+        } as EditorElement;
+
+      case "container":
+        return {
+          ...baseElement,
+          name: "Container",
+          content: [],
+          type: "container",
+        } as EditorElement;
+
+      case "2Col":
+        return {
+          ...baseElement,
+          name: "Two Columns",
+          content: [
+            {
+              content: [],
+              id: v4(),
+              name: "Container",
+              styles: { width: "50%", ...defaultStyles } as React.CSSProperties,
+              type: "container",
+            },
+            {
+              content: [],
+              id: v4(),
+              name: "Container", 
+              styles: { width: "50%", ...defaultStyles } as React.CSSProperties,
+              type: "container",
+            },
+          ],
+          styles: { display: "flex", ...defaultStyles } as React.CSSProperties,
+          type: "2Col",
+        } as EditorElement;
+
+      case "gridLayout":
+        return {
+          ...baseElement,
+          name: "Grid Layout",
+          content: {
+            columns: 3,
+            gap: "1rem",
+            minColumnWidth: "200px",
+          },
+          styles: { display: "grid", ...defaultStyles } as React.CSSProperties,
+          type: "gridLayout",
+        } as EditorElement;
+
+      case "video":
+        return {
+          ...baseElement,
+          name: "Video",
+          content: { src: "https://www.youtube.com/embed/A3l6YYkXzzg?si=zbcCeWcpq7Cwf8W1" },
+          styles: { width: "560px", height: "315px", ...defaultStyles } as React.CSSProperties,
+          type: "video",
+        } as EditorElement;
+
+      case "gif":
+        return {
+          ...baseElement,
+          name: "GIF",
+          content: {
+            src: "",
+            alt: "GIF",
+            autoplay: true,
+            loop: true,
+            controls: false,
+          },
+          styles: { width: "300px", height: "auto", ...defaultStyles } as React.CSSProperties,
+          type: "gif",
+        } as EditorElement;
+
+      case "contactForm":
+        return {
+          ...baseElement,
+          name: "Contact Form",
+          content: [],
+          styles: {} as React.CSSProperties,
+          type: "contactForm",
+        } as EditorElement;
+
+      case "link":
+        return {
+          ...baseElement,
+          name: "Link",
+          content: { href: "#", innerText: "Link Element" },
+          type: "link",
+        } as EditorElement;
+
+      case "shimmerButton":
+        return {
+          ...baseElement,
+          name: "Shimmer Button",
+          content: {
+            innerText: "Tıkla",
+            shimmerColor: "#ffffff",
+            shimmerSize: "0.1em",
+            shimmerDuration: "2s",
+            borderRadius: "10px",
+            background: "rgba(99, 102, 241, 1)",
+          },
+          styles: { 
+            width: "200px", 
+            textAlign: "center" as const, 
+            margin: "10px auto", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "shimmerButton",
+        } as EditorElement;
+
+      case "animatedShinyButton":
+        return {
+          ...baseElement,
+          name: "Animated Shiny Button",
+          content: {
+            innerText: "Shiny Button",
+            buttonClass: "default",
+          },
+          styles: { 
+            width: "200px", 
+            textAlign: "center" as const, 
+            margin: "10px auto", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "animatedShinyButton",
+        } as EditorElement;
+
+      case "neonGradientButton":
+        return {
+          ...baseElement,
+          name: "Neon Gradient Button",
+          content: {
+            innerText: "Neon Button",
+            firstColor: "#ff00aa",
+            secondColor: "#00FFF1",
+            borderSize: 2,
+            borderRadius: "20",
+          },
+          styles: { 
+            width: "200px", 
+            textAlign: "center" as const, 
+            margin: "10px auto", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "neonGradientButton",
+        } as EditorElement;
+
+      case "animatedBorderButton":
+        return {
+          ...baseElement,
+          name: "Animated Border Button",
+          content: {
+            innerText: "Border Button",
+            buttonClass: "default",
+          },
+          styles: { 
+            width: "200px", 
+            textAlign: "center" as const, 
+            margin: "10px auto", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "animatedBorderButton",
+        } as EditorElement;
+
+      case "animatedTextButton":
+        return {
+          ...baseElement,
+          name: "Animated Text Button",
+          content: {
+            innerText: "Text Button",
+            buttonClass: "default",
+          },
+          styles: { 
+            width: "200px", 
+            textAlign: "center" as const, 
+            margin: "10px auto", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "animatedTextButton",
+        } as EditorElement;
+
+      case "animatedGridPattern":
+        return {
+          ...baseElement,
+          name: "Animated Grid Pattern",
+          content: {
+            width: 40,
+            height: 40,
+            numSquares: 50,
+            maxOpacity: 0.5,
+            duration: 4,
+            repeatDelay: 0.5,
+          },
+          styles: { 
+            width: "100%", 
+            height: "200px", 
+            position: "relative" as const, 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "animatedGridPattern",
+        } as EditorElement;
+
+      case "interactiveGridPattern":
+        return {
+          ...baseElement,
+          name: "Interactive Grid Pattern",
+          content: {
+            width: 40,
+            height: 40,
+            squares: [24, 24],
+          },
+          styles: { 
+            width: "100%", 
+            height: "200px", 
+            position: "relative" as const, 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "interactiveGridPattern",
+        } as EditorElement;
+
+      case "retroGrid":
+        return {
+          ...baseElement,
+          name: "Retro Grid",
+          content: {
+            angle: 65,
+            cellSize: 60,
+            opacity: 0.5,
+            lightLineColor: "gray",
+            darkLineColor: "gray",
+          },
+          styles: { 
+            width: "100%", 
+            height: "200px", 
+            position: "relative" as const, 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "retroGrid",
+        } as EditorElement;
+
+      case "dotPattern":
+        return {
+          ...baseElement,
+          name: "Dot Pattern",
+          content: {
+            width: 16,
+            height: 16,
+            cx: 1,
+            cy: 1,
+            cr: 1,
+          },
+          styles: { 
+            width: "100%", 
+            height: "200px", 
+            position: "relative" as const, 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "dotPattern",
+        } as EditorElement;
+
+      case "marquee":
+        return {
+          ...baseElement,
+          name: "Marquee",
+          content: {
+            direction: "left",
+            speed: 50,
+            pauseOnHover: true,
+            items: [
+              { type: "text", content: "Sample Text 1" },
+              { type: "text", content: "Sample Text 2" },
+              { type: "text", content: "Sample Text 3" },
+            ],
+          },
+          styles: { 
+            width: "100%", 
+            height: "80px", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "marquee",
+        } as EditorElement;
+
+      default:
+        console.error("❌ Unknown element type:", type);
+        return null;
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    console.log("=== DRAG END EVENT ===");
-    console.log("Active:", active);
-    console.log("Over:", over);
-    console.log("Active data:", active?.data?.current);
-    console.log("Over data:", over?.data?.current);
+    console.log("\n" + "=".repeat(50));
+    console.log("🎯 DRAG END EVENT STARTED");
+    console.log("=".repeat(50));
+    
+    console.log("📦 Active (what's being dragged):");
+    console.log("  - ID:", active?.id);
+    console.log("  - Data:", active?.data?.current);
+    
+    console.log("\n🎯 Over (where it's being dropped):");
+    console.log("  - ID:", over?.id);
+    console.log("  - Data:", over?.data?.current);
 
     if (!over || !active) {
-      console.log("No over or active, returning");
+      console.log("❌ No over or active element, aborting drag");
+      console.log("=".repeat(50) + "\n");
       return;
     }
 
-    console.log("DndKit drag end:", { active, over });
+    // Extract drag information
+    const draggedType = active.data?.current?.type;
+    const isFromSidebar = active.data?.current?.isSidebarElement;
+    const isFromEditor = active.data?.current?.isEditorElement;
+    const elementId = active.data?.current?.elementId;
 
-    // Check if dropping on a container
-    if (over.data?.current?.type === "container") {
-      const containerId = over.data.current.containerId;
-      const draggedType = active.data?.current?.type;
-      const isFromSidebar = active.data?.current?.isSidebarElement;
-      const isFromEditor = active.data?.current?.isEditorElement;
-      const elementId = active.data?.current?.elementId;
+    console.log("\n📋 Drag Analysis:");
+    console.log("  - Dragged Type:", draggedType);
+    console.log("  - From Sidebar:", isFromSidebar);
+    console.log("  - From Editor:", isFromEditor);
+    console.log("  - Element ID:", elementId);
 
-      console.log("Dropping on container:", containerId, "Type:", draggedType, "From sidebar:", isFromSidebar, "From editor:", isFromEditor);
+    // Handle INSERT operations (dropping on element top/bottom zones)
+    if (over.data?.current?.type === "insert") {
+      console.log("\n🔄 INSERT OPERATION DETECTED");
+      
+      const { containerId, insertIndex, position, targetElementId } = over.data.current;
+      
+      console.log("📍 Insert Details:");
+      console.log("  - Container ID:", containerId);
+      console.log("  - Insert Index:", insertIndex);
+      console.log("  - Position:", position);
+      console.log("  - Target Element ID:", targetElementId);
 
       // Handle sidebar elements (creating new elements)
       if (isFromSidebar) {
-        console.log("Creating new element from sidebar");
-        switch (draggedType) {
-          case "text":
-            console.log("Adding TEXT via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  id: v4(),
-                  name: "Text",
-                  content: {
-                    innerText: "Text Element",
-                  },
-                  styles: {
-                    ...defaultStyles,
-                  },
-                  type: "text",
-                },
-              },
-            });
-            break;
-
-          case "container":
-            console.log("Adding CONTAINER via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  id: v4(),
-                  name: "Container",
-                  content: [],
-                  styles: {
-                    ...defaultStyles,
-                  },
-                  type: "container",
-                },
-              },
-            });
-            break;
-
-          case "2Col":
-            console.log("Adding 2COL via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: [
-                    {
-                      content: [],
-                      id: v4(),
-                      name: "Container",
-                      styles: {
-                        width: "50%",
-                        ...defaultStyles,
-                      },
-                      type: "container",
-                    },
-                    {
-                      content: [],
-                      id: v4(),
-                      name: "Container",
-                      styles: {
-                        width: "50%",
-                        ...defaultStyles,
-                      },
-                      type: "container",
-                    },
-                  ],
-                  id: v4(),
-                  name: "Two Columns",
-                  styles: {
-                    display: "flex",
-                    ...defaultStyles,
-                  },
-                  type: "2Col",
-                },
-              },
-            });
-            break;
-
-          case "gridLayout":
-            console.log("Adding GRID LAYOUT via dnd-kit to container:", containerId);
-            // Create 3 container children by default
-            const gridContainers = Array.from({ length: 3 }, () => ({
-              content: [],
-              id: v4(),
-              name: "Grid Item",
-              styles: {
-                ...defaultStyles,
-                minHeight: "100px",
-              },
-              type: "container" as const,
-            }));
-
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    columns: 3,
-                    gap: "1rem",
-                    minColumnWidth: "200px",
-                  },
-                  id: v4(),
-                  name: "Grid Layout",
-                  styles: {
-                    display: "grid",
-                    ...defaultStyles,
-                  },
-                  type: "gridLayout",
-                },
-              },
-            });
-            break;
-
-          case "video":
-            console.log("Adding VIDEO via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    src: "https://www.youtube.com/embed/A3l6YYkXzzg?si=zbcCeWcpq7Cwf8W1",
-                  },
-                  id: v4(),
-                  name: "Video",
-                  styles: {
-                    width: "560px",
-                    height: "315px",
-                    ...defaultStyles,
-                  },
-                  type: "video",
-                },
-              },
-            });
-            break;
-
-          case "gif":
-            console.log("Adding GIF via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    src: "",
-                    alt: "GIF",
-                    autoplay: true,
-                    loop: true,
-                    controls: false,
-                  },
-                  id: v4(),
-                  name: "GIF",
-                  styles: {
-                    width: "300px",
-                    height: "auto",
-                    ...defaultStyles,
-                  },
-                  type: "gif",
-                },
-              },
-            });
-            break;
-
-          case "contactForm":
-            console.log("Adding CONTACT FORM via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  id: v4(),
-                  name: "Contact Form",
-                  content: [],
-                  styles: {},
-                  type: "contactForm",
-                },
-              },
-            });
-            break;
-
-          case "link":
-            console.log("Adding LINK via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  id: v4(),
-                  name: "Link",
-                  content: {
-                    href: "#",
-                    innerText: "Link Element",
-                  },
-                  styles: {
-                    ...defaultStyles,
-                  },
-                  type: "link",
-                },
-              },
-            });
-            break;
-
-          case "shimmerButton":
-            console.log("Adding SHIMMER BUTTON via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    innerText: "Tıkla",
-                    shimmerColor: "#ffffff",
-                    shimmerSize: "0.1em",
-                    shimmerDuration: "2s",
-                    borderRadius: "10px",
-                    background: "rgba(99, 102, 241, 1)",
-                  },
-                  id: v4(),
-                  name: "Shimmer Button",
-                  styles: {
-                    width: "200px",
-                    textAlign: "center",
-                    margin: "10px auto",
-                    ...defaultStyles,
-                  },
-                  type: "shimmerButton",
-                },
-              },
-            });
-            break;
-
-          // New Button Types
-          case "animatedShinyButton":
-            console.log("Adding ANIMATED SHINY BUTTON via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    innerText: "Shiny Button",
-                    buttonClass: "default",
-                  },
-                  id: v4(),
-                  name: "Animated Shiny Button",
-                  styles: {
-                    width: "200px",
-                    textAlign: "center",
-                    margin: "10px auto",
-                    ...defaultStyles,
-                  },
-                  type: "animatedShinyButton",
-                },
-              },
-            });
-            break;
-
-          case "neonGradientButton":
-            console.log("Adding NEON GRADIENT BUTTON via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    innerText: "Neon Button",
-                    firstColor: "#ff00aa",
-                    secondColor: "#00FFF1",
-                    borderSize: 2,
-                    borderRadius: "20",
-                  },
-                  id: v4(),
-                  name: "Neon Gradient Button",
-                  styles: {
-                    width: "200px",
-                    textAlign: "center",
-                    margin: "10px auto",
-                    ...defaultStyles,
-                  },
-                  type: "neonGradientButton",
-                },
-              },
-            });
-            break;
-
-          case "animatedBorderButton":
-            console.log("Adding ANIMATED BORDER BUTTON via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    innerText: "Border Button",
-                    buttonClass: "default",
-                  },
-                  id: v4(),
-                  name: "Animated Border Button",
-                  styles: {
-                    width: "200px",
-                    textAlign: "center",
-                    margin: "10px auto",
-                    ...defaultStyles,
-                  },
-                  type: "animatedBorderButton",
-                },
-              },
-            });
-            break;
-
-          case "animatedTextButton":
-            console.log("Adding ANIMATED TEXT BUTTON via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    innerText: "Text Button",
-                    buttonClass: "default",
-                  },
-                  id: v4(),
-                  name: "Animated Text Button",
-                  styles: {
-                    width: "200px",
-                    textAlign: "center",
-                    margin: "10px auto",
-                    ...defaultStyles,
-                  },
-                  type: "animatedTextButton",
-                },
-              },
-            });
-            break;
-
-          // Background Types
-          case "animatedGridPattern":
-            console.log("Adding ANIMATED GRID PATTERN via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    width: 40,
-                    height: 40,
-                    numSquares: 50,
-                    maxOpacity: 0.5,
-                    duration: 4,
-                    repeatDelay: 0.5,
-                  },
-                  id: v4(),
-                  name: "Animated Grid Pattern",
-                  styles: {
-                    width: "100%",
-                    height: "200px",
-                    position: "relative",
-                    ...defaultStyles,
-                  },
-                  type: "animatedGridPattern",
-                },
-              },
-            });
-            break;
-
-          case "interactiveGridPattern":
-            console.log("Adding INTERACTIVE GRID PATTERN via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    width: 40,
-                    height: 40,
-                    squares: [24, 24],
-                  },
-                  id: v4(),
-                  name: "Interactive Grid Pattern",
-                  styles: {
-                    width: "100%",
-                    height: "200px",
-                    position: "relative",
-                    ...defaultStyles,
-                  },
-                  type: "interactiveGridPattern",
-                },
-              },
-            });
-            break;
-
-          case "retroGrid":
-            console.log("Adding RETRO GRID via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    angle: 65,
-                    cellSize: 60,
-                    opacity: 0.5,
-                    lightLineColor: "gray",
-                    darkLineColor: "gray",
-                  },
-                  id: v4(),
-                  name: "Retro Grid",
-                  styles: {
-                    width: "100%",
-                    height: "200px",
-                    position: "relative",
-                    ...defaultStyles,
-                  },
-                  type: "retroGrid",
-                },
-              },
-            });
-            break;
-
-          case "dotPattern":
-            console.log("Adding DOT PATTERN via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    width: 16,
-                    height: 16,
-                    cx: 1,
-                    cy: 1,
-                    cr: 1,
-                  },
-                  id: v4(),
-                  name: "Dot Pattern",
-                  styles: {
-                    width: "100%",
-                    height: "200px",
-                    position: "relative",
-                    ...defaultStyles,
-                  },
-                  type: "dotPattern",
-                },
-              },
-            });
-            break;
-
-          case "marquee":
-            console.log("Adding MARQUEE via dnd-kit to container:", containerId);
-            dispatch({
-              type: "ADD_ELEMENT",
-              payload: {
-                containerId: containerId,
-                elementDetails: {
-                  content: {
-                    direction: "left",
-                    speed: 50,
-                    pauseOnHover: true,
-                    items: [
-                      { type: "text", content: "Sample Text 1" },
-                      { type: "text", content: "Sample Text 2" },
-                      { type: "text", content: "Sample Text 3" },
-                    ],
-                  },
-                  id: v4(),
-                  name: "Marquee",
-                  styles: {
-                    width: "100%",
-                    height: "80px",
-                    ...defaultStyles,
-                  },
-                  type: "marquee",
-                },
-              },
-            });
-            break;
-
-          default:
-            console.log("Unknown dnd-kit element type:", draggedType);
-            break;
+        console.log("\n🆕 Creating new element from sidebar");
+        
+        const newElement = createElement(draggedType);
+        if (newElement) {
+          console.log("🚀 Dispatching INSERT_ELEMENT action:");
+          console.log("  - Container ID:", containerId);
+          console.log("  - Insert Index:", insertIndex);
+          console.log("  - Element:", newElement.name, newElement.id);
+          
+          dispatch({
+            type: "INSERT_ELEMENT",
+            payload: {
+              containerId,
+              insertIndex,
+              elementDetails: newElement,
+            },
+          });
+          
+          console.log("✅ INSERT_ELEMENT dispatched successfully");
+        } else {
+          console.error("❌ Failed to create new element");
         }
       }
-
-      // Handle editor elements (moving existing elements)
+      // Handle existing editor elements (reordering)
       else if (isFromEditor && elementId) {
-        console.log("Moving existing element:", elementId, "to container:", containerId);
+        console.log("\n🔄 Reordering existing element");
+        console.log("  - Moving element:", elementId);
+        console.log("  - To container:", containerId);
+        console.log("  - At index:", insertIndex);
+        
+        console.log("🚀 Dispatching REORDER_ELEMENT action:");
+        dispatch({
+          type: "REORDER_ELEMENT", 
+          payload: {
+            elementId,
+            containerId,
+            insertIndex,
+          },
+        });
+        
+        console.log("✅ REORDER_ELEMENT dispatched successfully");
+      } else {
+        console.warn("⚠️ INSERT operation but no valid source detected");
+      }
+    }
+    // Handle CONTAINER drops (add to end of container) - MEVCUT YAPIYI KORUYORUZ
+    else if (over.data?.current?.type === "container") {
+      console.log("\n📦 CONTAINER DROP OPERATION DETECTED");
+      
+      const containerId = over.data.current.containerId;
+      console.log("📍 Container Details:");
+      console.log("  - Container ID:", containerId);
 
+      // Handle sidebar elements (creating new elements)
+      if (isFromSidebar) {
+        console.log("\n🆕 Adding new element to container end");
+        
+        const newElement = createElement(draggedType);
+        if (newElement) {
+          console.log("🚀 Dispatching ADD_ELEMENT action:");
+          console.log("  - Container ID:", containerId);
+          console.log("  - Element:", newElement.name, newElement.id);
+          
+          dispatch({
+            type: "ADD_ELEMENT",
+            payload: {
+              containerId,
+              elementDetails: newElement,
+            },
+          });
+          
+          console.log("✅ ADD_ELEMENT dispatched successfully");
+        } else {
+          console.error("❌ Failed to create new element");
+        }
+      }
+      // Handle existing editor elements (moving to different container)
+      else if (isFromEditor && elementId) {
+        console.log("\n🔄 Moving existing element to different container");
+        
         // Check if trying to move element to itself
         if (elementId === containerId) {
-          console.log("Cannot move element to itself, skipping");
+          console.warn("⚠️ Cannot move element to itself, aborting");
+          console.log("=".repeat(50) + "\n");
           return;
         }
 
-        // Dispatch move element action
+        console.log("🚀 Dispatching MOVE_ELEMENT action:");
+        console.log("  - Element ID:", elementId);
+        console.log("  - Target Container ID:", containerId);
+        
         dispatch({
           type: "MOVE_ELEMENT",
           payload: {
-            elementId: elementId,
+            elementId,
             targetContainerId: containerId,
           },
         });
+        
+        console.log("✅ MOVE_ELEMENT dispatched successfully");
+      } else {
+        console.warn("⚠️ CONTAINER operation but no valid source detected");
       }
     }
+    // Handle unknown drop targets
+    else {
+      console.warn("⚠️ Unknown drop target type:", over.data?.current?.type);
+      console.log("📦 Over data:", over.data?.current);
+    }
+
+    console.log("\n" + "=".repeat(50));
+    console.log("🏁 DRAG END EVENT COMPLETED");
+    console.log("=".repeat(50) + "\n");
   };
 
   return (
