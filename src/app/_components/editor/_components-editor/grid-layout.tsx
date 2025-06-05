@@ -5,6 +5,8 @@ import React, { useState, useEffect, useRef } from "react";
 import Recursive from "./recursive";
 import { getElementStyles, getElementContent } from "@/lib/utils";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { v4 } from "uuid";
+import { defaultStyles } from "@/lib/constants";
 
 type Props = { element: EditorElement };
 
@@ -14,16 +16,7 @@ const GridLayoutComponent = ({ element }: Props) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // dnd-kit droppable for receiving drops
-  const droppable = useDroppable({ 
-    id: `droppable-${id}`,
-    data: {
-      type: 'container',
-      containerId: id
-    }
-  });
-
-  // dnd-kit draggable for moving this grid
+  // dnd-kit draggable for moving this grid (NO DROPPABLE - sadece containerlar drop alabilir)
   const draggable = useDraggable({
     id: `draggable-${id}`,
     data: {
@@ -36,24 +29,27 @@ const GridLayoutComponent = ({ element }: Props) => {
     disabled: state.editor.liveMode,
   });
 
-  // Get computed styles and content based on current device
+  // Get computed styles based on current device
   const computedStyles = getElementStyles(element, state.editor.device);
-  const computedContent = getElementContent(element, state.editor.device);
 
-  // Get grid settings from content
-  const gridContent = !Array.isArray(computedContent) ? computedContent : {};
-  const columns = gridContent.columns || 3;
-  const gap = gridContent.gap || "1rem";
-  const minColumnWidth = gridContent.minColumnWidth || "200px";
+  // Grid containers - element.content array'i olmalı (2Column gibi)
+  const gridContainers = Array.isArray(content) ? content : [];
 
-  // Monitor dnd-kit drag state for visual feedback
-  useEffect(() => {
-    if (droppable.isOver) {
-      setIsDraggingOver(true);
-    } else {
-      setIsDraggingOver(false);
+  // Grid ayarlarını styles'tan al
+  const gridTemplateColumns = computedStyles.gridTemplateColumns || "repeat(3, minmax(0, 1fr))";
+  const gap = computedStyles.gap || "1rem";
+
+  // Columns sayısını hesapla
+  const getColumnsFromTemplate = (template: string): number => {
+    if (template.includes('repeat(')) {
+      const match = template.match(/repeat\((\d+),/);
+      return match ? parseInt(match[1]) : gridContainers.length;
     }
-  }, [droppable.isOver]);
+    // Custom template için container sayısını kullan
+    return gridContainers.length;
+  };
+
+  const currentColumns = getColumnsFromTemplate(gridTemplateColumns as string);
 
   const handleOnClickBody = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -79,28 +75,11 @@ const GridLayoutComponent = ({ element }: Props) => {
     });
   };
 
-  // Combine droppable and draggable refs
+  // Sadece draggable ref - droppable yok
   const setNodeRef = (node: HTMLDivElement | null) => {
-    droppable.setNodeRef(node);
     draggable.setNodeRef(node);
     containerRef.current = node;
   };
-
-  // Create grid template columns based on settings
-  const template = gridContent.template;
-  const autoFit = gridContent.autoFit;
-  
-  let gridTemplateColumns;
-  if (template && template.trim()) {
-    // Custom template provided
-    gridTemplateColumns = template;
-  } else if (autoFit) {
-    // Auto-fit columns
-    gridTemplateColumns = `repeat(auto-fit, minmax(${minColumnWidth}, 1fr))`;
-  } else {
-    // Standard equal columns
-    gridTemplateColumns = `repeat(${columns}, minmax(${minColumnWidth}, 1fr))`;
-  }
 
   return (
     <div
@@ -110,15 +89,11 @@ const GridLayoutComponent = ({ element }: Props) => {
         display: 'grid',
         gridTemplateColumns,
         gap,
-        '--grid-columns': columns,
-        '--grid-gap': gap,
-        '--min-column-width': minColumnWidth,
       } as React.CSSProperties}
-      className={clsx("relative p-4 transition-all group min-h-[100px]", {
+      className={clsx("relative p-4 transition-all group min-h-[200px]", {
         "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
         "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
         "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
-        "!border-green-500 !border-2 !bg-green-50/50": isDraggingOver && !state.editor.liveMode,
         "cursor-grab": !state.editor.liveMode,
         "cursor-grabbing": draggable.isDragging,
         "opacity-50": draggable.isDragging,
@@ -128,37 +103,33 @@ const GridLayoutComponent = ({ element }: Props) => {
       {...(!state.editor.liveMode ? draggable.attributes : {})}
     >
       <Badge
-        className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
+        className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden z-10", {
           block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
         })}
       >
-        {element.name} ({columns} columns)
+        {element.name} ({currentColumns} columns)
       </Badge>
 
-      {isDraggingOver && !state.editor.liveMode && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-          <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium">Drop Here</span>
-        </div>
-      )}
-
-      {/* Grid items */}
-      {Array.isArray(content) && content.map((childElement, index) => (
-        <div key={childElement.id} className="grid-item">
-          <Recursive element={childElement} />
+      {/* Grid containers - 2Column gibi yapı, DropZoneWrapper YOK */}
+      {gridContainers.map((containerElement) => (
+        <div key={containerElement.id} className="grid-item h-full">
+          <Recursive element={containerElement} />
         </div>
       ))}
 
-      {/* Show grid structure in edit mode */}
-      {!state.editor.liveMode && Array.isArray(content) && content.length === 0 && (
+      {/* Eğer hiç container yoksa placeholder göster */}
+      {!state.editor.liveMode && gridContainers.length === 0 && (
         <div className="col-span-full flex items-center justify-center py-8 text-gray-400 text-sm">
-          {columns}-Column Grid Layout
-          <br />
-          Drag components here
+          <div className="text-center">
+            <div className="text-2xl mb-2">🏗️</div>
+            <div>Grid Layout</div>
+            <div className="text-xs mt-1">Configure columns in settings</div>
+          </div>
         </div>
       )}
 
       {state.editor.selectedElement.id === element.id && !state.editor.liveMode && (
-        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg text-white">
+        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg text-white z-10">
           <Trash size={16} onClick={handleDeleteElement} className="cursor-pointer" />
         </div>
       )}

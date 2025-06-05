@@ -16,7 +16,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5, 
+        distance: 5,
       },
     })
   );
@@ -24,7 +24,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
   // Helper function to create new element based on type
   const createElement = (type: string): EditorElement | null => {
     console.log("🔧 Creating new element of type:", type);
-    
+
     const baseElement = {
       id: v4(),
       styles: { ...defaultStyles } as React.CSSProperties,
@@ -62,7 +62,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             {
               content: [],
               id: v4(),
-              name: "Container", 
+              name: "Container",
               styles: { width: "50%", ...defaultStyles } as React.CSSProperties,
               type: "container",
             },
@@ -72,15 +72,34 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
         } as EditorElement;
 
       case "gridLayout":
+        // Başlangıçta 3 container oluştur
+        const initialColumns = 3;
+        const initialContainers = [];
+
+        for (let i = 0; i < initialColumns; i++) {
+          initialContainers.push({
+            id: v4(),
+            name: `Grid Container ${i + 1}`,
+            content: [],
+            styles: {
+              ...defaultStyles,
+              minHeight: "120px",
+              width: "100%",
+            } as React.CSSProperties,
+            type: "container",
+          });
+        }
+
         return {
           ...baseElement,
           name: "Grid Layout",
-          content: {
-            columns: 3,
+          content: initialContainers, // Container'ları içeren array
+          styles: {
+            display: "grid",
+            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
             gap: "1rem",
-            minColumnWidth: "200px",
-          },
-          styles: { display: "grid", ...defaultStyles } as React.CSSProperties,
+            ...defaultStyles,
+          } as React.CSSProperties,
           type: "gridLayout",
         } as EditorElement;
 
@@ -137,11 +156,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             borderRadius: "10px",
             background: "rgba(99, 102, 241, 1)",
           },
-          styles: { 
-            width: "200px", 
-            textAlign: "center" as const, 
-            margin: "10px auto", 
-            ...defaultStyles 
+          styles: {
+            width: "200px",
+            textAlign: "center" as const,
+            margin: "10px auto",
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "shimmerButton",
         } as EditorElement;
@@ -154,11 +173,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             innerText: "Shiny Button",
             buttonClass: "default",
           },
-          styles: { 
-            width: "200px", 
-            textAlign: "center" as const, 
-            margin: "10px auto", 
-            ...defaultStyles 
+          styles: {
+            width: "200px",
+            textAlign: "center" as const,
+            margin: "10px auto",
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "animatedShinyButton",
         } as EditorElement;
@@ -174,11 +193,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             borderSize: 2,
             borderRadius: "20",
           },
-          styles: { 
-            width: "200px", 
-            textAlign: "center" as const, 
-            margin: "10px auto", 
-            ...defaultStyles 
+          styles: {
+            width: "200px",
+            textAlign: "center" as const,
+            margin: "10px auto",
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "neonGradientButton",
         } as EditorElement;
@@ -191,11 +210,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             innerText: "Border Button",
             buttonClass: "default",
           },
-          styles: { 
-            width: "200px", 
-            textAlign: "center" as const, 
-            margin: "10px auto", 
-            ...defaultStyles 
+          styles: {
+            width: "200px",
+            textAlign: "center" as const,
+            margin: "10px auto",
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "animatedBorderButton",
         } as EditorElement;
@@ -208,11 +227,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             innerText: "Text Button",
             buttonClass: "default",
           },
-          styles: { 
-            width: "200px", 
-            textAlign: "center" as const, 
-            margin: "10px auto", 
-            ...defaultStyles 
+          styles: {
+            width: "200px",
+            textAlign: "center" as const,
+            margin: "10px auto",
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "animatedTextButton",
         } as EditorElement;
@@ -229,11 +248,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             duration: 4,
             repeatDelay: 0.5,
           },
-          styles: { 
-            width: "100%", 
-            height: "200px", 
-            position: "relative" as const, 
-            ...defaultStyles 
+          styles: {
+            width: "100%",
+            height: "200px",
+            position: "relative" as const,
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "animatedGridPattern",
         } as EditorElement;
@@ -247,11 +266,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             height: 40,
             squares: [24, 24],
           },
-          styles: { 
-            width: "100%", 
-            height: "200px", 
-            position: "relative" as const, 
-            ...defaultStyles 
+          styles: {
+            width: "100%",
+            height: "200px",
+            position: "relative" as const,
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "interactiveGridPattern",
         } as EditorElement;
@@ -267,11 +286,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             lightLineColor: "gray",
             darkLineColor: "gray",
           },
-          styles: { 
-            width: "100%", 
-            height: "200px", 
-            position: "relative" as const, 
-            ...defaultStyles 
+          styles: {
+            width: "100%",
+            height: "200px",
+            position: "relative" as const,
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "retroGrid",
         } as EditorElement;
@@ -287,11 +306,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             cy: 1,
             cr: 1,
           },
-          styles: { 
-            width: "100%", 
-            height: "200px", 
-            position: "relative" as const, 
-            ...defaultStyles 
+          styles: {
+            width: "100%",
+            height: "200px",
+            position: "relative" as const,
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "dotPattern",
         } as EditorElement;
@@ -310,10 +329,10 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
               { type: "text", content: "Sample Text 3" },
             ],
           },
-          styles: { 
-            width: "100%", 
-            height: "80px", 
-            ...defaultStyles 
+          styles: {
+            width: "100%",
+            height: "80px",
+            ...defaultStyles,
           } as React.CSSProperties,
           type: "marquee",
         } as EditorElement;
@@ -330,11 +349,11 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     console.log("\n" + "=".repeat(50));
     console.log("🎯 DRAG END EVENT STARTED");
     console.log("=".repeat(50));
-    
+
     console.log("📦 Active (what's being dragged):");
     console.log("  - ID:", active?.id);
     console.log("  - Data:", active?.data?.current);
-    
+
     console.log("\n🎯 Over (where it's being dropped):");
     console.log("  - ID:", over?.id);
     console.log("  - Data:", over?.data?.current);
@@ -360,9 +379,9 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     // Handle INSERT operations (dropping on element top/bottom zones)
     if (over.data?.current?.type === "insert") {
       console.log("\n🔄 INSERT OPERATION DETECTED");
-      
+
       const { containerId, insertIndex, position, targetElementId } = over.data.current;
-      
+
       console.log("📍 Insert Details:");
       console.log("  - Container ID:", containerId);
       console.log("  - Insert Index:", insertIndex);
@@ -372,14 +391,14 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
       // Handle sidebar elements (creating new elements)
       if (isFromSidebar) {
         console.log("\n🆕 Creating new element from sidebar");
-        
+
         const newElement = createElement(draggedType);
         if (newElement) {
           console.log("🚀 Dispatching INSERT_ELEMENT action:");
           console.log("  - Container ID:", containerId);
           console.log("  - Insert Index:", insertIndex);
           console.log("  - Element:", newElement.name, newElement.id);
-          
+
           dispatch({
             type: "INSERT_ELEMENT",
             payload: {
@@ -388,7 +407,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
               elementDetails: newElement,
             },
           });
-          
+
           console.log("✅ INSERT_ELEMENT dispatched successfully");
         } else {
           console.error("❌ Failed to create new element");
@@ -400,17 +419,17 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
         console.log("  - Moving element:", elementId);
         console.log("  - To container:", containerId);
         console.log("  - At index:", insertIndex);
-        
+
         console.log("🚀 Dispatching REORDER_ELEMENT action:");
         dispatch({
-          type: "REORDER_ELEMENT", 
+          type: "REORDER_ELEMENT",
           payload: {
             elementId,
             containerId,
             insertIndex,
           },
         });
-        
+
         console.log("✅ REORDER_ELEMENT dispatched successfully");
       } else {
         console.warn("⚠️ INSERT operation but no valid source detected");
@@ -419,7 +438,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     // Handle CONTAINER drops (add to end of container) - MEVCUT YAPIYI KORUYORUZ
     else if (over.data?.current?.type === "container") {
       console.log("\n📦 CONTAINER DROP OPERATION DETECTED");
-      
+
       const containerId = over.data.current.containerId;
       console.log("📍 Container Details:");
       console.log("  - Container ID:", containerId);
@@ -427,13 +446,13 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
       // Handle sidebar elements (creating new elements)
       if (isFromSidebar) {
         console.log("\n🆕 Adding new element to container end");
-        
+
         const newElement = createElement(draggedType);
         if (newElement) {
           console.log("🚀 Dispatching ADD_ELEMENT action:");
           console.log("  - Container ID:", containerId);
           console.log("  - Element:", newElement.name, newElement.id);
-          
+
           dispatch({
             type: "ADD_ELEMENT",
             payload: {
@@ -441,7 +460,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
               elementDetails: newElement,
             },
           });
-          
+
           console.log("✅ ADD_ELEMENT dispatched successfully");
         } else {
           console.error("❌ Failed to create new element");
@@ -450,7 +469,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
       // Handle existing editor elements (moving to different container)
       else if (isFromEditor && elementId) {
         console.log("\n🔄 Moving existing element to different container");
-        
+
         // Check if trying to move element to itself
         if (elementId === containerId) {
           console.warn("⚠️ Cannot move element to itself, aborting");
@@ -461,7 +480,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
         console.log("🚀 Dispatching MOVE_ELEMENT action:");
         console.log("  - Element ID:", elementId);
         console.log("  - Target Container ID:", containerId);
-        
+
         dispatch({
           type: "MOVE_ELEMENT",
           payload: {
@@ -469,7 +488,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             targetContainerId: containerId,
           },
         });
-        
+
         console.log("✅ MOVE_ELEMENT dispatched successfully");
       } else {
         console.warn("⚠️ CONTAINER operation but no valid source detected");

@@ -46,7 +46,7 @@ const DropZoneWrapper = ({ children, elementId, containerId, index }: DropZoneWr
       {/* Top Drop Zone - Element'in üzerinde overlay */}
       <div
         ref={topDroppable.setNodeRef}
-        className="absolute -top-2 left-0 right-0 h-4 z-40 w-full"
+        className="absolute -top-2 left-0 right-0 h-4 w-full"
       >
         {topDroppable.isOver && (
           <div className="w-full h-0.5 bg-blue-500 shadow-lg animate-pulse" 
@@ -60,7 +60,7 @@ const DropZoneWrapper = ({ children, elementId, containerId, index }: DropZoneWr
       {/* Bottom Drop Zone - Element'in altında overlay */}
       <div
         ref={bottomDroppable.setNodeRef}
-        className="absolute -bottom-2 left-0 right-0 h-4 z-40 w-full"
+        className="absolute -bottom-2 left-0 right-0 h-4 w-full"
       >
         {bottomDroppable.isOver && (
           <div className="w-full h-0.5 bg-blue-500 shadow-lg animate-pulse"

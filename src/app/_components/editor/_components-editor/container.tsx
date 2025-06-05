@@ -7,6 +7,7 @@ import { EditorBtns } from "@/lib/constants";
 import { getElementStyles } from "@/lib/utils";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import DropZoneWrapper from "./dropzone-wrapper";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = { element: EditorElement };
 
@@ -88,56 +89,58 @@ const Container = ({ element }: Props) => {
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={computedStyles}
-      className={clsx("relative p-6 transition-all group", {
-        "max-w-full w-full": type === "container" || type === "2Col",
-        "h-fit": type === "container",
-        "h-full": type === "__body",
-        "overflow-y-auto ": type === "__body",
-        "flex flex-col md:!flex-row": type === "2Col",
-        "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body",
-        "!border-yellow-400 !border-4": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type === "__body",
-        "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
-        "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
-        "!border-green-500 !border-2 !bg-green-50/50": isDraggingOver && !state.editor.liveMode,
-        "cursor-grab": type !== "__body" && !state.editor.liveMode,
-        "cursor-grabbing": draggable.isDragging,
-        "opacity-50": draggable.isDragging,
-      })}
-      onClick={handleOnClickBody}
-      // Sadece __body değilse drag listeners ekle
-      {...(type !== "__body" && !state.editor.liveMode ? draggable.listeners : {})}
-      {...(type !== "__body" && !state.editor.liveMode ? draggable.attributes : {})}
-    >
-      <Badge
-        className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
-          block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
+    <ElementContextMenu element={element}>
+      <div
+        ref={setNodeRef}
+        style={computedStyles}
+        className={clsx("relative p-6 transition-all group", {
+          "max-w-full w-full": type === "container" || type === "2Col",
+          "h-fit": type === "container",
+          "h-full": type === "__body",
+          "overflow-y-auto ": type === "__body",
+          "flex flex-col md:!flex-row": type === "2Col",
+          "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body",
+          "!border-yellow-400 !border-4": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type === "__body",
+          "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
+          "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
+          "!border-green-500 !border-2 !bg-green-50/50": isDraggingOver && !state.editor.liveMode,
+          "cursor-grab": type !== "__body" && !state.editor.liveMode,
+          "cursor-grabbing": draggable.isDragging,
+          "opacity-50": draggable.isDragging,
         })}
+        onClick={handleOnClickBody}
+        // Sadece __body değilse drag listeners ekle
+        {...(type !== "__body" && !state.editor.liveMode ? draggable.listeners : {})}
+        {...(type !== "__body" && !state.editor.liveMode ? draggable.attributes : {})}
       >
-        {element.name}
-      </Badge>
+        <Badge
+          className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
+            block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
+          })}
+        >
+          {element.name}
+        </Badge>
 
-      {isDraggingOver && !state.editor.liveMode && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium z-10">Drop Here</span>
-        </div>
-      )}
+        {isDraggingOver && !state.editor.liveMode && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium z-10">Drop Here</span>
+          </div>
+        )}
 
-      {Array.isArray(content) &&
-        content.map((childElement, index) => (
-          <DropZoneWrapper key={childElement.id} elementId={childElement.id} containerId={id} index={index}>
-            <Recursive element={childElement} />
-          </DropZoneWrapper>
-        ))}
+        {Array.isArray(content) &&
+          content.map((childElement, index) => (
+            <DropZoneWrapper key={childElement.id} elementId={childElement.id} containerId={id} index={index}>
+              <Recursive element={childElement} />
+            </DropZoneWrapper>
+          ))}
 
-      {state.editor.selectedElement.id === element.id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body" && (
-        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg ">
-          <Trash size={16} onClick={handleDeleteElement} className="cursor-pointer" />
-        </div>
-      )}
-    </div>
+        {state.editor.selectedElement.id === element.id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body" && (
+          <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg ">
+            <Trash size={16} onClick={handleDeleteElement} className="cursor-pointer" />
+          </div>
+        )}
+      </div>
+    </ElementContextMenu>
   );
 };
 

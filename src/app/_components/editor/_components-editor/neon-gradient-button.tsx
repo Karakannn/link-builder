@@ -94,7 +94,7 @@ const NeonGradientButtonComponent = ({ element }: Props) => {
 
       {state.editor.selectedElement.id === id && !state.editor.liveMode && (
         <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-          <Trash className="cursor-pointer" size={16} onClick={handleDeleteElement} />
+          <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
         </div>
       )}
     </div>
