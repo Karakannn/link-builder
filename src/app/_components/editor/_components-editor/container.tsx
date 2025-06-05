@@ -7,6 +7,7 @@ import { EditorBtns } from "@/lib/constants";
 import { getElementStyles } from "@/lib/utils";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import DropZoneWrapper from "./dropzone-wrapper";
+import { Button } from "@/components/ui/button";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = { element: EditorElement };
@@ -15,6 +16,7 @@ const Container = ({ element }: Props) => {
   const { id, name, type, styles, content } = element;
   const { dispatch, state } = useEditor();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const [mouseIsOver, setMouseIsOver] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // dnd-kit droppable for receiving drops
@@ -36,7 +38,7 @@ const Container = ({ element }: Props) => {
       isSidebarElement: false,
       isEditorElement: true,
     },
-    disabled: type === "__body", // Body can't be moved
+    disabled: type === "__body", // Body can't be moved,
   });
 
   // Get computed styles based on current device
@@ -59,7 +61,6 @@ const Container = ({ element }: Props) => {
   const handleOnClickBody = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("Container clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
-    // Sadece edit mode'da ve drag değilken çalışsın
     if (!state.editor.liveMode && !draggable.isDragging) {
       console.log("Selecting container:", id);
       dispatch({
@@ -81,12 +82,34 @@ const Container = ({ element }: Props) => {
     });
   };
 
+  const removeElement = (elementId: string) => {
+    dispatch({
+      type: "DELETE_ELEMENT",
+      payload: {
+        elementDetails: element,
+      },
+    });
+  };
+
+  // Mouse event handlers with stopPropagation
+  const handleMouseEnter = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event bubbling to parent containers
+    setMouseIsOver(true);
+  };
+
+  const handleMouseLeave = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent event bubbling to parent containers
+    setMouseIsOver(false);
+  };
+
   // Combine droppable and draggable refs
   const setNodeRef = (node: HTMLDivElement | null) => {
     droppable.setNodeRef(node);
     draggable.setNodeRef(node);
     containerRef.current = node;
   };
+
+  if(draggable.isDragging) return null
 
   return (
     <ElementContextMenu element={element}>
@@ -109,7 +132,8 @@ const Container = ({ element }: Props) => {
           "opacity-50": draggable.isDragging,
         })}
         onClick={handleOnClickBody}
-        // Sadece __body değilse drag listeners ekle
+     /*    onMouseEnter={handleMouseEnter} 
+        onMouseLeave={handleMouseLeave}  */
         {...(type !== "__body" && !state.editor.liveMode ? draggable.listeners : {})}
         {...(type !== "__body" && !state.editor.liveMode ? draggable.attributes : {})}
       >
@@ -120,6 +144,33 @@ const Container = ({ element }: Props) => {
         >
           {element.name}
         </Badge>
+
+        {/* Hover Message - "Click for properties or drag to move" */}
+        {mouseIsOver && !state.editor.liveMode && type !== "__body" && (
+          <div 
+            className="absolute inset-0 w-full h-full bg-black/50 z-20 flex justify-center align-super"
+            onMouseEnter={handleMouseEnter} // Ensure overlay also stops propagation
+            onMouseLeave={handleMouseLeave}
+          >
+            <div className="w-full">
+              <div className="absolute left-1/2 top-1/2 -translate-y-1/2 -translate-x-1/2 animate-pulse">
+                <p className="text-white text-base">Click for properties or drag to move</p>
+              </div>
+
+              <Button
+                className="flex justify-center ml-auto h-full border rounded-md rounded-l-none !bg-red-700"
+                variant={"outline"}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent click from bubbling
+                  removeElement(element.id);
+                }}
+                onMouseEnter={(e) => e.stopPropagation()} // Prevent button hover from affecting parent
+              >
+                <Trash className="h-6 w-6" />
+              </Button>
+            </div>
+          </div>
+        )}
 
         {isDraggingOver && !state.editor.liveMode && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

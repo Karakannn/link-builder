@@ -67,6 +67,7 @@ const ShimmerButtonComponent = ({ element }: Props) => {
   const borderRadius = (shimmerProps.borderRadius as string) || "10px";
   const background = (shimmerProps.background as string) || "rgba(99, 102, 241, 1)";
   const buttonText = shimmerProps.innerText || "Tıkla";
+  if(draggable.isDragging) return null
 
   return (
     <div
