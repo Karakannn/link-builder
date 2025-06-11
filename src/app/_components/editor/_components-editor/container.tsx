@@ -9,6 +9,7 @@ import { useDroppable, useDraggable } from "@dnd-kit/core";
 import DropZoneWrapper from "./dropzone-wrapper";
 import { Button } from "@/components/ui/button";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = { element: EditorElement };
 
@@ -18,6 +19,31 @@ const Container = ({ element }: Props) => {
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [mouseIsOver, setMouseIsOver] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+
+  const [isInGridLayout, setIsInGridLayout] = useState(false);
+  const [parentGridId, setParentGridId] = useState<string | null>(null);
+
+
+  useEffect(() => {
+    // Find if this container is inside a grid layout
+    const findParentGrid = (elements: EditorElement[], targetId: string): string | null => {
+      for (const el of elements) {
+        if (Array.isArray(el.content)) {
+          if (el.type === 'gridLayout' && el.content.some(child => child.id === targetId)) {
+            return el.id;
+          }
+          const found = findParentGrid(el.content, targetId);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const gridParent = findParentGrid(state.editor.elements, id);
+    setIsInGridLayout(!!gridParent);
+    setParentGridId(gridParent);
+  }, [id, state.editor.elements]);
 
   // dnd-kit droppable for receiving drops
   const droppable = useDroppable({
@@ -37,10 +63,11 @@ const Container = ({ element }: Props) => {
       name: name,
       isSidebarElement: false,
       isEditorElement: true,
+      isGridContainer: isInGridLayout,
+      parentGridId: parentGridId,
     },
-    disabled: type === "__body", // Body can't be moved,
+    disabled: type === "__body" || state.editor.liveMode,
   });
-
   // Get computed styles based on current device
   const computedStyles = getElementStyles(element, state.editor.device);
 
@@ -109,14 +136,36 @@ const Container = ({ element }: Props) => {
     containerRef.current = node;
   };
 
-  if(draggable.isDragging) return null
+  const containerLabel = isInGridLayout ? (
+    <Badge
+      className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
+        block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
+      })}
+    >
+      {element.name} (Grid Item)
+    </Badge>
+  ) : (
+    <Badge
+      className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
+        block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
+      })}
+    >
+      {element.name}
+    </Badge>
+  );
+
+  useEffect(() => {
+    setShowSpacingGuides(state.editor.selectedElement.id === id && !state.editor.liveMode);
+  }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
+  if (draggable.isDragging) return null
 
   return (
     <ElementContextMenu element={element}>
       <div
         ref={setNodeRef}
         style={computedStyles}
-        className={clsx("relative p-6 transition-all group", {
+        className={clsx("relative transition-all group", {
           "max-w-full w-full": type === "container" || type === "2Col",
           "h-fit": type === "container",
           "h-full": type === "__body",
@@ -130,13 +179,29 @@ const Container = ({ element }: Props) => {
           "cursor-grab": type !== "__body" && !state.editor.liveMode,
           "cursor-grabbing": draggable.isDragging,
           "opacity-50": draggable.isDragging,
+          "ring-2 ring-purple-400 ring-offset-1": isInGridLayout && draggable.isDragging,
+
         })}
         onClick={handleOnClickBody}
-     /*    onMouseEnter={handleMouseEnter} 
-        onMouseLeave={handleMouseLeave}  */
+        /*    onMouseEnter={handleMouseEnter} 
+           onMouseLeave={handleMouseLeave}  */
         {...(type !== "__body" && !state.editor.liveMode ? draggable.listeners : {})}
         {...(type !== "__body" && !state.editor.liveMode ? draggable.attributes : {})}
       >
+        {showSpacingGuides && (
+          <SpacingVisualizer
+            marginTop={computedStyles.marginTop}
+            marginRight={computedStyles.marginRight}
+            marginBottom={computedStyles.marginBottom}
+            marginLeft={computedStyles.marginLeft}
+            paddingTop={computedStyles.paddingTop}
+            paddingRight={computedStyles.paddingRight}
+            paddingBottom={computedStyles.paddingBottom}
+            paddingLeft={computedStyles.paddingLeft}
+          />
+        )}
+
+        {containerLabel}
         <Badge
           className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
             block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
@@ -147,7 +212,7 @@ const Container = ({ element }: Props) => {
 
         {/* Hover Message - "Click for properties or drag to move" */}
         {mouseIsOver && !state.editor.liveMode && type !== "__body" && (
-          <div 
+          <div
             className="absolute inset-0 w-full h-full bg-black/50 z-20 flex justify-center align-super"
             onMouseEnter={handleMouseEnter} // Ensure overlay also stops propagation
             onMouseLeave={handleMouseLeave}

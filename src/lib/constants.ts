@@ -30,4 +30,15 @@ export const defaultStyles: React.CSSProperties = {
     backgroundRepeat: "no-repeat",
     textAlign: "left",
     opacity: "100%",
+    // Add default margin and padding
+    margin: "0px",
+    padding: "20px",
+    marginTop: "0px",
+    marginRight: "0px",
+    marginBottom: "0px", 
+    marginLeft: "0px",
+    paddingTop: "20px",
+    paddingRight: "20px",
+    paddingBottom: "20px",
+    paddingLeft: "20px",
 };

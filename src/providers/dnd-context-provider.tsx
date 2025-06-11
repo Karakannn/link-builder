@@ -83,7 +83,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             content: [],
             styles: {
               ...defaultStyles,
-              minHeight: "120px",
+              /* minHeight: "120px", */
               width: "100%",
             } as React.CSSProperties,
             type: "container",
