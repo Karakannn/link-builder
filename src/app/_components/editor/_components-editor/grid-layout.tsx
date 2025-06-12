@@ -7,11 +7,10 @@ import { getElementStyles, getElementContent } from "@/lib/utils";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
 import { v4 } from "uuid";
 import { defaultStyles } from "@/lib/constants";
-import GridDropZoneWrapper from "./grid-dropzone-wrapper";
 
 type Props = { element: EditorElement };
 
-const GridLayoutComponent = ({ element }: Props) => {
+export const GridLayoutComponent = ({ element }: Props) => {
   const { id, name, type, styles, content } = element;
   const { dispatch, state } = useEditor();
   const [isDraggingOver, setIsDraggingOver] = useState(false);
@@ -112,29 +111,11 @@ const GridLayoutComponent = ({ element }: Props) => {
       </Badge>
 
       {/* Grid containers - 2Column gibi yapı, DropZoneWrapper YOK */}
-      {/*     {gridContainers.map((containerElement) => (
+      {gridContainers.map((containerElement) => (
         <div key={containerElement.id} className="grid-item h-full">
           <Recursive element={containerElement} />
         </div>
-      ))} */}
 
-      {/* Grid containers with span support */}
-       {gridContainers.map((containerElement, index) => (
-        <GridDropZoneWrapper 
-          key={containerElement.id} 
-          elementId={containerElement.id}
-          containerId={id}
-          index={index}
-        >
-          <div 
-            className="grid-item h-full"
-            style={{
-              gridColumn: containerElement.styles.gridColumn || 'span 6',
-            }}
-          >
-            <Recursive element={containerElement} />
-          </div>
-        </GridDropZoneWrapper>
       ))}
 
       {/* Eğer hiç container yoksa placeholder göster */}
@@ -156,5 +137,3 @@ const GridLayoutComponent = ({ element }: Props) => {
     </div>
   );
 };
-
-export default GridLayoutComponent;

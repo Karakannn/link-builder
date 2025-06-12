@@ -1,6 +1,5 @@
 import { EditorElement } from "@/providers/editor/editor-provider";
 import React from "react";
-import Container from "./container";
 import TextComponent from "./text";
 import VideoComponent from "./video";
 import LinkComponent from "./link";
@@ -22,8 +21,9 @@ import DotPatternComponent from "./dot-pattern";
 import MarqueeComponent from "./marquee";
 
 // Import new layout and media components
-import GridLayoutComponent from "./grid-layout";
 import GifComponent from "./gif";
+import { GridLayoutComponent } from "./grid-layout";
+import { Container } from "./container";
 
 type Props = {
     element: EditorElement;
