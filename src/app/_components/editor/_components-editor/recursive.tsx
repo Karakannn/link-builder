@@ -24,63 +24,66 @@ import MarqueeComponent from "./marquee";
 import GifComponent from "./gif";
 import { GridLayoutComponent } from "./grid-layout";
 import { Container } from "./container";
+import { ColumnComponent } from "./column";
 
 type Props = {
-    element: EditorElement;
+  element: EditorElement;
 };
 
 const Recursive = ({ element }: Props) => {
-    switch (element.type) {
-        case "text":
-            return <TextComponent element={element} />;
-        case "container":
-            return <Container element={element} />;
-        case "video":
-            return <VideoComponent element={element} />;
-        case "2Col":
-            return <Container element={element} />;
-        case "__body":
-            return <Container element={element} />;
-        case "link":
-            return <LinkComponent element={element} />;
-        
-        // Original button
-        case "shimmerButton":
-            return <ShimmerButtonComponent element={element} />;
-        
-        // New button components
-        case "animatedShinyButton":
-            return <AnimatedShinyButtonComponent element={element} />;
-        case "neonGradientButton":
-            return <NeonGradientButtonComponent element={element} />;
-        case "animatedBorderButton":
-            return <AnimatedBorderButtonComponent element={element} />;
-        case "animatedTextButton":
-            return <AnimatedTextButtonComponent element={element} />;
-        
-        // Background components
-        case "animatedGridPattern":
-            return <AnimatedGridPatternComponent element={element} />;
-        case "interactiveGridPattern":
-            return <InteractiveGridPatternComponent element={element} />;
-        case "retroGrid":
-            return <RetroGridComponent element={element} />;
-        case "dotPattern":
-            return <DotPatternComponent element={element} />;
-        
-        // Marquee component
-        case "marquee":
-            return <MarqueeComponent element={element} />;
-        
-        // New layout and media components
-        case "gridLayout":
-            return <GridLayoutComponent element={element} />;
-        case "gif":
-            return <GifComponent element={element} />;
-        
-        default:
-            return null;
-    }
+  switch (element.type) {
+    case "text":
+      return <TextComponent element={element} />;
+    case "container":
+      return <Container element={element} />;
+    case "video":
+      return <VideoComponent element={element} />;
+    case "2Col":
+      return <Container element={element} />;
+    case "__body":
+      return <Container element={element} />;
+    case "link":
+      return <LinkComponent element={element} />;
+
+    // Original button
+    case "shimmerButton":
+      return <ShimmerButtonComponent element={element} />;
+
+    // New button components
+    case "animatedShinyButton":
+      return <AnimatedShinyButtonComponent element={element} />;
+    case "neonGradientButton":
+      return <NeonGradientButtonComponent element={element} />;
+    case "animatedBorderButton":
+      return <AnimatedBorderButtonComponent element={element} />;
+    case "animatedTextButton":
+      return <AnimatedTextButtonComponent element={element} />;
+
+    // Background components
+    case "animatedGridPattern":
+      return <AnimatedGridPatternComponent element={element} />;
+    case "interactiveGridPattern":
+      return <InteractiveGridPatternComponent element={element} />;
+    case "retroGrid":
+      return <RetroGridComponent element={element} />;
+    case "dotPattern":
+      return <DotPatternComponent element={element} />;
+
+    // Marquee component
+    case "marquee":
+      return <MarqueeComponent element={element} />;
+
+    // New layout and media components
+    case "gridLayout":
+      return <GridLayoutComponent element={element} />;
+    case "column":
+      return <ColumnComponent element={element} />;
+    case "gif":
+      return <GifComponent element={element} />;
+
+    default:
+      return null;
+  }
 };
 
 export default Recursive;

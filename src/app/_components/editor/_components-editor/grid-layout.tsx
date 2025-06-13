@@ -2,21 +2,19 @@ import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor
 import clsx from "clsx";
 import { Badge, Trash } from "lucide-react";
 import React, { useState, useEffect, useRef } from "react";
-import Recursive from "./recursive";
+import { ColumnComponent } from "./column";
+import ColumnDropZoneWrapper from "./column-dropzone-wrapper";
 import { getElementStyles, getElementContent } from "@/lib/utils";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
-import { v4 } from "uuid";
-import { defaultStyles } from "@/lib/constants";
 
 type Props = { element: EditorElement };
 
 export const GridLayoutComponent = ({ element }: Props) => {
   const { id, name, type, styles, content } = element;
   const { dispatch, state } = useEditor();
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // dnd-kit draggable for moving this grid (NO DROPPABLE - sadece containerlar drop alabilir)
+  // dnd-kit draggable for moving this grid
   const draggable = useDraggable({
     id: `draggable-${id}`,
     data: {
@@ -31,31 +29,67 @@ export const GridLayoutComponent = ({ element }: Props) => {
 
   // Get computed styles based on current device
   const computedStyles = getElementStyles(element, state.editor.device);
+  
+  // Grid columns - content array'indeki column'lar
+  const gridColumns = Array.isArray(content) ? content : [];
 
-  // Grid containers - element.content array'i olmalı (2Column gibi)
-  const gridContainers = Array.isArray(content) ? content : [];
+  // Grid ayarlarını styles'tan al (burada sorun vardı!)
+  const totalGridColumns = (computedStyles as any).gridColumns || 12;
+  const columnSpans = (computedStyles as any).columnSpans || [];
+  const gap = (computedStyles as any).gridGap || computedStyles.gap || "1rem";
+  
+  // Default span hesaplama
+  const defaultSpan = Math.floor(totalGridColumns / Math.max(gridColumns.length, 1));
 
-  // Grid ayarlarını styles'tan al
-  const gridTemplateColumns = computedStyles.gridTemplateColumns || "repeat(3, minmax(0, 1fr))";
-  const gap = computedStyles.gap || "1rem";
+  console.log("🏗️ GridLayoutComponent render:", {
+    elementId: id,
+    deviceType: state.editor.device,
+    gridColumnsCount: gridColumns.length,
+    totalGridColumns,
+    columnSpans,
+    defaultSpan,
+    gap,
+    computedStyles: { gridColumns: (computedStyles as any).gridColumns, columnSpans: (computedStyles as any).columnSpans }
+  });
 
-  // Columns sayısını hesapla
-  const getColumnsFromTemplate = (template: string): number => {
-    if (template.includes('repeat(')) {
-      const match = template.match(/repeat\((\d+),/);
-      return match ? parseInt(match[1]) : gridContainers.length;
+  // Generate grid template columns based on device
+  const generateGridTemplate = () => {
+    const device = state.editor.device;
+    
+    if (device === "Mobile") {
+      // Mobile'da tüm column'lar full width (alt alta)
+      return "1fr";
+    } else if (device === "Tablet") {
+      // Tablet'te 2'li gruplar halinde
+      return "repeat(2, 1fr)";
+    } else {
+      // Desktop'ta normal grid sistemi
+      return `repeat(${totalGridColumns}, 1fr)`;
     }
-    // Custom template için container sayısını kullan
-    return gridContainers.length;
   };
 
-  const currentColumns = getColumnsFromTemplate(gridTemplateColumns as string);
+  const gridTemplateColumns = generateGridTemplate();
+  
+  // Final grid styles
+  const finalGridStyles = {
+    ...computedStyles,
+    display: 'grid',
+    gridTemplateColumns: gridTemplateColumns,
+    gap: gap,
+  };
 
+  console.log("🏗️ Grid Layout CSS:", {
+    device: state.editor.device,
+    totalGridColumns,
+    gridTemplateColumns,
+    gap,
+    finalGridStyles
+  });
+
+  // Event handlers
   const handleOnClickBody = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("Grid clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
     if (!state.editor.liveMode && !draggable.isDragging) {
-      console.log("Selecting grid:", id);
       dispatch({
         type: "CHANGE_CLICKED_ELEMENT",
         payload: {
@@ -75,7 +109,6 @@ export const GridLayoutComponent = ({ element }: Props) => {
     });
   };
 
-  // Sadece draggable ref - droppable yok
   const setNodeRef = (node: HTMLDivElement | null) => {
     draggable.setNodeRef(node);
     containerRef.current = node;
@@ -84,13 +117,8 @@ export const GridLayoutComponent = ({ element }: Props) => {
   return (
     <div
       ref={setNodeRef}
-      style={{
-        ...computedStyles,
-        display: 'grid',
-        gridTemplateColumns,
-        gap,
-      } as React.CSSProperties}
-      className={clsx("relative p-4 transition-all group min-h-[200px]", {
+      style={finalGridStyles}
+      className={clsx("relative p-6 transition-all group min-h-[200px]", {
         "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
         "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
         "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
@@ -102,33 +130,58 @@ export const GridLayoutComponent = ({ element }: Props) => {
       {...(!state.editor.liveMode ? draggable.listeners : {})}
       {...(!state.editor.liveMode ? draggable.attributes : {})}
     >
+      {/* Grid Layout Badge */}
       <Badge
         className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden z-10", {
           block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
         })}
       >
-        {element.name} ({currentColumns} columns)
+        {element.name} ({gridColumns.length} sütun)
       </Badge>
 
-      {/* Grid containers - 2Column gibi yapı, DropZoneWrapper YOK */}
-      {gridContainers.map((containerElement) => (
-        <div key={containerElement.id} className="grid-item h-full">
-          <Recursive element={containerElement} />
-        </div>
+      {/* Grid columns with drop zones */}
+      {gridColumns.map((columnElement, index) => {
+        // Column span hesaplama - device'a göre
+        let columnSpan: number;
+        
+        if (state.editor.device === "Desktop") {
+          // Desktop'ta columnSpans array'ini kullan veya default span
+          columnSpan = columnSpans[index] || defaultSpan;
+        } else if (state.editor.device === "Mobile") {
+          // Mobile'da her column full width
+          columnSpan = totalGridColumns;
+        } else {
+          // Tablet'te maksimum 2 column
+          columnSpan = Math.floor(totalGridColumns / 2);
+        }
 
-      ))}
+        console.log(`🎨 Column ${index + 1} (${columnElement.name}) span calculation:`, {
+          device: state.editor.device,
+          columnSpan,
+          columnSpansArray: columnSpans,
+          defaultSpan,
+          totalGridColumns
+        });
 
-      {/* Eğer hiç container yoksa placeholder göster */}
-      {!state.editor.liveMode && gridContainers.length === 0 && (
-        <div className="col-span-full flex items-center justify-center py-8 text-gray-400 text-sm">
-          <div className="text-center">
-            <div className="text-2xl mb-2">🏗️</div>
-            <div>Grid Layout</div>
-            <div className="text-xs mt-1">Configure columns in settings</div>
-          </div>
-        </div>
-      )}
+        return (
+          <ColumnDropZoneWrapper 
+            key={columnElement.id} 
+            columnId={columnElement.id}
+            gridLayoutId={id}
+            index={index}
+            gridSpan={columnSpan}
+            totalGridColumns={totalGridColumns}
+          >
+            <ColumnComponent 
+              element={columnElement} 
+              gridSpan={columnSpan}
+              totalGridColumns={totalGridColumns}
+            />
+          </ColumnDropZoneWrapper>
+        );
+      })}
 
+      {/* Delete Button */}
       {state.editor.selectedElement.id === element.id && !state.editor.liveMode && (
         <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg text-white z-10">
           <Trash size={16} onClick={handleDeleteElement} className="cursor-pointer" />

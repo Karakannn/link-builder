@@ -71,33 +71,50 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
           type: "2Col",
         } as EditorElement;
 
+      case "column":
+        return {
+          ...baseElement,
+          name: "Column",
+          content: [],
+          type: "column",
+          styles: {
+            ...defaultStyles,
+            minHeight: "120px",
+          } as React.CSSProperties,
+        } as EditorElement;
+
       case "gridLayout":
-        // Başlangıçta 3 container oluştur
+        // Başlangıçta 3 column oluştur
         const initialColumns = 3;
-        const initialContainers = [];
+        const defaultGridColumns = 12;
+        const defaultSpanPerColumn = Math.floor(defaultGridColumns / initialColumns); // 4
+        const initialColumnElements = [];
 
         for (let i = 0; i < initialColumns; i++) {
-          initialContainers.push({
+          initialColumnElements.push({
             id: v4(),
-            name: `Grid Container ${i + 1}`,
+            name: `Sütun ${i + 1}`,
             content: [],
             styles: {
               ...defaultStyles,
-              /* minHeight: "120px", */
-              width: "100%",
+              minHeight: "120px",
             } as React.CSSProperties,
-            type: "container",
+            type: "column",
           });
         }
 
         return {
           ...baseElement,
           name: "Grid Layout",
-          content: initialContainers, // Container'ları içeren array
+          content: initialColumnElements, // Sadece column array'i
           styles: {
             display: "grid",
-            gridTemplateColumns: "repeat(3, minmax(0, 1fr))",
+            gridTemplateColumns: `repeat(${defaultGridColumns}, 1fr)`,
             gap: "1rem",
+            // Grid ayarlarını styles'a ekle
+            gridColumns: defaultGridColumns,
+            columnSpans: Array(initialColumns).fill(defaultSpanPerColumn), // [4, 4, 4]
+            gridGap: "1rem",
             ...defaultStyles,
           } as React.CSSProperties,
           type: "gridLayout",
@@ -376,6 +393,36 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     console.log("  - From Editor:", isFromEditor);
     console.log("  - Element ID:", elementId);
 
+    // 🚫 COLUMN VALIDATION - Yeni eklenen kısım
+    if (isFromEditor && draggedType === "column") {
+      console.log("\n🏛️ COLUMN DRAG VALIDATION STARTING");
+
+      // 1. Column sadece grid-layout içinde kalabilir
+      const isValidGridTarget = over.data?.current?.type === "column-insert";
+
+      // 2. Column başka bir column'un içine giremez
+      const isColumnContainer = over.data?.current?.type === "container" && over.data?.current?.elementType === "column";
+
+      if (!isValidGridTarget) {
+        console.log("❌ COLUMN VALIDATION FAILED: Column can only be dropped within grid-layout");
+        console.log("  - Target type:", over.data?.current?.type);
+        console.log("  - Expected: column-insert");
+        console.log("🚫 Aborting column drag operation");
+        console.log("=".repeat(50) + "\n");
+        return;
+      }
+
+      if (isColumnContainer) {
+        console.log("❌ COLUMN VALIDATION FAILED: Column cannot be dropped inside another column");
+        console.log("  - Target container type:", over.data?.current?.elementType);
+        console.log("🚫 Aborting column drag operation");
+        console.log("=".repeat(50) + "\n");
+        return;
+      }
+
+      console.log("✅ COLUMN VALIDATION PASSED: Valid grid-layout target");
+    }
+
     // Handle INSERT operations (dropping on element top/bottom zones)
     if (over.data?.current?.type === "insert") {
       console.log("\n🔄 INSERT OPERATION DETECTED");
@@ -435,13 +482,56 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
         console.warn("⚠️ INSERT operation but no valid source detected");
       }
     }
-    // Handle CONTAINER drops (add to end of container) - MEVCUT YAPIYI KORUYORUZ
+    // Handle COLUMN-INSERT operations (column reordering within grid)
+    else if (over.data?.current?.type === "column-insert") {
+      console.log("\n🔄 COLUMN-INSERT OPERATION DETECTED");
+
+      const { containerId, insertIndex, position, targetElementId } = over.data.current;
+
+      console.log("📍 Column Insert Details:");
+      console.log("  - Container ID (Grid Layout):", containerId);
+      console.log("  - Insert Index:", insertIndex);
+      console.log("  - Position:", position);
+      console.log("  - Target Element ID:", targetElementId);
+
+      // Handle existing column elements (reordering within grid)
+      if (isFromEditor && elementId && draggedType === "column") {
+        console.log("\n🔄 Reordering existing column within grid");
+        console.log("  - Moving column:", elementId);
+        console.log("  - To grid layout:", containerId);
+        console.log("  - At index:", insertIndex);
+
+        console.log("🚀 Dispatching REORDER_ELEMENT action for column:");
+        dispatch({
+          type: "REORDER_ELEMENT",
+          payload: {
+            elementId,
+            containerId,
+            insertIndex,
+          },
+        });
+
+        console.log("✅ REORDER_ELEMENT dispatched successfully for column");
+      } else {
+        console.warn("⚠️ COLUMN-INSERT operation but no valid column source detected");
+      }
+    }
+    // Handle CONTAINER drops (add to end of container)
     else if (over.data?.current?.type === "container") {
       console.log("\n📦 CONTAINER DROP OPERATION DETECTED");
 
       const containerId = over.data.current.containerId;
       console.log("📍 Container Details:");
       console.log("  - Container ID:", containerId);
+
+      // 🚫 COLUMN PROTECTION - Column container'a girmesini engelle
+      if (isFromEditor && draggedType === "column") {
+        console.log("❌ COLUMN PROTECTION: Column cannot be dropped into regular containers");
+        console.log("  - Column must stay within grid-layout");
+        console.log("🚫 Aborting column drop operation");
+        console.log("=".repeat(50) + "\n");
+        return;
+      }
 
       // Handle sidebar elements (creating new elements)
       if (isFromSidebar) {
