@@ -19,7 +19,6 @@ type Props = { element: EditorElement };
 export const Container = ({ element }: Props) => {
   const { id, name, type, styles, content } = element;
   const { state } = useEditor();
-  const [disabledDrop, setDisabledDrop] = useState(false);
   const { handleSelectElement } = useElementSelection(element);
   const [measureRef, containerHeight] = useElementHeight(false);
 
@@ -30,7 +29,6 @@ export const Container = ({ element }: Props) => {
       type: "container",
       containerId: id,
     },
-    disabled: disabledDrop
   });
 
   const sortable = useSortable({
@@ -57,11 +55,6 @@ export const Container = ({ element }: Props) => {
     sortable.setNodeRef(node);
     measureRef(node);
   };
-
-  useEffect(() => {
-    if (!droppable.over?.data.current) return
-    setDisabledDrop(droppable.over?.data.current.type == "container")
-  }, [droppable.isOver])
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 

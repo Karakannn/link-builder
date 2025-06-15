@@ -8,8 +8,7 @@ interface DragPlaceholderProps {
 }
 
 export const DragPlaceholder = ({ style, height, className }: DragPlaceholderProps) => {
-    console.log("height", height);
-    
+
     return (
 
         <div
