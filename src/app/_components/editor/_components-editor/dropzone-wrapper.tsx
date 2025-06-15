@@ -1,40 +1,51 @@
-import { useDroppable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
 import { cn } from "@/lib/utils";
 import { useEditor } from "@/providers/editor/editor-provider";
+
+// Page component'inden enum'u al
+export enum Position {
+  Before = -1,
+  After = 1,
+}
 
 type DropZoneWrapperProps = {
   children: React.ReactNode;
   elementId: string;
   containerId: string;
   index: number;
+  activeIndex?: number;
 };
 
-const DropZoneWrapper = ({ children, elementId, containerId, index }: DropZoneWrapperProps) => {
+const DropZoneWrapper = ({ children, elementId, containerId, index, activeIndex }: DropZoneWrapperProps) => {
   const { state } = useEditor();
 
-  // Top drop zone - element'in üstüne drop etmek için
-  const topDroppable = useDroppable({
-    id: `top-${elementId}`,
+  // useSortable ile insertBefore mantığı
+  const {
+    setNodeRef,
+    over,
+    isDragging
+  } = useSortable({
+    id: elementId,
     data: {
-      type: 'insert',
+      type: 'element',
       containerId: containerId,
-      insertIndex: index,
-      position: 'before',
-      targetElementId: elementId
+      index: index,
+      elementId: elementId
     }
   });
 
-  // Bottom drop zone - element'in altına drop etmek için
-  const bottomDroppable = useDroppable({
-    id: `bottom-${elementId}`,
-    data: {
-      type: 'insert',
-      containerId: containerId,
-      insertIndex: index + 1,
-      position: 'after',
-      targetElementId: elementId
-    }
-  });
+  // insertPosition hesaplama - Page component'indeki gibi
+  const insertPosition = over?.id === elementId && activeIndex !== undefined
+    ? index > activeIndex
+      ? Position.After
+      : Position.Before
+    : undefined;
+
+  console.log("index", index);
+  console.log("activeIndex", activeIndex);
+
+  const isBefore = insertPosition === Position.Before;
+  const isAfter = insertPosition === Position.After;
 
   // Live mode veya preview mode'da hiçbir wrapper eklemeden döndür
   if (state.editor.liveMode || state.editor.previewMode) {
@@ -42,31 +53,19 @@ const DropZoneWrapper = ({ children, elementId, containerId, index }: DropZoneWr
   }
 
   return (
-    <div className="relative w-full max-w-full">
-      {/* Top Drop Zone - Element'in üzerinde overlay */}
-      <div
-        ref={topDroppable.setNodeRef}
-        className="absolute -top-2 left-0 right-0 h-4 w-full"
-      >
-        {topDroppable.isOver && (
-          <div className="w-full h-0.5 bg-blue-500 shadow-lg animate-pulse" 
-               style={{ position: 'absolute', top: '50%', transform: 'translateY(-50%)' }} />
-        )}
-      </div>
-
+    <div
+      ref={setNodeRef}
+      className={`
+        relative w-full max-w-full
+        ${insertPosition ? 'after:content-[""] after:absolute after:bg-blue-500' : ''}
+        ${insertPosition ? 'after:left-0 after:right-0 after:h-[2px]' : ''}
+        ${isBefore ? 'after:-top-[1px]' : ''}
+        ${isAfter ? 'after:-bottom-[1px]' : ''}
+        ${isDragging ? 'opacity-50' : ''}
+      `}
+    >
       {/* Element Content - TAMAMEN NORMAL */}
       {children}
-
-      {/* Bottom Drop Zone - Element'in altında overlay */}
-      <div
-        ref={bottomDroppable.setNodeRef}
-        className="absolute -bottom-2 left-0 right-0 h-4 w-full"
-      >
-        {bottomDroppable.isOver && (
-          <div className="w-full h-0.5 bg-blue-500 shadow-lg animate-pulse"
-               style={{ position: 'absolute', bottom: '50%', transform: 'translateY(50%)' }} />
-        )}
-      </div>
     </div>
   );
 };

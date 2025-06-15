@@ -21,11 +21,11 @@ const DesignerElementOverlay = ({ element, className }: DesignerElementOverlayPr
         "flex opacity-90 pointer-events-none shadow-lg relative rounded",
         className
       )}
-      style={{
+    /*   style={{
         maxWidth: '300px',
         maxHeight: '200px',
         border: '2px solid #3b82f6',
-      }}
+      }} */
     >
       <div className="w-full h-full overflow-hidden relative">
         <Recursive element={element} />

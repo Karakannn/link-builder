@@ -376,7 +376,7 @@ export const upsertPage = async (page: Page) => {
         name: "Body",
         type: "__body",
         styles: {
-          backgroundColor: "white",
+          backgroundColor: "black",
           height: "100%",
         },
         content: [],

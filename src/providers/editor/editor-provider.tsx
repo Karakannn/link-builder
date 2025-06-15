@@ -549,7 +549,6 @@ const insertAnElement = (editorArray: EditorElement[], action: EditorAction): Ed
   if (action.type !== "INSERT_ELEMENT") throw Error("You sent the wrong action type on the INSERT_ELEMENT editor State");
 
   console.log("📥 INSERT_ELEMENT function called");
-  console.log("   - Container ID:", action.payload.containerId);
   console.log("   - Insert Index:", action.payload.insertIndex);
   console.log("   - Element:", action.payload.elementDetails.name);
 
@@ -558,7 +557,6 @@ const insertAnElement = (editorArray: EditorElement[], action: EditorAction): Ed
       console.log("   - Found container, inserting element at index", action.payload.insertIndex);
       const newContent = [...item.content];
       newContent.splice(action.payload.insertIndex, 0, action.payload.elementDetails);
-      console.log("   - New content length:", newContent.length);
 
       return {
         ...item,

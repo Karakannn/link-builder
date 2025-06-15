@@ -25,6 +25,7 @@ import GifComponent from "./gif";
 import { GridLayoutComponent } from "./grid-layout";
 import { Container } from "./container";
 import { ColumnComponent } from "./column";
+import { BodyContainer } from "./body";
 
 type Props = {
   element: EditorElement;
@@ -41,7 +42,7 @@ const Recursive = ({ element }: Props) => {
     case "2Col":
       return <Container element={element} />;
     case "__body":
-      return <Container element={element} />;
+      return <BodyContainer element={element} />;
     case "link":
       return <LinkComponent element={element} />;
 

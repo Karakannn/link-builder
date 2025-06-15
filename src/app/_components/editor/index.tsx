@@ -6,10 +6,16 @@ import clsx from "clsx";
 import { EyeOff } from "lucide-react";
 import React, { useEffect } from "react";
 import Recursive from "./_components-editor/recursive";
+import { Pages } from "./dndexamples/Pages";
+import { Layout } from "./dndexamples/Page";
 
-type Props = { pageDetails: EditorElement[]; liveMode?: boolean };
+type Props = {
+  pageDetails: EditorElement[];
+  liveMode?: boolean;
+  layout?: "vertical" | "horizontal";
+};
 
-const FunnelEditor = ({ pageDetails, liveMode }: Props) => {
+const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => {
   const { dispatch, state } = useEditor();
 
   useEffect(() => {
@@ -49,6 +55,7 @@ const FunnelEditor = ({ pageDetails, liveMode }: Props) => {
   };
 
   return (
+    /*   <><Pages layout={Layout.Horizontal} /></> */
     <div
       className={clsx("use-automation-zoom-in h-[calc(100vh_-_97px)] overflow-hidden mr-[385px] bg-background transition-all rounded-md", {
         "!p-0 !mr-0": state.editor.previewMode === true || state.editor.liveMode === true,
@@ -63,7 +70,14 @@ const FunnelEditor = ({ pageDetails, liveMode }: Props) => {
           <EyeOff />
         </Button>
       )}
-      {Array.isArray(state.editor.elements) && state.editor.elements.map((childElement) => <Recursive key={childElement.id} element={childElement} />)}
+      {Array.isArray(state.editor.elements) &&
+        state.editor.elements.map((childElement) => (
+          <Recursive
+            key={childElement.id}
+            element={childElement}
+          />
+        ))
+      }
     </div>
   );
 };
