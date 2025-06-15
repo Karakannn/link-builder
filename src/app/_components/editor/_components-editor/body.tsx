@@ -43,9 +43,6 @@ export const BodyContainer = ({ element }: Props) => {
 
     const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
-    console.log("droppable.over?.data", droppable.active);
-    
-    
     return (
         <ElementContextMenu element={element}>
             <div

@@ -1,8 +1,6 @@
-import { useSortable } from "@dnd-kit/sortable";
-import { cn } from "@/lib/utils";
+import { useDndContext } from "@dnd-kit/core";
 import { useEditor } from "@/providers/editor/editor-provider";
 
-// Page component'inden enum'u al
 export enum Position {
   Before = -1,
   After = 1,
@@ -11,60 +9,53 @@ export enum Position {
 type DropZoneWrapperProps = {
   children: React.ReactNode;
   elementId: string;
-  containerId: string;
   index: number;
-  activeIndex?: number;
 };
 
-const DropZoneWrapper = ({ children, elementId, containerId, index, activeIndex }: DropZoneWrapperProps) => {
+const DropZoneWrapper = ({ children, elementId, index }: DropZoneWrapperProps) => {
   const { state } = useEditor();
+  const { active, over } = useDndContext();
 
-  // useSortable ile insertBefore mantığı
-  const {
-    setNodeRef,
-    over,
-    isDragging
-  } = useSortable({
-    id: elementId,
-    data: {
-      type: 'element',
-      containerId: containerId,
-      index: index,
-      elementId: elementId
-    }
-  });
+  // Live mode'da wrapper eklemeden döndür
+  if (state.editor.liveMode) {
+    return <>{children}</>;
+  }
 
-  // insertPosition hesaplama - Page component'indeki gibi
-  const insertPosition = over?.id === elementId && activeIndex !== undefined
+  // Active elementın index'ini hesapla - sortable'dan al
+  const activeIndex = active?.data?.current?.sortable?.index ?? -1;
+
+  // insertPosition hesaplama - Pages component'indeki mantıkla aynı
+  const insertPosition = over?.id === elementId && activeIndex !== -1
     ? index > activeIndex
       ? Position.After
       : Position.Before
     : undefined;
 
-  console.log("index", index);
-  console.log("activeIndex", activeIndex);
-
   const isBefore = insertPosition === Position.Before;
   const isAfter = insertPosition === Position.After;
 
-  // Live mode veya preview mode'da hiçbir wrapper eklemeden döndür
-  if (state.editor.liveMode || state.editor.previewMode) {
-    return <>{children}</>;
+  // Debug logları - sadece over olduğunda
+  if (over?.id === elementId || insertPosition) {
+    console.log("🔍 DropZone:", {
+      elementId,
+      index,
+      activeIndex,
+      insertPosition,
+      overId: over?.id
+    });
   }
 
   return (
     <div
-      ref={setNodeRef}
       className={`
-        relative w-full max-w-full
-        ${insertPosition ? 'after:content-[""] after:absolute after:bg-blue-500' : ''}
-        ${insertPosition ? 'after:left-0 after:right-0 after:h-[2px]' : ''}
-        ${isBefore ? 'after:-top-[1px]' : ''}
-        ${isAfter ? 'after:-bottom-[1px]' : ''}
-        ${isDragging ? 'opacity-50' : ''}
+        relative w-full
+        ${insertPosition ? 'after:content-["Drop_here"] after:absolute after:bg-blue-500 after:text-white after:text-xs after:font-medium after:px-2 after:py-1 after:rounded after:left-1/2 after:transform after:-translate-x-1/2 after:z-50 after:whitespace-nowrap after:shadow-lg' : ''}
+        ${insertPosition ? 'before:content-[""] before:absolute before:bg-blue-500 before:left-0 before:right-0 before:h-[3px] before:z-40 before:rounded-full' : ''}
+        ${isBefore ? 'after:-top-6 before:-top-[2px]' : ''}
+        ${isAfter ? 'after:bottom-[-24px] before:-bottom-[2px]' : ''}
+        ${insertPosition ? 'transition-all duration-150' : ''}
       `}
     >
-      {/* Element Content - TAMAMEN NORMAL */}
       {children}
     </div>
   );

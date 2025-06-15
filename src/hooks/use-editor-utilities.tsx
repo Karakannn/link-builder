@@ -1,5 +1,6 @@
 import { defaultStyles } from '@/lib/constants';
-import { EditorElement } from '@/providers/editor/editor-provider';
+import { EditorElement, EditorState } from '@/providers/editor/editor-provider';
+import { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react'
 import { v4 } from 'uuid';
 
@@ -343,9 +344,47 @@ export const useEditorUtilities = () => {
         return null;
     }
   };
-  
 
   return {
     createElement
   }
 }
+
+// Extract all container IDs and their items for SortableContext
+export const getContainerIds = (elements: EditorElement[]): UniqueIdentifier[] => {
+  const containerIds: UniqueIdentifier[] = [];
+
+  const findContainers = (items: EditorElement[]) => {
+    items.forEach(item => {
+      if (item.type === 'container' || item.type === '2Col') {
+        containerIds.push(item.id);
+      }
+      if (Array.isArray(item.content)) {
+        findContainers(item.content);
+      }
+    });
+  };
+
+  findContainers(elements);
+  return containerIds;
+};
+
+// Get items for a specific container
+export const getContainerItems = (state: EditorState, containerId: string): string[] => {
+  const findContainer = (elements: EditorElement[]): EditorElement | null => {
+    for (const element of elements) {
+      if (element.id === containerId) return element;
+      if (Array.isArray(element.content)) {
+        const found = findContainer(element.content);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
+
+  const container = findContainer(state.editor.elements);
+  if (container && Array.isArray(container.content)) {
+    return container.content.map(item => item.id);
+  }
+  return [];
+};

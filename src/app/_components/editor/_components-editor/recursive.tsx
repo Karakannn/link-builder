@@ -42,7 +42,7 @@ const Recursive = ({ element }: Props) => {
     case "2Col":
       return <Container element={element} />;
     case "__body":
-      return <BodyContainer element={element} />;
+      return <Container element={element} />;
     case "link":
       return <LinkComponent element={element} />;
 

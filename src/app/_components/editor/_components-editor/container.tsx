@@ -13,6 +13,7 @@ import { DragPlaceholder } from "./drag-placeholder";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import DropZoneWrapper from "./dropzone-wrapper";
 
 type Props = { element: EditorElement };
 
@@ -22,28 +23,20 @@ export const Container = ({ element }: Props) => {
   const { handleSelectElement } = useElementSelection(element);
   const [measureRef, containerHeight] = useElementHeight(false);
 
-  // dnd-kit droppable for receiving drops
-  const droppable = useDroppable({
-    id: `droppable-${id}`,
-    data: {
-      type: "container",
-      containerId: id,
-    },
-  });
-
   const sortable = useSortable({
     id: id,
     data: {
-      type: type,
+      type,
+      name,
+      element,
       elementId: id,
-      name: name,
       isSidebarElement: false,
       isEditorElement: true,
+
     },
+    disabled: type === "__body" || state.editor.liveMode,
   });
 
-
-  // Get computed styles based on current device
   const computedStyles = {
     ...getElementStyles(element, state.editor.device),
     transform: CSS.Transform.toString(sortable.transform),
@@ -51,7 +44,6 @@ export const Container = ({ element }: Props) => {
   };
 
   const setNodeRef = (node: HTMLDivElement | null) => {
-    droppable.setNodeRef(node);
     sortable.setNodeRef(node);
     measureRef(node);
   };
@@ -59,35 +51,40 @@ export const Container = ({ element }: Props) => {
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
   if (sortable.isDragging) {
-    return (
-      <DragPlaceholder
-        style={computedStyles}
-        height={containerHeight}
-      />
-    );
+    /*   return (
+        <DragPlaceholder
+          style={computedStyles}
+          height={containerHeight}
+        />
+      ); */
+
+    return
   }
   return (
     <ElementContextMenu element={element}>
       <div
         ref={setNodeRef}
         style={computedStyles}
-        className={clsx("relative p-6", {
+        className={clsx("relative transition-all group", {
           "max-w-full w-full": type === "container" || type === "2Col",
           "h-fit": type === "container",
+          "h-full": type === "__body",
+          "overflow-y-auto ": type === "__body",
           "flex flex-col md:!flex-row": type === "2Col",
-          "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
+          "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body",
+          "!border-yellow-400 !border-4": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type === "__body",
           "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
-          "!border-green-500 !border-2 !bg-green-50/50": droppable.isOver && !state.editor.liveMode,
-          "cursor-grab": !state.editor.liveMode,
+          "!border-green-500 !border-2 !bg-green-50/50": sortable.isOver && !state.editor.liveMode,
+          "cursor-grab": type !== "__body" && !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
         onClick={handleSelectElement}
-        {...(!state.editor.liveMode ? sortable.listeners : {})}
-        {...(!state.editor.liveMode ? sortable.attributes : {})}
+        {...(type !== "__body" && !state.editor.liveMode ? sortable.listeners : {})}
+        {...(type !== "__body" && !state.editor.liveMode ? sortable.attributes : {})}
       >
-        {droppable.isOver && !state.editor.liveMode && (
+        {sortable.isOver && !state.editor.liveMode && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium z-10">Drop Here</span>
           </div>
@@ -95,8 +92,14 @@ export const Container = ({ element }: Props) => {
 
         {Array.isArray(content) && content.length > 0 && (
           <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
-            {content.map((childElement) => (
-              <Recursive key={childElement.id} element={childElement} />
+            {content.map((childElement, index) => (
+              <DropZoneWrapper
+                key={childElement.id}
+                elementId={childElement.id}
+                index={index}
+              >
+                <Recursive element={childElement} />
+              </DropZoneWrapper>
             ))}
           </SortableContext>
         )}

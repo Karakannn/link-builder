@@ -1,9 +1,10 @@
 "use client";
 
-import { DndContext, DragEndEvent, PointerSensor, UniqueIdentifier, useSensor, useSensors } from "@dnd-kit/core";
+import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, UniqueIdentifier, useSensor, useSensors } from "@dnd-kit/core";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { useEditorUtilities } from "@/hooks/use-editor-utilities";
+import { getContainerIds, useEditorUtilities } from "@/hooks/use-editor-utilities";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useDrops } from "@/hooks/use-drops";
 
 type DndContextProviderProps = {
   children: React.ReactNode;
@@ -13,8 +14,8 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
 
   const { state, dispatch } = useEditor();
   const { createElement } = useEditorUtilities()
+  const { handleContainerDrop } = useDrops()
 
-  // PointerSensor with activation constraint to prevent accidental drags
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -23,47 +24,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     })
   );
 
-  // Extract all container IDs and their items for SortableContext
-  const getContainerIds = (elements: EditorElement[]): UniqueIdentifier[] => {
-    const containerIds: UniqueIdentifier[] = [];
-
-    const findContainers = (items: EditorElement[]) => {
-      items.forEach(item => {
-        if (item.type === 'container' || item.type === '2Col') {
-          containerIds.push(item.id);
-        }
-        if (Array.isArray(item.content)) {
-          findContainers(item.content);
-        }
-      });
-    };
-
-    findContainers(elements);
-    return containerIds;
-  };
-
-  // Get items for a specific container
-  const getContainerItems = (containerId: string): string[] => {
-    const findContainer = (elements: EditorElement[]): EditorElement | null => {
-      for (const element of elements) {
-        if (element.id === containerId) return element;
-        if (Array.isArray(element.content)) {
-          const found = findContainer(element.content);
-          if (found) return found;
-        }
-      }
-      return null;
-    };
-
-    const container = findContainer(state.editor.elements);
-    if (container && Array.isArray(container.content)) {
-      return container.content.map(item => item.id);
-    }
-    return [];
-  };
-
-  // All containers in the editor
-  const containers = getContainerIds(state.editor.elements);
+  const childItems = state.editor.elements.map(child => child.id);
 
   const handleDragEnd = (event: DragEndEvent) => {
 
@@ -82,8 +43,6 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     console.log("  - From Sidebar:", isFromSidebar);
     console.log("  - From Editor:", isFromEditor);
     console.log("  - Element ID:", elementId);
-
-
 
     // Handle INSERT operations (dropping on element top/bottom zones)
     if (over.data?.current?.type === "insert") {
@@ -142,69 +101,45 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     }
     // Handle CONTAINER drops (add to end of container)
     else if (over.data?.current?.type === "container" || over.data?.current?.type === "__body") {
-      console.log("\n📦 CONTAINER DROP OPERATION DETECTED");
-
-      const containerId = over.data.current.containerId;
-
-      // Handle sidebar elements (creating new elements)
-      if (isFromSidebar) {
-        console.log("\n🆕 Adding new element to container end");
-
-        const newElement = createElement(draggedType);
-        if (newElement) {
-          console.log("🚀 Dispatching ADD_ELEMENT action:");
-          dispatch({
-            type: "ADD_ELEMENT",
-            payload: {
-              containerId,
-              elementDetails: newElement,
-            },
-          });
-
-          console.log("✅ ADD_ELEMENT dispatched successfully");
-        } else {
-          console.error("❌ Failed to create new element");
-        }
-      }
-      // Handle existing editor elements (moving to different container)
-      else if (isFromEditor && elementId) {
-        console.log("\n🔄 Moving existing element to different container");
-
-        // Check if trying to move element to itself
-        if (elementId === containerId) {
-          console.warn("⚠️ Cannot move element to itself, aborting");
-          return;
-        }
-
-        console.log("🚀 Dispatching MOVE_ELEMENT action:");
-        console.log("  - Element ID:", elementId);
-        console.log("  - Target Container ID:", containerId);
-
-        dispatch({
-          type: "MOVE_ELEMENT",
-          payload: {
-            elementId,
-            targetContainerId: containerId,
-          },
-        });
-
-        console.log("✅ MOVE_ELEMENT dispatched successfully");
-      } else {
-        console.warn("⚠️ CONTAINER operation but no valid source detected");
-      }
+      handleContainerDrop(active, over)
     }
     // Handle unknown drop targets
     else {
       console.warn("⚠️ Unknown drop target type:", over.data?.current?.type);
-      console.log("📦 Over data:", over.data?.current);
     }
-
     console.log("🏁 DRAG END EVENT COMPLETED");
   };
 
+  function handleDragStart({ active }: DragStartEvent) {
+
+
+    if (!active.data.current) return
+
+    const isFromEditor = active.data.current.isEditorElement
+
+    if (!state.editor.liveMode && isFromEditor) {
+      dispatch({
+        type: "CHANGE_CLICKED_ELEMENT",
+        payload: {
+          elementDetails: active.data.current.element,
+        },
+      });
+    }
+
+  }
+
+  function handleDragCancel() {
+
+    dispatch({
+      type: "CHANGE_CLICKED_ELEMENT",
+      payload: {},
+    });
+
+  }
+
   return (
-    <DndContext onDragEnd={handleDragEnd} sensors={sensors}>
-      <SortableContext items={containers} strategy={verticalListSortingStrategy}>
+    <DndContext onDragCancel={handleDragCancel} onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
+      <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
         {children}
       </SortableContext>
     </DndContext>
