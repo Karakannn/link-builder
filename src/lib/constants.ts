@@ -12,6 +12,7 @@ export type EditorBtns =
   | "shimmerButton"
   | "animatedShinyButton"
   | "neonGradientButton"
+  | "neonGradientCard"
   | "animatedBorderButton"
   | "animatedTextButton"
   | "animatedGridPattern"

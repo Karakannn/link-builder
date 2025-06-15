@@ -11,6 +11,9 @@ import NeonGradientButtonComponent from "./neon-gradient-button";
 import AnimatedBorderButtonComponent from "./animated-border-button";
 import AnimatedTextButtonComponent from "./animated-text-button";
 
+// Import card components
+import NeonGradientCardComponent from "./neon-gradient-card";
+
 // Import new background components
 import AnimatedGridPatternComponent from "./animated-grid-pattern";
 import InteractiveGridPatternComponent from "./interactive-grid-pattern";
@@ -63,6 +66,10 @@ const Recursive = ({ element, layout = Layout.Vertical, insertPosition, active }
       return <AnimatedBorderButtonComponent element={element} />;
     case "animatedTextButton":
       return <AnimatedTextButtonComponent element={element} />;
+
+    // Card components
+    case "neonGradientCard":
+      return <NeonGradientCardComponent element={element} />;
 
     // Background components
     case "animatedGridPattern":

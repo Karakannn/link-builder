@@ -17,6 +17,9 @@ import NeonGradientButtonPlaceholder from "./neon-gradient-button-placeholder";
 import AnimatedBorderButtonPlaceholder from "./animated-border-button-placeholder";
 import AnimatedTextButtonPlaceholder from "./animated-text-button-placeholder";
 
+// New card components
+import NeonGradientCardPlaceholder from "./neon-gradient-card-placeholder";
+
 // New background components
 import AnimatedGridPatternPlaceholder from "./animated-grid-pattern-placeholder";
 import InteractiveGridPatternPlaceholder from "./interactive-grid-pattern-placeholder";
@@ -33,7 +36,7 @@ const ComponentsTab = () => {
         Component: React.ReactNode;
         label: string;
         id: EditorBtns;
-        category: "layout" | "buttons" | "backgrounds" | "marquee" | "text" | "media";
+        category: "layout" | "buttons" | "backgrounds" | "marquee" | "text" | "media" | "cards";
     }[] = [
         // Layout Elements
         {
@@ -114,7 +117,16 @@ const ComponentsTab = () => {
             id: "animatedTextButton",
             category: "buttons",
         },
+
         
+         // Card Elements
+         {
+            Component: <NeonGradientCardPlaceholder />,
+            label: "Neon Card",
+            id: "neonGradientCard",
+            category: "cards",
+        },
+
         // Background Elements
         {
             Component: <AnimatedGridPatternPlaceholder />,
@@ -162,7 +174,8 @@ const ComponentsTab = () => {
         { id: "layout", name: "Layout", defaultOpen: true },
         { id: "text", name: "Text", defaultOpen: true },
         { id: "media", name: "Media", defaultOpen: true },
-        { id: "buttons", name: "Buttons", defaultOpen: true },
+        { id: "cards", name: "Cards", defaultOpen: true },
+        { id: "buttons", name: "Buttons", defaultOpen: false },
         { id: "backgrounds", name: "Backgrounds", defaultOpen: false },
         { id: "marquee", name: "Marquee", defaultOpen: false },
     ];

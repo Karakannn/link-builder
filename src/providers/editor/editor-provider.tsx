@@ -35,6 +35,11 @@ export type EditorElement = {
         secondColor?: string;
         borderSize?: number;
 
+        // Card properties
+        title?: string;
+        subtitle?: string;
+        logo?: string;
+
         // Button common properties
         buttonClass?: string;
 

@@ -15,7 +15,8 @@ import {
   MoreHorizontal,
   ArrowRight,
   FileImage,
-  Play
+  Play,
+  CreditCard
 } from "lucide-react";
 import React from "react";
 
@@ -125,6 +126,20 @@ const SidebarEditorButtonOverlay = ({ type }: Props) => {
         >
           <div className="absolute inset-[2px] bg-gray-900 rounded-lg" />
           <Zap size={40} className="text-cyan-400 relative z-10" />
+        </div>
+      );
+
+    case "neonGradientCard":
+      return (
+        <div 
+          className={baseClasses}
+          style={{
+            background: "linear-gradient(45deg, #ff00aa, #00FFF1)",
+            boxShadow: "0 0 20px rgba(255, 0, 170, 0.5)",
+          }}
+        >
+          <div className="absolute inset-[2px] bg-gray-900 rounded-lg" />
+          <CreditCard size={40} className="text-cyan-400 relative z-10" />
         </div>
       );
 

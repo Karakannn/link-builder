@@ -22,6 +22,7 @@ type CustomElementType =
   | "animatedBorderButton"
   | "animatedTextButton"
   | "neonGradientButton"
+  | "neonGradientCard"
   | "marquee"
   | "animatedGridPattern"
   | "retroGrid"
@@ -38,6 +39,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   animatedBorderButton: AnimatedButtonsCustomProperties,
   animatedTextButton: AnimatedButtonsCustomProperties,
   neonGradientButton: NeonGradientCardCustomProperties,
+  neonGradientCard: NeonGradientCardCustomProperties,
   marquee: MarqueeCustomProperties,
   animatedGridPattern: AnimatedGridBackgroundCustomProperties,
   retroGrid: RetroGridBackgroundCustomProperties,

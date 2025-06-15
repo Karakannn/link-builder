@@ -14,8 +14,20 @@ const NeonGradientCardCustomProperties = (props: Props) => {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
-                <p className="text-muted-foreground">Button Text</p>
-                <Input id="innerText" placeholder="Button Text" onChange={handleChangeCustomValues} value={getCurrentContent().innerText} />
+                <p className="text-muted-foreground">Card Title</p>
+                <Input id="title" placeholder="LinkBet" onChange={handleChangeCustomValues} value={getCurrentContent().title} />
+            </div>
+            <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Card Subtitle</p>
+                <Input id="subtitle" placeholder="999₺ Deneme Bonusu" onChange={handleChangeCustomValues} value={getCurrentContent().subtitle} />
+            </div>
+            <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Logo URL</p>
+                <Input id="logo" placeholder="https://example.com/logo.svg" onChange={handleChangeCustomValues} value={getCurrentContent().logo} />
+            </div>
+            <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Link URL</p>
+                <Input id="href" placeholder="https://example.com" onChange={handleChangeCustomValues} value={getCurrentContent().href} />
             </div>
             <div className="flex flex-col gap-2">
                 <p className="text-muted-foreground">First Color</p>
