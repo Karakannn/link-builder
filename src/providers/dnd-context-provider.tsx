@@ -1,6 +1,6 @@
 "use client";
 
-import { DndContext, DragEndEvent, DragStartEvent, PointerSensor, UniqueIdentifier, useSensor, useSensors } from "@dnd-kit/core";
+import { closestCenter, DndContext, DragEndEvent, DragStartEvent, PointerSensor, rectIntersection, UniqueIdentifier, useSensor, useSensors } from "@dnd-kit/core";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getContainerIds, useEditorUtilities } from "@/hooks/use-editor-utilities";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -23,6 +23,17 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
       },
     })
   );
+
+  const collisionDetection = (args: any) => {
+    // First try closest center for precise drops
+    const closestCenterCollisions = closestCenter(args);
+    if (closestCenterCollisions.length > 0) {
+      return closestCenterCollisions;
+    }
+
+    // Fallback to rectangle intersection
+    return rectIntersection(args);
+  };
 
   const childItems = state.editor.elements.map(child => child.id);
 
@@ -138,7 +149,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
   }
 
   return (
-    <DndContext onDragCancel={handleDragCancel} onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
+    <DndContext collisionDetection={collisionDetection} onDragCancel={handleDragCancel} onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
       <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
         {children}
       </SortableContext>

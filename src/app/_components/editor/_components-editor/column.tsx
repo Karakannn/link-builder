@@ -1,25 +1,30 @@
-import { DeviceTypes, EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
-import { Badge, Trash } from "lucide-react";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import Recursive from "./recursive";
 import { getElementStyles } from "@/lib/utils";
-import { useDroppable, useDraggable } from "@dnd-kit/core";
-import DropZoneWrapper from "./dropzone-wrapper";
+import { useDroppable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import DropZoneWrapper from "./dropzone-wrapper";
+import { useElementHeight } from "@/hooks/editor/use-element-height";
+import { DragPlaceholder } from "./drag-placeholder";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 
-type Props = { 
-  element: EditorElement; 
+type Props = {
+  element: EditorElement;
   gridSpan?: number; // Column'un kaç grid birimini kaplayacağı
   totalGridColumns?: number; // Toplam grid sütun sayısı
 };
 
 export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }: Props) => {
-  const { id, name, type, styles, content } = element;
-  const { dispatch, state } = useEditor();
-  const [isDraggingOver, setIsDraggingOver] = useState(false);
-  const [mouseIsOver, setMouseIsOver] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const { id, name, type, content } = element;
+  const { state } = useEditor();
+  const { handleSelectElement } = useElementSelection(element);
+  const [measureRef, containerHeight] = useElementHeight(false);
 
   // dnd-kit droppable for receiving drops (normal elements)
   const droppable = useDroppable({
@@ -30,13 +35,14 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
     },
   });
 
-  // dnd-kit draggable for column reordering within grid
-  const draggable = useDraggable({
-    id: `draggable-${id}`,
+  // dnd-kit sortable for column reordering within grid
+  const sortable = useSortable({
+    id: id,
     data: {
       type: "column",
       elementId: id,
       name: name,
+      element,
       isSidebarElement: false,
       isEditorElement: true,
     },
@@ -44,7 +50,11 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
   });
 
   // Get computed styles based on current device
-  const computedStyles = getElementStyles(element, state.editor.device);
+  const computedStyles = {
+    ...getElementStyles(element, state.editor.device),
+    transform: CSS.Transform.toString(sortable.transform),
+    transition: sortable.transition,
+  };
 
   // Column specific styles
   const columnStyles = {
@@ -53,50 +63,21 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
     minHeight: "120px",
   };
 
-  console.log(`🎨 Column ${element.name} (${id}) CSS:`, {
-    gridSpan,
-    totalGridColumns,
-    gridColumnValue: `span ${gridSpan}`,
-    finalStyles: columnStyles
-  });
-
-  useEffect(() => {
-    if (droppable.isOver) {
-      setIsDraggingOver(true);
-    } else {
-      setIsDraggingOver(false);
-    }
-  }, [droppable.isOver]);
-
-  const handleOnClickBody = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!state.editor.liveMode && !draggable.isDragging) {
-      dispatch({
-        type: "CHANGE_CLICKED_ELEMENT",
-        payload: {
-          elementDetails: element,
-        },
-      });
-    }
-  };
-
-  const handleDeleteElement = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    dispatch({
-      type: "DELETE_ELEMENT",
-      payload: {
-        elementDetails: element,
-      },
-    });
-  };
 
   const setNodeRef = (node: HTMLDivElement | null) => {
-    droppable.setNodeRef(node);
-    draggable.setNodeRef(node);
-    containerRef.current = node;
+    /*     droppable.setNodeRef(node); */
+    sortable.setNodeRef(node);
+    measureRef(node);
   };
 
-  if (draggable.isDragging) return null;
+  if (sortable.isDragging) {
+    return (
+      <DragPlaceholder
+        style={columnStyles}
+        height={containerHeight}
+      />
+    );
+  }
 
   return (
     <ElementContextMenu element={element}>
@@ -107,44 +88,24 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
           "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
-          "!border-green-500 !border-2 !bg-green-50/50": isDraggingOver && !state.editor.liveMode,
+          "!border-green-500 !border-2 !bg-green-50/50": droppable.isOver && !state.editor.liveMode,
           "cursor-grab": !state.editor.liveMode,
-          "cursor-grabbing": draggable.isDragging,
-          "opacity-50": draggable.isDragging,
+          "cursor-grabbing": sortable.isDragging,
+          "opacity-50": sortable.isDragging,
         })}
-        onClick={handleOnClickBody}
-        {...(!state.editor.liveMode ? draggable.listeners : {})}
-        {...(!state.editor.liveMode ? draggable.attributes : {})}
+        onClick={handleSelectElement}
+        {...(!state.editor.liveMode ? sortable.listeners : {})}
+        {...(!state.editor.liveMode ? sortable.attributes : {})}
       >
-        <Badge
-          className={clsx("absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg hidden", {
-            block: state.editor.selectedElement.id === element.id && !state.editor.liveMode,
-          })}
-        >
-          {element.name}
-        </Badge>
-
-        {isDraggingOver && !state.editor.liveMode && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium z-10">
-              Buraya Bırak
-            </span>
-          </div>
-        )}
-
+     
         {/* Column Content */}
         {Array.isArray(content) &&
           content.map((childElement, index) => (
-            <DropZoneWrapper key={childElement.id} elementId={childElement.id} containerId={id} index={index}>
-              <Recursive element={childElement} />
-            </DropZoneWrapper>
+            <Recursive element={childElement} />
           ))}
 
-        {state.editor.selectedElement.id === element.id && !state.editor.liveMode && (
-          <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg text-white z-10">
-            <Trash size={16} onClick={handleDeleteElement} className="cursor-pointer" />
-          </div>
-        )}
+        <BadgeElementName element={element} />
+        <DeleteElementButton element={element} />
       </div>
     </ElementContextMenu>
   );

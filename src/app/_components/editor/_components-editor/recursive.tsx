@@ -23,26 +23,30 @@ import MarqueeComponent from "./marquee";
 // Import new layout and media components
 import GifComponent from "./gif";
 import { GridLayoutComponent } from "./grid-layout";
-import { Container } from "./container";
 import { ColumnComponent } from "./column";
 import { BodyContainer } from "./body";
+import { Container } from "./container";
+import { Layout, Position } from "./dropzone-wrapper";
 
 type Props = {
   element: EditorElement;
+  layout?: Layout;
+  insertPosition?: Position;
+  active?: boolean;
 };
 
-const Recursive = ({ element }: Props) => {
+const Recursive = ({ element, layout = Layout.Vertical, insertPosition, active }: Props) => {
   switch (element.type) {
     case "text":
       return <TextComponent element={element} />;
     case "container":
-      return <Container element={element} />;
+      return <Container element={element} layout={layout} insertPosition={insertPosition} active={active} />;
     case "video":
       return <VideoComponent element={element} />;
     case "2Col":
-      return <Container element={element} />;
+      return <Container element={element} layout={Layout.Horizontal} insertPosition={insertPosition} active={active} />;
     case "__body":
-      return <Container element={element} />;
+      return <Container element={element} layout={layout} insertPosition={insertPosition} active={active} />;
     case "link":
       return <LinkComponent element={element} />;
 

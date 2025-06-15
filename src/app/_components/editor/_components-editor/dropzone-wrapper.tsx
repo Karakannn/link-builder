@@ -1,4 +1,5 @@
-import { useDndContext } from "@dnd-kit/core";
+import { useDroppable } from "@dnd-kit/core";
+import { cn } from "@/lib/utils";
 import { useEditor } from "@/providers/editor/editor-provider";
 
 export enum Position {
@@ -6,57 +7,176 @@ export enum Position {
   After = 1,
 }
 
+export enum Layout {
+  Horizontal = 'horizontal',
+  Vertical = 'vertical',
+  Grid = 'grid',
+}
+
 type DropZoneWrapperProps = {
   children: React.ReactNode;
   elementId: string;
+  containerId: string;
   index: number;
+  layout?: Layout;
+  insertPosition?: Position;
 };
 
-const DropZoneWrapper = ({ children, elementId, index }: DropZoneWrapperProps) => {
+const DropZoneWrapper = ({
+  children,
+  elementId,
+  containerId,
+  index,
+  layout = Layout.Vertical,
+  insertPosition
+}: DropZoneWrapperProps) => {
   const { state } = useEditor();
-  const { active, over } = useDndContext();
 
-  // Live mode'da wrapper eklemeden döndür
-  if (state.editor.liveMode) {
-    return <>{children}</>;
-  }
-
-  // Active elementın index'ini hesapla - sortable'dan al
-  const activeIndex = active?.data?.current?.sortable?.index ?? -1;
-
-  // insertPosition hesaplama - Pages component'indeki mantıkla aynı
-  const insertPosition = over?.id === elementId && activeIndex !== -1
-    ? index > activeIndex
-      ? Position.After
-      : Position.Before
-    : undefined;
-
+  const isVertical = layout === Layout.Vertical;
+  const isHorizontal = layout === Layout.Horizontal;
+  const isGrid = layout === Layout.Grid;
   const isBefore = insertPosition === Position.Before;
   const isAfter = insertPosition === Position.After;
 
-  // Debug logları - sadece over olduğunda
-  if (over?.id === elementId || insertPosition) {
-    console.log("🔍 DropZone:", {
-      elementId,
-      index,
-      activeIndex,
-      insertPosition,
-      overId: over?.id
-    });
+  // Before drop zone - element'in öncesine drop etmek için
+  const beforeDroppable = useDroppable({
+    id: `before-${elementId}`,
+    data: {
+      type: 'insert',
+      containerId: containerId,
+      insertIndex: index,
+      position: 'before',
+      targetElementId: elementId,
+      layout: layout
+    }
+  });
+
+  // After drop zone - element'in sonrasına drop etmek için  
+  const afterDroppable = useDroppable({
+    id: `after-${elementId}`,
+    data: {
+      type: 'insert',
+      containerId: containerId,
+      insertIndex: index + 1,
+      position: 'after',
+      targetElementId: elementId,
+      layout: layout
+    }
+  });
+
+  // Live mode veya preview mode'da hiçbir wrapper eklemeden döndür
+  if (state.editor.liveMode || state.editor.previewMode) {
+    return <>{children}</>;
   }
 
   return (
-    <div
-      className={`
-        relative w-full
-        ${insertPosition ? 'after:content-["Drop_here"] after:absolute after:bg-blue-500 after:text-white after:text-xs after:font-medium after:px-2 after:py-1 after:rounded after:left-1/2 after:transform after:-translate-x-1/2 after:z-50 after:whitespace-nowrap after:shadow-lg' : ''}
-        ${insertPosition ? 'before:content-[""] before:absolute before:bg-blue-500 before:left-0 before:right-0 before:h-[3px] before:z-40 before:rounded-full' : ''}
-        ${isBefore ? 'after:-top-6 before:-top-[2px]' : ''}
-        ${isAfter ? 'after:bottom-[-24px] before:-bottom-[2px]' : ''}
-        ${insertPosition ? 'transition-all duration-150' : ''}
-      `}
-    >
-      {children}
+    <div className={cn(
+      "relative",
+      {
+        // Vertical layout - elements stack vertically
+        "w-full": isVertical,
+        // Horizontal layout - elements side by side  
+        "inline-block": isHorizontal,
+        // Grid layout - flexible grid
+        "": isGrid,
+      }
+    )}>
+      {/* Before Drop Zone */}
+      <div
+        ref={beforeDroppable.setNodeRef}
+        className={cn(
+          "absolute z-10",
+          {
+            // Vertical: Top drop zone
+            "-top-2 left-0 right-0 h-4 w-full": isVertical || isGrid,
+            // Horizontal: Left drop zone  
+            "-left-2 top-0 bottom-0 w-4 h-full": isHorizontal,
+          }
+        )}
+      >
+        {beforeDroppable.isOver && (
+          <div
+            className={cn(
+              "bg-blue-500 shadow-lg animate-pulse",
+              {
+                // Vertical: Horizontal line
+                "w-full h-2": isVertical || isGrid,
+                // Horizontal: Vertical line
+                "h-full w-2": isHorizontal,
+              }
+            )}
+            style={{
+              position: 'absolute',
+              ...(isVertical || isGrid ? {
+                top: '50%',
+                transform: 'translateY(-50%)'
+              } : {
+                left: '50%',
+                transform: 'translateX(-50%)'
+              })
+            }}
+          />
+        )}
+      </div>
+
+      {/* Element Content - Insert position styling */}
+      <div className={cn(
+        "transition-all duration-200",
+        {
+          // Insert position effects - similar to Pages example
+          "relative": insertPosition,
+          // Before indicators
+          "before:content-[''] before:absolute before:bg-blue-500": insertPosition && !beforeDroppable.isOver && !afterDroppable.isOver,
+          // Vertical before
+          "before:left-0 before:right-0 before:h-[2px] before:-top-[15px]": isBefore && isVertical,
+          // Horizontal before  
+          "before:top-0 before:bottom-0 before:w-[2px] before:-left-[9px]": isBefore && isHorizontal,
+          // Vertical after
+          "before:left-0 before:right-0 before:h-[2px] before:-bottom-[15px]": isAfter && isVertical,
+          // Horizontal after
+          "before:top-0 before:bottom-0 before:w-[2px] before:-right-[9px]": isAfter && isHorizontal,
+        }
+      )}>
+        {children}
+      </div>
+
+      {/* After Drop Zone */}
+      <div
+        ref={afterDroppable.setNodeRef}
+        className={cn(
+          "absolute z-10",
+          {
+            // Vertical: Bottom drop zone
+            "-bottom-2 left-0 right-0 h-4 w-full": isVertical || isGrid,
+            // Horizontal: Right drop zone
+            "-right-2 top-0 bottom-0 w-4 h-full": isHorizontal,
+          }
+        )}
+      >
+        {afterDroppable.isOver && (
+          <div
+            className={cn(
+              "bg-blue-500 shadow-lg animate-pulse",
+              {
+                // Vertical: Horizontal line
+                "w-full h-2": isVertical || isGrid,
+                // Horizontal: Vertical line  
+                "h-full w-2": isHorizontal,
+              }
+            )}
+            style={{
+              position: 'absolute',
+              ...(isVertical || isGrid ? {
+                bottom: '50%',
+                transform: 'translateY(50%)'
+              } : {
+                right: '50%',
+                transform: 'translateX(50%)'
+              })
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
