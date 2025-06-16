@@ -1,6 +1,6 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ColumnComponent } from "./column";
 import { getElementStyles } from "@/lib/utils";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
@@ -11,14 +11,18 @@ import { DragPlaceholder } from "./drag-placeholder";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import { useDndMonitor } from "@dnd-kit/core";
 
-type Props = { element: EditorElement };
+type Props = { 
+  element: EditorElement;
+};
 
 export const GridLayoutComponent = ({ element }: Props) => {
   const { id, name, type, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
   const [measureRef, containerHeight] = useElementHeight(false);
+  const [dropTargetColumnId, setDropTargetColumnId] = useState<string | null>(null);
 
   const sortable = useSortable({
     id: id,
@@ -31,6 +35,34 @@ export const GridLayoutComponent = ({ element }: Props) => {
       isEditorElement: true,
     },
     disabled: state.editor.liveMode,
+  });
+
+  // DndMonitor ile drop target'ı takip et
+  useDndMonitor({
+    onDragOver: (event) => {
+      const { over, active } = event;
+      
+      if (!over || !active) {
+        setDropTargetColumnId(null);
+        return;
+      }
+
+      // Sadece sidebar elementleri için drop target göster
+      const isFromSidebar = active.data?.current?.isSidebarElement;
+      const overType = over.data?.current?.type;
+      
+      if (isFromSidebar && overType === "column") {
+        setDropTargetColumnId(over.id as string);
+      } else {
+        setDropTargetColumnId(null);
+      }
+    },
+    onDragEnd: () => {
+      setDropTargetColumnId(null);
+    },
+    onDragCancel: () => {
+      setDropTargetColumnId(null);
+    },
   });
 
   // Get computed styles based on current device
@@ -124,6 +156,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
                   element={columnElement}
                   gridSpan={columnSpan}
                   totalGridColumns={totalGridColumns}
+                  isDropTarget={dropTargetColumnId === columnElement.id} // Drop target state'i geçir
                 />
               );
             })}
