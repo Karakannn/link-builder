@@ -1,15 +1,12 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Recursive from "./recursive";
 import { getElementStyles } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
-import DropZoneWrapper from "./dropzone-wrapper";
-import { useElementHeight } from "@/hooks/editor/use-element-height";
-import { DragPlaceholder } from "./drag-placeholder";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
@@ -20,11 +17,14 @@ type Props = {
   totalGridColumns?: number; // Toplam grid sütun sayısı
 };
 
-export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }: Props) => {
+export const ColumnComponent = ({ 
+  element, 
+  gridSpan = 1, 
+  totalGridColumns = 12
+}: Props) => {
   const { id, name, type, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
-  const [measureRef, containerHeight] = useElementHeight(false);
 
   // dnd-kit droppable for receiving drops (normal elements)
   const droppable = useDroppable({
@@ -52,7 +52,8 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
   // Get computed styles based on current device
   const computedStyles = {
     ...getElementStyles(element, state.editor.device),
-    transform: CSS.Transform.toString(sortable.transform),
+    // Use CSS.Translate only to avoid scaling issues
+    transform: CSS.Translate.toString(sortable.transform),
     transition: sortable.transition,
   };
 
@@ -61,28 +62,14 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
     ...computedStyles,
     gridColumn: `span ${gridSpan}`,
     minHeight: "120px",
+    // Simple opacity change during drag
+    opacity: sortable.isDragging ? 0.3 : 1,
   };
-
-
-  const setNodeRef = (node: HTMLDivElement | null) => {
-    /*     droppable.setNodeRef(node); */
-    sortable.setNodeRef(node);
-    measureRef(node);
-  };
-
-  if (sortable.isDragging) {
-    return (
-      <DragPlaceholder
-        style={columnStyles}
-        height={containerHeight}
-      />
-    );
-  }
 
   return (
     <ElementContextMenu element={element}>
       <div
-        ref={setNodeRef}
+        ref={sortable.setNodeRef}
         style={columnStyles}
         className={clsx("relative p-6 transition-all group", {
           "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
@@ -91,18 +78,37 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12 }
           "!border-green-500 !border-2 !bg-green-50/50": droppable.isOver && !state.editor.liveMode,
           "cursor-grab": !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
-          "opacity-50": sortable.isDragging,
         })}
         onClick={handleSelectElement}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
       >
-     
+        {/* Column size indicator - only in edit mode */}
+        {!state.editor.liveMode && (
+          <div className="absolute -top-6 left-0 bg-gray-600 text-white text-xs px-2 py-1 rounded">
+            {gridSpan}/{totalGridColumns} ({Math.round((gridSpan / totalGridColumns) * 100)}%)
+          </div>
+        )}
+
+        {/* Drop zone indicator */}
+        {droppable.isOver && !state.editor.liveMode && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="bg-green-500 text-white px-3 py-2 rounded-md text-sm font-medium z-10">
+              Drop Here
+            </span>
+          </div>
+        )}
+
         {/* Column Content */}
-        {Array.isArray(content) &&
+        {Array.isArray(content) && content.length > 0 ? (
           content.map((childElement, index) => (
-            <Recursive element={childElement} />
-          ))}
+            <Recursive key={childElement.id} element={childElement} />
+          ))
+        ) : (
+          <div className="min-h-[60px] flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-300 rounded">
+            Drop elements here
+          </div>
+        )}
 
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />

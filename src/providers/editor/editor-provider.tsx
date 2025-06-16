@@ -16,34 +16,97 @@ export type EditorElement = {
   name: string;
   type: EditorBtns;
   content:
-    | EditorElement[]
-    | {
-        // Common content properties
+  | EditorElement[]
+  | {
+    // Common content properties
+    href?: string;
+    innerText?: string;
+    src?: string;
+
+    // Shimmer button properties
+    shimmerColor?: string;
+    shimmerSize?: string;
+    shimmerDuration?: string;
+    borderRadius?: string;
+    background?: string;
+
+    // Neon gradient button properties
+    firstColor?: string;
+    secondColor?: string;
+    borderSize?: number;
+
+    // Card properties
+    title?: string;
+    subtitle?: string;
+    logo?: string;
+
+    // Button common properties
+    buttonClass?: string;
+
+    // Grid pattern properties
+    width?: number;
+    height?: number;
+    numSquares?: number;
+    maxOpacity?: number;
+    duration?: number;
+    repeatDelay?: number;
+    squares?: [number, number];
+
+    // Retro grid properties
+    angle?: number;
+    cellSize?: number;
+    opacity?: number;
+    lightLineColor?: string;
+    darkLineColor?: string;
+
+    // Dot pattern properties
+    cx?: number;
+    cy?: number;
+    cr?: number;
+
+    // Marquee properties
+    direction?: "left" | "right";
+    speed?: number;
+    pauseOnHover?: boolean;
+    items?: Array<{
+      type: "text" | "image";
+      content: string;
+      alt?: string;
+      width?: number;
+      height?: number;
+    }>;
+
+    // Grid Layout properties
+    columns?: number;
+    gap?: string;
+    minColumnWidth?: string;
+    autoFit?: boolean;
+    template?: string;
+    templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+    columnSpans?: any[];
+
+    // GIF properties
+    alt?: string;
+    autoplay?: boolean;
+    loop?: boolean;
+    controls?: boolean;
+    loading?: "lazy" | "eager";
+
+    responsiveContent?: {
+      Tablet?: {
+        // All the above properties can be responsive
         href?: string;
         innerText?: string;
         src?: string;
-
-        // Shimmer button properties
         shimmerColor?: string;
         shimmerSize?: string;
         shimmerDuration?: string;
         borderRadius?: string;
         background?: string;
-
-        // Neon gradient button properties
         firstColor?: string;
         secondColor?: string;
         borderSize?: number;
-
-        // Card properties
-        title?: string;
-        subtitle?: string;
-        logo?: string;
-
-        // Button common properties
         buttonClass?: string;
-
-        // Grid pattern properties
         width?: number;
         height?: number;
         numSquares?: number;
@@ -51,20 +114,14 @@ export type EditorElement = {
         duration?: number;
         repeatDelay?: number;
         squares?: [number, number];
-
-        // Retro grid properties
         angle?: number;
         cellSize?: number;
         opacity?: number;
         lightLineColor?: string;
         darkLineColor?: string;
-
-        // Dot pattern properties
         cx?: number;
         cy?: number;
         cr?: number;
-
-        // Marquee properties
         direction?: "left" | "right";
         speed?: number;
         pauseOnHover?: boolean;
@@ -75,131 +132,76 @@ export type EditorElement = {
           width?: number;
           height?: number;
         }>;
-
-        // Grid Layout properties
+        // Grid Layout responsive properties
         columns?: number;
         gap?: string;
         minColumnWidth?: string;
         autoFit?: boolean;
         template?: string;
         templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-
-        // GIF properties
+        
+        // GIF responsive properties
         alt?: string;
         autoplay?: boolean;
         loop?: boolean;
         controls?: boolean;
         loading?: "lazy" | "eager";
-
-        responsiveContent?: {
-          Tablet?: {
-            // All the above properties can be responsive
-            href?: string;
-            innerText?: string;
-            src?: string;
-            shimmerColor?: string;
-            shimmerSize?: string;
-            shimmerDuration?: string;
-            borderRadius?: string;
-            background?: string;
-            firstColor?: string;
-            secondColor?: string;
-            borderSize?: number;
-            buttonClass?: string;
-            width?: number;
-            height?: number;
-            numSquares?: number;
-            maxOpacity?: number;
-            duration?: number;
-            repeatDelay?: number;
-            squares?: [number, number];
-            angle?: number;
-            cellSize?: number;
-            opacity?: number;
-            lightLineColor?: string;
-            darkLineColor?: string;
-            cx?: number;
-            cy?: number;
-            cr?: number;
-            direction?: "left" | "right";
-            speed?: number;
-            pauseOnHover?: boolean;
-            items?: Array<{
-              type: "text" | "image";
-              content: string;
-              alt?: string;
-              width?: number;
-              height?: number;
-            }>;
-            // Grid Layout responsive properties
-            columns?: number;
-            gap?: string;
-            minColumnWidth?: string;
-            autoFit?: boolean;
-            template?: string;
-            templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-            // GIF responsive properties
-            alt?: string;
-            autoplay?: boolean;
-            loop?: boolean;
-            controls?: boolean;
-            loading?: "lazy" | "eager";
-          };
-          Mobile?: {
-            // Same properties as Tablet
-            href?: string;
-            innerText?: string;
-            src?: string;
-            shimmerColor?: string;
-            shimmerSize?: string;
-            shimmerDuration?: string;
-            borderRadius?: string;
-            background?: string;
-            firstColor?: string;
-            secondColor?: string;
-            borderSize?: number;
-            buttonClass?: string;
-            width?: number;
-            height?: number;
-            numSquares?: number;
-            maxOpacity?: number;
-            duration?: number;
-            repeatDelay?: number;
-            squares?: [number, number];
-            angle?: number;
-            cellSize?: number;
-            opacity?: number;
-            lightLineColor?: string;
-            darkLineColor?: string;
-            cx?: number;
-            cy?: number;
-            cr?: number;
-            direction?: "left" | "right";
-            speed?: number;
-            pauseOnHover?: boolean;
-            items?: Array<{
-              type: "text" | "image";
-              content: string;
-              alt?: string;
-              width?: number;
-              height?: number;
-            }>;
-            // Grid Layout responsive properties
-            columns?: number;
-            gap?: string;
-            minColumnWidth?: string;
-            autoFit?: boolean;
-            template?: string;
-            templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-            // GIF responsive properties
-            alt?: string;
-            autoplay?: boolean;
-            loop?: boolean;
-            controls?: boolean;
-            loading?: "lazy" | "eager";
-          };
-        };
       };
+      Mobile?: {
+        // Same properties as Tablet
+        href?: string;
+        innerText?: string;
+        src?: string;
+        shimmerColor?: string;
+        shimmerSize?: string;
+        shimmerDuration?: string;
+        borderRadius?: string;
+        background?: string;
+        firstColor?: string;
+        secondColor?: string;
+        borderSize?: number;
+        buttonClass?: string;
+        width?: number;
+        height?: number;
+        numSquares?: number;
+        maxOpacity?: number;
+        duration?: number;
+        repeatDelay?: number;
+        squares?: [number, number];
+        angle?: number;
+        cellSize?: number;
+        opacity?: number;
+        lightLineColor?: string;
+        darkLineColor?: string;
+        cx?: number;
+        cy?: number;
+        cr?: number;
+        direction?: "left" | "right";
+        speed?: number;
+        pauseOnHover?: boolean;
+        items?: Array<{
+          type: "text" | "image";
+          content: string;
+          alt?: string;
+          width?: number;
+          height?: number;
+        }>;
+        // Grid Layout responsive properties
+        columns?: number;
+        gap?: string;
+        minColumnWidth?: string;
+        autoFit?: boolean;
+        template?: string;
+        templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+        // GIF responsive properties
+        alt?: string;
+        autoplay?: boolean;
+        loop?: boolean;
+        controls?: boolean;
+        loading?: "lazy" | "eager";
+      };
+    };
+  };
 };
 
 export type Editor = {
@@ -375,13 +377,23 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
 const updateAnElement = (editorArray: EditorElement[], action: EditorAction): EditorElement[] => {
   if (action.type !== "UPDATE_ELEMENT") throw Error("You sent the wrong action type on the UPDATE_ELEMENT editor State");
 
+  console.log("🔍 updateAnElement called, looking for ID:", action.payload.elementDetails.id);
+  console.log("🔍 Array has", editorArray.length, "elements");
+
   return editorArray.map((item) => {
+    console.log("🔎 Checking element:", item.id, "vs target:", action.payload.elementDetails.id);
+    
     if (item.id === action.payload.elementDetails.id) {
+      console.log("✅ Found matching element! Updating...");
+      console.log("🔄 Old content length:", Array.isArray(item.content) ? item.content.length : 'not array');
+      console.log("🔄 New content length:", Array.isArray(action.payload.elementDetails.content) ? action.payload.elementDetails.content.length : 'not array');
+      
       return {
         ...item,
         ...action.payload.elementDetails,
       };
     } else if (item.content && Array.isArray(item.content)) {
+      console.log("🔄 Searching in nested content of:", item.id);
       return {
         ...item,
         content: updateAnElement(item.content, action),
@@ -678,6 +690,9 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
       return newEditorState;
 
     case "UPDATE_ELEMENT":
+
+      console.log("🔧 UPDATE_ELEMENT reducer called:", action.payload);
+
       const updateElements = updateAnElement(state.editor.elements, action);
 
       const updatedElementIsSelected = state.editor.selectedElement.id === action.payload.elementDetails.id;
@@ -688,12 +703,12 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         selectedElement: updatedElementIsSelected
           ? action.payload.elementDetails
           : {
-              id: "",
-              content: [],
-              name: "",
-              styles: {},
-              type: null,
-            },
+            id: "",
+            content: [],
+            name: "",
+            styles: {},
+            type: null,
+          },
       };
 
       const updatedHistoryWithUpdate = [
@@ -712,6 +727,9 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
           currentIndex: updatedHistoryWithUpdate.length - 1,
         },
       };
+
+      console.log("✅ UPDATE_ELEMENT reducer completed");
+
 
       return updateEditor;
 

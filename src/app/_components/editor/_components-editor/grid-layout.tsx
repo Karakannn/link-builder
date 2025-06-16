@@ -4,7 +4,7 @@ import React from "react";
 import { ColumnComponent } from "./column";
 import { getElementStyles } from "@/lib/utils";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
-import { horizontalListSortingStrategy, SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
@@ -36,7 +36,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
   // Get computed styles based on current device
   const computedStyles = {
     ...getElementStyles(element, state.editor.device),
-    transform: CSS.Transform.toString(sortable.transform),
+    transform: CSS.Translate.toString(sortable.transform),
     transition: sortable.transition,
   };
 
@@ -120,6 +120,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
 
               return (
                 <ColumnComponent
+                  key={columnElement.id}
                   element={columnElement}
                   gridSpan={columnSpan}
                   totalGridColumns={totalGridColumns}
@@ -128,7 +129,6 @@ export const GridLayoutComponent = ({ element }: Props) => {
             })}
           </SortableContext>
         )}
-
 
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />

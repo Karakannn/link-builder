@@ -1,9 +1,19 @@
 "use client";
 
-import { closestCenter, DndContext, DragEndEvent, DragStartEvent, PointerSensor, rectIntersection, UniqueIdentifier, useSensor, useSensors } from "@dnd-kit/core";
+import { 
+  closestCorners, 
+  DndContext, 
+  DragEndEvent, 
+  DragOverEvent, 
+  DragStartEvent, 
+  PointerSensor, 
+  rectIntersection, 
+  useSensor, 
+  useSensors 
+} from "@dnd-kit/core";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getContainerIds, useEditorUtilities } from "@/hooks/use-editor-utilities";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useDrops } from "@/hooks/use-drops";
 
 type DndContextProviderProps = {
@@ -19,26 +29,95 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 5, // Basit threshold
       },
     })
   );
 
+  // Basit collision detection - grid için closestCorners kullan
   const collisionDetection = (args: any) => {
-    // First try closest center for precise drops
-    const closestCenterCollisions = closestCenter(args);
-    if (closestCenterCollisions.length > 0) {
-      return closestCenterCollisions;
+    const { active } = args;
+    const draggedType = active?.data?.current?.type;
+    
+    // Column drag için closestCorners kullan
+    if (draggedType === "column") {
+      return closestCorners(args);
     }
-
-    // Fallback to rectangle intersection
+    
+    // Diğerleri için rectIntersection
     return rectIntersection(args);
   };
 
   const childItems = state.editor.elements.map(child => child.id);
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // Grid layout ve column'larını bul
+  const findGridLayoutAndColumns = (elements: EditorElement[]): { gridLayout: EditorElement; columns: EditorElement[] } | null => {
+    for (const element of elements) {
+      if (element.type === 'gridLayout' && Array.isArray(element.content)) {
+        return {
+          gridLayout: element,
+          columns: element.content
+        };
+      }
+      if (Array.isArray(element.content)) {
+        const result = findGridLayoutAndColumns(element.content);
+        if (result) return result;
+      }
+    }
+    return null;
+  };
 
+  // Ana sorting logic - onDragOver ile live reordering
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+
+    if (!over || !active) return;
+
+    const draggedType = active.data?.current?.type;
+    
+    // Sadece column drag'ında çalış
+    if (draggedType === "column") {
+      const overType = over.data?.current?.type;
+      
+      // Column üzerinde hover ediyorsa
+      if (overType === "column") {
+        const activeId = active.id as string;
+        const overId = over.id as string;
+        
+        if (activeId === overId) return;
+        
+        // Grid layout'u bul
+        const gridInfo = findGridLayoutAndColumns(state.editor.elements);
+        if (!gridInfo) return;
+        
+        const { gridLayout, columns } = gridInfo;
+        
+        // Column indekslerini bul
+        const oldIndex = columns.findIndex(col => col.id === activeId);
+        const newIndex = columns.findIndex(col => col.id === overId);
+        
+        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+          console.log(`🔄 Reordering columns: ${oldIndex} -> ${newIndex}`);
+          
+          // arrayMove ile yeni sıralama oluştur
+          const reorderedColumns = arrayMove(columns, oldIndex, newIndex);
+          
+          // Grid layout'u güncelle
+          dispatch({
+            type: "UPDATE_ELEMENT",
+            payload: {
+              elementDetails: {
+                ...gridLayout,
+                content: reorderedColumns,
+              },
+            },
+          });
+        }
+      }
+    }
+  };
+
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     if (!over || !active) return
@@ -49,31 +128,20 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     const isFromEditor = active.data?.current?.isEditorElement;
     const elementId = active.data?.current?.elementId;
 
-    console.log("\n📋 Drag Analysis:");
-    console.log("  - Dragged Type:", draggedType);
-    console.log("  - From Sidebar:", isFromSidebar);
-    console.log("  - From Editor:", isFromEditor);
-    console.log("  - Element ID:", elementId);
+    // Column drag zaten onDragOver'da handle edildi, skip et
+    if (draggedType === "column" && isFromEditor) {
+      console.log("✅ Column reordering completed in onDragOver");
+      return;
+    }
 
     // Handle INSERT operations (dropping on element top/bottom zones)
     if (over.data?.current?.type === "insert") {
-      console.log("\n🔄 INSERT OPERATION DETECTED");
-
       const { containerId, insertIndex, position, targetElementId } = over.data.current;
-
-      console.log("📍 Insert Details:");
-      console.log("  - Container ID:", containerId);
-      console.log("  - Insert Index:", insertIndex);
-      console.log("  - Position:", position);
-      console.log("  - Target Element ID:", targetElementId);
 
       // Handle sidebar elements (creating new elements)
       if (isFromSidebar) {
-        console.log("\n🆕 Creating new element from sidebar");
-
         const newElement = createElement(draggedType);
         if (newElement) {
-
           dispatch({
             type: "INSERT_ELEMENT",
             payload: {
@@ -82,20 +150,10 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
               elementDetails: newElement,
             },
           });
-
-          console.log("✅ INSERT_ELEMENT dispatched successfully");
-        } else {
-          console.error("❌ Failed to create new element");
         }
       }
       // Handle existing editor elements (reordering)
       else if (isFromEditor && elementId) {
-        console.log("\n🔄 Reordering existing element");
-        console.log("  - Moving element:", elementId);
-        console.log("  - To container:", containerId);
-        console.log("  - At index:", insertIndex);
-
-        console.log("🚀 Dispatching REORDER_ELEMENT action:");
         dispatch({
           type: "REORDER_ELEMENT",
           payload: {
@@ -104,26 +162,15 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             insertIndex,
           },
         });
-
-        console.log("✅ REORDER_ELEMENT dispatched successfully");
-      } else {
-        console.warn("⚠️ INSERT operation but no valid source detected");
       }
     }
     // Handle CONTAINER drops (add to end of container)
     else if (over.data?.current?.type === "container" || over.data?.current?.type === "__body") {
       handleContainerDrop(active, over)
     }
-    // Handle unknown drop targets
-    else {
-      console.warn("⚠️ Unknown drop target type:", over.data?.current?.type);
-    }
-    console.log("🏁 DRAG END EVENT COMPLETED");
   };
 
   function handleDragStart({ active }: DragStartEvent) {
-
-
     if (!active.data.current) return
 
     const isFromEditor = active.data.current.isEditorElement
@@ -136,20 +183,24 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
         },
       });
     }
-
   }
 
   function handleDragCancel() {
-
     dispatch({
       type: "CHANGE_CLICKED_ELEMENT",
       payload: {},
     });
-
   }
 
   return (
-    <DndContext collisionDetection={collisionDetection} onDragCancel={handleDragCancel} onDragStart={handleDragStart} onDragEnd={handleDragEnd} sensors={sensors}>
+    <DndContext 
+      collisionDetection={collisionDetection} 
+      onDragCancel={handleDragCancel} 
+      onDragStart={handleDragStart} 
+      onDragOver={handleDragOver} // ÇOK ÖNEMLİ - Live reordering için
+      onDragEnd={handleDragEnd} 
+      sensors={sensors}
+    >
       <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
         {children}
       </SortableContext>
