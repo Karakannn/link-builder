@@ -6,10 +6,11 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { UserNav } from "@/components/global/user-nav";
 import { DeviceTypes, useEditor } from "@/providers/editor/editor-provider";
+import { useLandingModal } from "@/providers/landing-modal-provider";
 import clsx from "clsx";
-import { ArrowLeftCircle, EyeIcon, Laptop, Redo2, Smartphone, Tablet, Undo2 } from "lucide-react";
+import { ArrowLeftCircle, EyeIcon, Laptop, Redo2, Smartphone, Tablet, Undo2, Square } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import React, { FocusEventHandler, useEffect } from "react";
 import { toast } from "sonner";
 import { Page, User } from "@prisma/client";
@@ -22,7 +23,12 @@ interface Props {
 
 const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const { state, dispatch } = useEditor();
+  const { openModal } = useLandingModal();
+
+  // Check if we're on the landing modal page
+  const isLandingModalPage = pathname?.includes('landing-modal');
 
   useEffect(() => {
     dispatch({
@@ -63,6 +69,11 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
     dispatch({ type: "TOGGLE_PREVIEW_MODE" });
     dispatch({ type: "TOGGLE_LIVE_MODE" });
   };
+
+  const handlePreviewModalClick = () => {
+    openModal();
+  };
+
   const handleUndo = () => {
     dispatch({ type: "UNDO" });
   };
@@ -183,6 +194,16 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
             <span className="text-muted-foreground text-sm">Last updated şimdiiii</span>
           </div>
           <Button onClick={handleOnSave}>Save</Button>
+          {isLandingModalPage && (
+            <Button 
+              variant="outline" 
+              onClick={handlePreviewModalClick}
+              className="ml-2 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700"
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Preview Modal
+            </Button>
+          )}
           <div className="ml-2">
             <UserNav user={user} />
           </div>

@@ -31,6 +31,11 @@ const data = {
             url: "/admin/domains",
             icon: IconWorld,
         },
+        {
+            title: "Landing Modal",
+            url: "/admin/landing-modal",
+            icon: IconDatabase,
+        },
     ],
 
     navSecondary: [

@@ -34,6 +34,7 @@ model User {
   // Relations
   sites        Site[]       // All sites created by the user
   domains      Domain[]     // All domains added by the user
+  landingModals LandingModal[] // User's landing modals
 }
 
 // Site created by the user
@@ -52,6 +53,7 @@ model Site {
   // Relations
   pages         Page[]       // Site pages
   domains       Domain[]     // Domains connected to this site
+  settings      SiteSettings? // Site settings
   
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
@@ -101,5 +103,40 @@ model Domain {
   updatedAt      DateTime  @updatedAt
   
   @@index([userId])
+  @@index([siteId])
+}
+
+// Landing Modal model
+model LandingModal {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    // Modal name
+  content     Json      // Modal content in JSON format (site builder data)
+  isEnabled   Boolean   @default(true)
+  
+  // User relation
+  userId      String    @db.Uuid
+  user        User      @relation(fields: [userId], references: [id])
+  
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  @@index([userId])
+}
+
+// Site Settings model for landing modal configuration
+model SiteSettings {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  
+  // Site relation
+  siteId          String    @db.Uuid @unique
+  site            Site      @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  
+  // Landing modal settings
+  enableLandingModal Boolean @default(false)
+  selectedModalId    String? @db.Uuid
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
   @@index([siteId])
 }

@@ -128,14 +128,45 @@ export const getSitePages = async (siteId: string) => {
       where: {
         siteId: siteId,
       },
-      orderBy: {
-        createdAt: "asc", // Veya istediğiniz başka bir sıralama
-      },
+      orderBy: [
+        { isHome: 'desc' }, // Ana sayfa en başta
+        { createdAt: 'asc' } // Sonra oluşturulma tarihine göre (eski en başta)
+      ],
+    });
+
+    // Her sayfanın content'ini parse et
+    const parsedPages = pages.map(page => {
+      let parsedContent = page.content;
+      if (typeof page.content === 'string') {
+        try {
+          parsedContent = JSON.parse(page.content);
+        } catch (error) {
+          console.error("Error parsing page content:", error);
+          // Parse edilemezse varsayılan içerik kullan
+          parsedContent = [
+            {
+              id: "__body",
+              name: "Body",
+              type: "__body",
+              styles: {
+                backgroundColor: "white",
+                height: "100%",
+              },
+              content: [],
+            },
+          ];
+        }
+      }
+
+      return {
+        ...page,
+        content: parsedContent,
+      };
     });
 
     return {
       status: 200,
-      pages,
+      pages: parsedPages,
     };
   } catch (error) {
     console.error("Error fetching site pages:", error);
@@ -162,9 +193,35 @@ export const getPageBySlug = async (siteId: string, slug: string) => {
       return { status: 404, message: "Page not found" };
     }
 
+    // Content'i JSON string'den parse et
+    let parsedContent = page.content;
+    if (typeof page.content === 'string') {
+      try {
+        parsedContent = JSON.parse(page.content);
+      } catch (error) {
+        console.error("Error parsing page content:", error);
+        // Parse edilemezse varsayılan içerik kullan
+        parsedContent = [
+          {
+            id: "__body",
+            name: "Body",
+            type: "__body",
+            styles: {
+              backgroundColor: "white",
+              height: "100%",
+            },
+            content: [],
+          },
+        ];
+      }
+    }
+
     return {
       status: 200,
-      page,
+      page: {
+        ...page,
+        content: parsedContent,
+      },
     };
   } catch (error) {
     console.error("Error fetching page:", error);
@@ -203,9 +260,35 @@ export const getPageById = async (pageId: string) => {
       return { status: 403, message: "You don't have permission to access this page" };
     }
 
+    // Content'i JSON string'den parse et
+    let parsedContent = page.content;
+    if (typeof page.content === 'string') {
+      try {
+        parsedContent = JSON.parse(page.content);
+      } catch (error) {
+        console.error("Error parsing page content:", error);
+        // Parse edilemezse varsayılan içerik kullan
+        parsedContent = [
+          {
+            id: "__body",
+            name: "Body",
+            type: "__body",
+            styles: {
+              backgroundColor: "white",
+              height: "100%",
+            },
+            content: [],
+          },
+        ];
+      }
+    }
+
     return {
       status: 200,
-      page,
+      page: {
+        ...page,
+        content: parsedContent,
+      },
     };
   } catch (error) {
     console.error("Error fetching page by ID:", error);
@@ -230,9 +313,35 @@ export const getHomePage = async (siteId: string) => {
       return { status: 404, message: "Home page not found" };
     }
 
+    // Content'i JSON string'den parse et
+    let parsedContent = homePage.content;
+    if (typeof homePage.content === 'string') {
+      try {
+        parsedContent = JSON.parse(homePage.content);
+      } catch (error) {
+        console.error("Error parsing home page content:", error);
+        // Parse edilemezse varsayılan içerik kullan
+        parsedContent = [
+          {
+            id: "__body",
+            name: "Body",
+            type: "__body",
+            styles: {
+              backgroundColor: "white",
+              height: "100%",
+            },
+            content: [],
+          },
+        ];
+      }
+    }
+
     return {
       status: 200,
-      page: homePage,
+      page: {
+        ...homePage,
+        content: parsedContent,
+      },
     };
   } catch (error) {
     console.error("Error fetching home page:", error);
@@ -280,17 +389,263 @@ export const getAllUserPages = async () => {
           },
         },
       },
+      orderBy: [
+        { isHome: 'desc' }, // Ana sayfa en başta
+        { createdAt: 'asc' } // Sonra oluşturulma tarihine göre (eski en başta)
+      ],
+    });
+
+    // Her sayfanın content'ini parse et
+    const parsedPages = pages.map(page => {
+      let parsedContent = page.content;
+      if (typeof page.content === 'string') {
+        try {
+          parsedContent = JSON.parse(page.content);
+        } catch (error) {
+          console.error("Error parsing page content:", error);
+          // Parse edilemezse varsayılan içerik kullan
+          parsedContent = [
+            {
+              id: "__body",
+              name: "Body",
+              type: "__body",
+              styles: {
+                backgroundColor: "white",
+                height: "100%",
+              },
+              content: [],
+            },
+          ];
+        }
+      }
+
+      return {
+        ...page,
+        content: parsedContent,
+      };
     });
 
     return {
       status: 200,
-      pages,
+      pages: parsedPages,
       sitesCount: sites.length,
       pagesCount: pages.length,
+      siteId: sites[0]?.id, // İlk site ID'sini döndür (varsayılan site için)
     };
   } catch (error) {
     console.error("Error fetching user pages:", error);
     return { status: 400, message: "Failed to fetch user pages" };
+  }
+};
+
+export const createPageFromTemplate = async (
+  title: string, 
+  slug: string, 
+  templateContent: any[], 
+  siteId?: string
+) => {
+  try {
+    const user = await onAuthenticatedUser();
+
+    if (!user || !user.id) {
+      return { status: 401, message: "Unauthorized" };
+    }
+
+    // Site ID'yi belirle - eğer verilmemişse varsayılan siteyi al
+    let targetSiteId = siteId;
+    
+    if (!targetSiteId) {
+      const defaultSite = await client.site.findFirst({
+        where: {
+          userId: user.id,
+          isDefault: true,
+        },
+      });
+
+      if (defaultSite) {
+        targetSiteId = defaultSite.id;
+      } else {
+        // Varsayılan site yoksa kullanıcının ilk sitesini al
+        const firstSite = await client.site.findFirst({
+          where: {
+            userId: user.id,
+          },
+        });
+        
+        if (firstSite) {
+          targetSiteId = firstSite.id;
+        } else {
+          return { status: 404, message: "No site found for user" };
+        }
+      }
+    }
+
+    // Sitenin kullanıcıya ait olduğunu kontrol et
+    const site = await client.site.findFirst({
+      where: {
+        id: targetSiteId,
+        userId: user.id,
+      },
+    });
+
+    if (!site) {
+      return { status: 404, message: "Site not found or you don't have access" };
+    }
+
+    // Aynı slug kontrolü
+    const existingPage = await client.page.findFirst({
+      where: {
+        siteId: targetSiteId,
+        slug: slug,
+      },
+    });
+
+    if (existingPage) {
+      return { status: 400, message: "A page with this slug already exists" };
+    }
+
+    // Sayfa oluştur
+    const response = await client.page.create({
+      data: {
+        title,
+        slug,
+        isHome: false,
+        content: JSON.stringify(templateContent),
+        siteId: targetSiteId,
+      },
+    });
+
+    // İlgili sayfaları yeniden doğrula
+    revalidatePath(`/admin/sites`);
+
+    return {
+      status: 200,
+      message: "Page created successfully from template",
+      page: response,
+    };
+  } catch (error) {
+    console.error("Create page from template error:", error);
+    return { status: 500, message: "An error occurred", error };
+  }
+};
+
+export const deletePage = async (pageId: string) => {
+  try {
+    const user = await onAuthenticatedUser();
+
+    if (!user || !user.id) {
+      return { status: 401, message: "Unauthorized" };
+    }
+
+    // Sayfayı bul ve site kontrolü yap
+    const page = await client.page.findUnique({
+      where: {
+        id: pageId,
+      },
+      include: {
+        site: {
+          select: {
+            id: true,
+            userId: true,
+          },
+        },
+      },
+    });
+
+    if (!page) {
+      return { status: 404, message: "Page not found" };
+    }
+
+    if (page.site.userId !== user.id) {
+      return { status: 403, message: "You don't have permission to delete this page" };
+    }
+
+    // Ana sayfa silinmeye çalışılıyorsa uyarı ver
+    if (page.isHome) {
+      return { status: 400, message: "Ana sayfa silinemez. Önce başka bir sayfayı ana sayfa yapın." };
+    }
+
+    // Sayfayı sil
+    await client.page.delete({
+      where: {
+        id: pageId,
+      },
+    });
+
+    revalidatePath(`/admin/sites`);
+
+    return {
+      status: 200,
+      message: "Page deleted successfully",
+    };
+  } catch (error) {
+    console.error("Delete page error:", error);
+    return { status: 500, message: "An error occurred", error };
+  }
+};
+
+export const setPageAsHome = async (pageId: string) => {
+  try {
+    const user = await onAuthenticatedUser();
+
+    if (!user || !user.id) {
+      return { status: 401, message: "Unauthorized" };
+    }
+
+    // Sayfayı bul ve site kontrolü yap
+    const page = await client.page.findUnique({
+      where: {
+        id: pageId,
+      },
+      include: {
+        site: {
+          select: {
+            id: true,
+            userId: true,
+          },
+        },
+      },
+    });
+
+    if (!page) {
+      return { status: 404, message: "Page not found" };
+    }
+
+    if (page.site.userId !== user.id) {
+      return { status: 403, message: "You don't have permission to modify this page" };
+    }
+
+    // Önce tüm sayfaları ana sayfa olmaktan çıkar
+    await client.page.updateMany({
+      where: {
+        siteId: page.siteId,
+        isHome: true,
+      },
+      data: {
+        isHome: false,
+      },
+    });
+
+    // Bu sayfayı ana sayfa yap
+    const updatedPage = await client.page.update({
+      where: {
+        id: pageId,
+      },
+      data: {
+        isHome: true,
+      },
+    });
+
+    revalidatePath(`/admin/sites`);
+
+    return {
+      status: 200,
+      message: "Page set as homepage successfully",
+      page: updatedPage,
+    };
+  } catch (error) {
+    console.error("Set page as home error:", error);
+    return { status: 500, message: "An error occurred", error };
   }
 };
 
@@ -392,7 +747,7 @@ export const upsertPage = async (page: Page) => {
         title: page.title,
         slug: page.slug,
         isHome: page.isHome !== undefined ? page.isHome : undefined,
-        content: page.content !== undefined ? page.content as any : undefined,
+        content: page.content !== undefined ? (typeof page.content === 'string' ? page.content : JSON.stringify(page.content)) : undefined,
         seo: page.seo !== undefined ? page.seo as any : undefined,
         updatedAt: new Date(),
       },
@@ -400,7 +755,7 @@ export const upsertPage = async (page: Page) => {
         title: page.title,
         slug: page.slug,
         isHome: page.isHome || false,
-        content: page.content || defaultContent,
+        content: typeof page.content === 'string' ? page.content : JSON.stringify(page.content || defaultContent),
         seo: page.seo as any,
         siteId: siteId as any,
       },

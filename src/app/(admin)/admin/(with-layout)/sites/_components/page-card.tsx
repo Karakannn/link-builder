@@ -2,17 +2,21 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Globe, Home, Pencil, Plus } from "lucide-react";
+import { Calendar, Globe, Home, Pencil, Plus, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface PageCardProps {
   page: any;
   onEdit?: (pageId: string) => void;
+  onSetAsHome?: (pageId: string) => void;
+  onDelete?: (pageId: string) => void;
 }
 
-export const PageCard = ({ page, onEdit = () => {} }: PageCardProps) => {
+export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDelete = () => {} }: PageCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const formattedDate = page.createdAt
     ? formatDistanceToNow(new Date(page.createdAt), {
@@ -20,6 +24,24 @@ export const PageCard = ({ page, onEdit = () => {} }: PageCardProps) => {
         locale: tr,
       })
     : "Tarih bilgisi yok";
+
+  const handleSetAsHome = async () => {
+    setIsLoading(true);
+    try {
+      await onSetAsHome(page.id);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    try {
+      await onDelete(page.id);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Card className="w-full transition-all duration-300 hover:shadow-lg" onMouseEnter={() => setIsHovered(true)} onMouseLeave={() => setIsHovered(false)}>
@@ -53,7 +75,7 @@ export const PageCard = ({ page, onEdit = () => {} }: PageCardProps) => {
 
           {isHovered && (
             <div className="absolute inset-0 flex items-center justify-center bg-black/5 transition-opacity duration-300">
-              <Button variant="secondary" className="gap-2" onClick={() => onEdit(page.id)}>
+              <Button variant="secondary" className="gap-2" onClick={() => onEdit(page.id)} disabled={isLoading}>
                 <Pencil className="h-4 w-4" />
                 Sayfayı Düzenle
               </Button>
@@ -63,10 +85,54 @@ export const PageCard = ({ page, onEdit = () => {} }: PageCardProps) => {
       </CardContent>
 
       <CardFooter className="flex justify-between pt-2">
-        <Button variant="outline" size="sm" className="gap-1" onClick={() => onEdit(page.id)}>
-          <Pencil className="h-3.5 w-3.5" />
-          Düzenle
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="gap-1" onClick={() => onEdit(page.id)} disabled={isLoading}>
+            <Pencil className="h-3.5 w-3.5" />
+            Düzenle
+          </Button>
+          {!page.isHome && (
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="gap-1" 
+              onClick={handleSetAsHome}
+              disabled={isLoading}
+            >
+              <Home className="h-3.5 w-3.5" />
+              Ana Sayfa Yap
+            </Button>
+          )}
+        </div>
+        
+        {!page.isHome && (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                className="gap-1" 
+                disabled={isLoading}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                Sil
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Sayfayı Sil</AlertDialogTitle>
+                <AlertDialogDescription>
+                  "{page.title}" sayfasını silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>İptal</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Evet, Sil
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </CardFooter>
     </Card>
   );

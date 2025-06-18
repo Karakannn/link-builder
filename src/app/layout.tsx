@@ -6,6 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ModalProvider } from "@/providers/modal-provider";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { LandingModalProvider } from "@/providers/landing-modal-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,7 +34,7 @@ export default function RootLayout({
         <ReactQueryProvider>
           <ClerkProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-              <ModalProvider>{children}</ModalProvider>
+                <ModalProvider>{children}</ModalProvider>
             </ThemeProvider>
             <Toaster richColors />
           </ClerkProvider>
