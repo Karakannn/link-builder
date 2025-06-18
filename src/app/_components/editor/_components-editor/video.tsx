@@ -3,9 +3,10 @@ import { Badge } from "@/components/ui/badge";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { Trash } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = {
     element: EditorElement;
@@ -14,6 +15,7 @@ type Props = {
 const VideoComponent = ({ element }: Props) => {
     const { state, dispatch } = useEditor();
     const { id, name, type, styles, content } = element;
+    const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -34,10 +36,9 @@ const VideoComponent = ({ element }: Props) => {
         disabled: state.editor.liveMode,
     });
 
-    const handleOnClick = (e: React.MouseEvent) => {
+    const handleOnClickBody = (e: React.MouseEvent) => {
         e.stopPropagation();
         console.log("Video clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
-        // Sadece edit mode'da ve drag değilken çalışsın
         if (!state.editor.liveMode && !draggable.isDragging) {
             console.log("Selecting video:", id);
             dispatch({
@@ -59,11 +60,21 @@ const VideoComponent = ({ element }: Props) => {
         });
     };
 
+    // Extract video specific props from content with defaults
+    const videoProps = !Array.isArray(computedContent) ? computedContent : {};
+    const videoSrc = videoProps.src || "https://www.youtube.com/embed/A3l6YYkXzzg?si=zbcCeWcpq7Cwf8W1";
+
+    useEffect(() => {
+        setShowSpacingGuides(
+            state.editor.selectedElement.id === id && !state.editor.liveMode
+        );
+    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
     return (
         <div
             ref={draggable.setNodeRef}
             style={computedStyles}
-            className={clsx("p-[2px] w-full relative text-[16px] transition-all", {
+            className={clsx("relative transition-all", {
                 "!border-blue-500": state.editor.selectedElement.id === id,
                 "!border-solid": state.editor.selectedElement.id === id,
                 "!border-dashed border border-slate-300": !state.editor.liveMode,
@@ -71,27 +82,26 @@ const VideoComponent = ({ element }: Props) => {
                 "cursor-grabbing": draggable.isDragging,
                 "opacity-50": draggable.isDragging,
             })}
-            onClick={handleOnClick}
-            // Sadece edit mode'da drag listeners ekle
+            onClick={handleOnClickBody}
             {...(!state.editor.liveMode ? draggable.listeners : {})}
             {...(!state.editor.liveMode ? draggable.attributes : {})}
         >
-            {state.editor.selectedElement.id === id && !state.editor.liveMode && <Badge className="absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg">{state.editor.selectedElement.name}</Badge>}
-
-            {!Array.isArray(computedContent) && (
-                <iframe 
-                    width={computedStyles.width || "560"} 
-                    height={computedStyles.height || "315"} 
-                    src={computedContent.src} 
-                    title="YouTube video player" 
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    className={clsx({
-                        "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode, // Edit mode'da iframe tıklanabilir olmasın
-                    })}
-                />
+            {showSpacingGuides && (
+                <SpacingVisualizer styles={computedStyles} />
             )}
+
+            <iframe
+                src={videoSrc}
+                title="Video"
+                className={clsx("w-full h-full border-0", {
+                    "pointer-events-none": !state.editor.liveMode, // disabled edit mode
+                })}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+            />
+
             {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold  -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
+                <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
                     <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
                 </div>
             )}

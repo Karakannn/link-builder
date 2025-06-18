@@ -31,6 +31,9 @@ import MarqueePlaceholder from "./marquee-placeholder";
 import GridLayoutPlaceholder from "./grid-layout-placeholder";
 import GifPlaceholder from "./gif-placeholder";
 
+// Closable container component
+import ClosableContainerPlaceholder from "./closable-container-placeholder";
+
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
@@ -43,6 +46,12 @@ const ComponentsTab = () => {
             Component: <ContainerPlaceholder />,
             label: "Container",
             id: "container",
+            category: "layout",
+        },
+        {
+            Component: <ClosableContainerPlaceholder />,
+            label: "Closable Container",
+            id: "closableContainer",
             category: "layout",
         },
         {

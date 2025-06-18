@@ -97,16 +97,7 @@ const ShimmerButtonComponent = ({ element }: Props) => {
     >
 
       {showSpacingGuides && (
-        <SpacingVisualizer
-          marginTop={computedStyles.marginTop}
-          marginRight={computedStyles.marginRight}
-          marginBottom={computedStyles.marginBottom}
-          marginLeft={computedStyles.marginLeft}
-          paddingTop={computedStyles.paddingTop}
-          paddingRight={computedStyles.paddingRight}
-          paddingBottom={computedStyles.paddingBottom}
-          paddingLeft={computedStyles.paddingLeft}
-        />
+        <SpacingVisualizer styles={computedStyles} />
       )}
 
       <ShimmerButton

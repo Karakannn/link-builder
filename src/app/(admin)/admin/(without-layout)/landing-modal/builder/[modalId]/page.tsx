@@ -11,39 +11,32 @@ import { ModalEditorWrapper } from "./_components/modal-editor-wrapper";
 
 const defaultContent: EditorElement[] = [
     {
-        id: "modal-outer-container",
+        id: "modal-container",
         content: [
             {
-                id: "modal-container",
-                content: [
-                    {
-                        id: "modal-content",
-                        content: [],
-                        name: "Modal Content",
-                        styles: {
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: "20px",
-                            minHeight: "200px",
-                        },
-                        type: "container",
-                    }
-                ],
-                name: "Modal Container",
+                id: "modal-content",
+                content: [],
+                name: "Modal Content",
                 styles: {
                     display: "flex",
                     flexDirection: "column",
-                    gap: "0.5rem",
-                    width: "100%",
-                    height: "100%",
+                    gap: "20px",
+                    minHeight: "200px",
                 },
                 type: "container",
             }
         ],
-        name: "Modal Outer Container",
+        name: "Modal Container",
         styles: {
             display: "flex",
             flexDirection: "column",
+            width: "500px",
+            height: "300px",
+            padding: "40px",
+            backgroundColor: "white",
+            borderRadius: "12px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+            gap: "0.5rem",
         },
         type: "container",
     },

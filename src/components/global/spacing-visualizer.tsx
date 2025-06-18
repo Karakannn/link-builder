@@ -3,40 +3,42 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface SpacingVisualizerProps {
-    marginTop?: string | number;
-    marginRight?: string | number;
-    marginBottom?: string | number;
-    marginLeft?: string | number;
-    paddingTop?: string | number;
-    paddingRight?: string | number;
-    paddingBottom?: string | number;
-    paddingLeft?: string | number;
+    styles?: React.CSSProperties;
     className?: string;
 }
 
 export const SpacingVisualizer: React.FC<SpacingVisualizerProps> = ({
-    marginTop = '0px',
-    marginRight = '0px',
-    marginBottom = '0px',
-    marginLeft = '0px',
-    paddingTop = '0px',
-    paddingRight = '0px',
-    paddingBottom = '0px',
-    paddingLeft = '0px',
+    styles = {},
     className
 }) => {
-    const parseValue = (value: string | number): string => {
+    const parseValue = (value: string | number | undefined): string => {
+        if (value === undefined || value === null) return '0px';
         return typeof value === 'number' ? `${value}px` : value;
     };
+
+    // Extract spacing values from styles object
+    const marginTop = parseValue(styles.marginTop);
+    const marginRight = parseValue(styles.marginRight);
+    const marginBottom = parseValue(styles.marginBottom);
+    const marginLeft = parseValue(styles.marginLeft);
+    const paddingTop = parseValue(styles.paddingTop);
+    const paddingRight = parseValue(styles.paddingRight);
+    const paddingBottom = parseValue(styles.paddingBottom);
+    const paddingLeft = parseValue(styles.paddingLeft);
 
     const hasMargin = marginTop !== '0px' || marginRight !== '0px' ||
         marginBottom !== '0px' || marginLeft !== '0px';
 
-
     const hasPadding = paddingTop !== '0px' || paddingRight !== '0px' ||
         paddingBottom !== '0px' || paddingLeft !== '0px';
-    console.log("hasMargin", hasMargin);
-    console.log("hasPadding", hasPadding);
+
+    // Don't show visualizer for absolute positioning to avoid conflicts
+    const isAbsolute = styles.position === "absolute";
+    const isFixed = styles.position === "fixed";
+
+    if (isAbsolute || isFixed) {
+        return null;
+    }
 
     return (
         <>
@@ -45,10 +47,10 @@ export const SpacingVisualizer: React.FC<SpacingVisualizerProps> = ({
                 <div
                     className={cn("absolute pointer-events-none", className)}
                     style={{
-                        top: `-${parseValue(marginTop)}`,
-                        right: `-${parseValue(marginRight)}`,
-                        bottom: `-${parseValue(marginBottom)}`,
-                        left: `-${parseValue(marginLeft)}`,
+                        top: `-${marginTop}`,
+                        right: `-${marginRight}`,
+                        bottom: `-${marginBottom}`,
+                        left: `-${marginLeft}`,
                         border: '1px dashed rgba(255, 152, 0, 0.5)',
                         backgroundColor: 'rgba(255, 152, 0, 0.1)',
                     }}
@@ -56,22 +58,22 @@ export const SpacingVisualizer: React.FC<SpacingVisualizerProps> = ({
                     {/* Margin labels */}
                     {marginTop !== '0px' && (
                         <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 text-xs bg-orange-500 text-white px-1 rounded whitespace-nowrap">
-                            {parseValue(marginTop)}
+                            {marginTop}
                         </div>
                     )}
                     {marginRight !== '0px' && (
                         <div className="absolute top-1/2 -right-8 transform -translate-y-1/2 text-xs bg-orange-500 text-white px-1 rounded whitespace-nowrap">
-                            {parseValue(marginRight)}
+                            {marginRight}
                         </div>
                     )}
                     {marginBottom !== '0px' && (
                         <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 text-xs bg-orange-500 text-white px-1 rounded whitespace-nowrap">
-                            {parseValue(marginBottom)}
+                            {marginBottom}
                         </div>
                     )}
                     {marginLeft !== '0px' && (
                         <div className="absolute top-1/2 -left-8 transform -translate-y-1/2 text-xs bg-orange-500 text-white px-1 rounded whitespace-nowrap">
-                            {parseValue(marginLeft)}
+                            {marginLeft}
                         </div>
                     )}
                 </div>
@@ -84,32 +86,32 @@ export const SpacingVisualizer: React.FC<SpacingVisualizerProps> = ({
                     <div
                         className="absolute inset-0 border-2 border-dashed border-green-500/50"
                         style={{
-                            top: parseValue(paddingTop),
-                            right: parseValue(paddingRight),
-                            bottom: parseValue(paddingBottom),
-                            left: parseValue(paddingLeft),
+                            top: paddingTop,
+                            right: paddingRight,
+                            bottom: paddingBottom,
+                            left: paddingLeft,
                         }}
                     />
 
                     {/* Padding labels */}
                     {paddingTop !== '0px' && (
                         <div className="absolute top-1 left-1/2 transform -translate-x-1/2 text-xs bg-green-500 text-white px-1 rounded whitespace-nowrap z-10">
-                            {parseValue(paddingTop)}
+                            {paddingTop}
                         </div>
                     )}
                     {paddingRight !== '0px' && (
                         <div className="absolute top-1/2 right-1 transform -translate-y-1/2 text-xs bg-green-500 text-white px-1 rounded whitespace-nowrap z-10">
-                            {parseValue(paddingRight)}
+                            {paddingRight}
                         </div>
                     )}
                     {paddingBottom !== '0px' && (
                         <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 text-xs bg-green-500 text-white px-1 rounded whitespace-nowrap z-10">
-                            {parseValue(paddingBottom)}
+                            {paddingBottom}
                         </div>
                     )}
                     {paddingLeft !== '0px' && (
                         <div className="absolute top-1/2 left-1 transform -translate-y-1/2 text-xs bg-green-500 text-white px-1 rounded whitespace-nowrap z-10">
-                            {parseValue(paddingLeft)}
+                            {paddingLeft}
                         </div>
                     )}
                 </div>

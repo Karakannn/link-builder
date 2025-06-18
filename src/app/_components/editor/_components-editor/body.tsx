@@ -47,6 +47,8 @@ export const BodyContainer = ({ element }: Props) => {
         <ElementContextMenu element={element}>
             <div
                 ref={droppable.setNodeRef}
+                data-body-container="true"
+                data-element-id={id}
                 style={computedStyles}
                 className={clsx("relative p-6", {
                     "max-w-full w-full": true,

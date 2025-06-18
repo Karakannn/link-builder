@@ -1,4 +1,13 @@
-import { defaultStyles } from '@/lib/constants';
+import { 
+  defaultStyles, 
+  textDefaultStyles, 
+  linkDefaultStyles, 
+  animatedBorderButtonDefaultStyles,
+  shimmerButtonDefaultStyles,
+  neonGradientCardDefaultStyles,
+  containerDefaultStyles,
+  closableContainerDefaultStyles
+} from '@/lib/constants';
 import { EditorElement, EditorState } from '@/providers/editor/editor-provider';
 import { UniqueIdentifier } from '@dnd-kit/core';
 import React from 'react'
@@ -22,6 +31,7 @@ export const useEditorUtilities = () => {
           name: "Text",
           content: { innerText: "Text Element" },
           type: "text",
+          styles: { ...textDefaultStyles } as React.CSSProperties,
         } as EditorElement;
 
       case "container":
@@ -30,6 +40,16 @@ export const useEditorUtilities = () => {
           name: "Container",
           content: [],
           type: "container",
+          styles: { ...containerDefaultStyles } as React.CSSProperties,
+        } as EditorElement;
+
+      case "closableContainer":
+        return {
+          ...baseElement,
+          name: "Closable Container",
+          content: [],
+          type: "closableContainer",
+          styles: { ...closableContainerDefaultStyles } as React.CSSProperties,
         } as EditorElement;
 
       case "2Col":
@@ -41,18 +61,18 @@ export const useEditorUtilities = () => {
               content: [],
               id: v4(),
               name: "Container",
-              styles: { width: "50%", ...defaultStyles } as React.CSSProperties,
+              styles: { width: "50%", ...containerDefaultStyles } as React.CSSProperties,
               type: "container",
             },
             {
               content: [],
               id: v4(),
               name: "Container",
-              styles: { width: "50%", ...defaultStyles } as React.CSSProperties,
+              styles: { width: "50%", ...containerDefaultStyles } as React.CSSProperties,
               type: "container",
             },
           ],
-          styles: { display: "flex", ...defaultStyles } as React.CSSProperties,
+          styles: { display: "flex", ...containerDefaultStyles } as React.CSSProperties,
           type: "2Col",
         } as EditorElement;
 
@@ -63,7 +83,7 @@ export const useEditorUtilities = () => {
           content: [],
           type: "column",
           styles: {
-            ...defaultStyles,
+            ...containerDefaultStyles,
             minHeight: "120px",
           } as React.CSSProperties,
         } as EditorElement;
@@ -81,7 +101,7 @@ export const useEditorUtilities = () => {
             name: `Sütun ${i + 1}`,
             content: [],
             styles: {
-              ...defaultStyles,
+              ...containerDefaultStyles,
               minHeight: "120px",
             } as React.CSSProperties,
             type: "column",
@@ -100,7 +120,7 @@ export const useEditorUtilities = () => {
             gridColumns: defaultGridColumns,
             columnSpans: Array(initialColumns).fill(defaultSpanPerColumn), // [4, 4, 4]
             gridGap: "1rem",
-            ...defaultStyles,
+            ...containerDefaultStyles,
           } as React.CSSProperties,
           type: "gridLayout",
         } as EditorElement;
@@ -144,6 +164,7 @@ export const useEditorUtilities = () => {
           name: "Link",
           content: { href: "#", innerText: "Link Element" },
           type: "link",
+          styles: { ...linkDefaultStyles } as React.CSSProperties,
         } as EditorElement;
 
       case "shimmerButton":
@@ -162,7 +183,7 @@ export const useEditorUtilities = () => {
             width: "200px",
             textAlign: "center" as const,
             margin: "10px auto",
-            ...defaultStyles,
+            ...shimmerButtonDefaultStyles,
           } as React.CSSProperties,
           type: "shimmerButton",
         } as EditorElement;
@@ -222,7 +243,7 @@ export const useEditorUtilities = () => {
             width: "200px",
             textAlign: "center" as const,
             margin: "10px auto",
-            ...defaultStyles,
+            ...neonGradientCardDefaultStyles,
           } as React.CSSProperties,
           type: "neonGradientCard",
         } as EditorElement;
@@ -239,7 +260,7 @@ export const useEditorUtilities = () => {
             width: "200px",
             textAlign: "center" as const,
             margin: "10px auto",
-            ...defaultStyles,
+            ...animatedBorderButtonDefaultStyles,
           } as React.CSSProperties,
           type: "animatedBorderButton",
         } as EditorElement;

@@ -1,10 +1,11 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { AnimatedShinyBackgroundButton } from "@/components/ui/animated-shiny-background-button";
+import { AnimatedTextShinyButton } from "@/components/ui/animated-text-shiny-button";
 import { Trash } from "lucide-react";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = {
   element: EditorElement;
@@ -13,6 +14,7 @@ type Props = {
 const AnimatedShinyButtonComponent = ({ element }: Props) => {
   const { state, dispatch } = useEditor();
   const { id, styles, content, type } = element;
+  const [showSpacingGuides, setShowSpacingGuides] = useState(false);
 
   // dnd-kit draggable
   const draggable = useDraggable({
@@ -62,11 +64,17 @@ const AnimatedShinyButtonComponent = ({ element }: Props) => {
   const buttonText = buttonProps.innerText || "Shiny Button";
   const buttonClass = buttonProps.buttonClass || "default";
 
+  useEffect(() => {
+    setShowSpacingGuides(
+      state.editor.selectedElement.id === id && !state.editor.liveMode
+    );
+  }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
   return (
     <div
       ref={draggable.setNodeRef}
       style={computedStyles}
-      className={clsx("p-[2px] relative transition-all", {
+      className={clsx("relative transition-all", {
         "!border-blue-500": state.editor.selectedElement.id === id,
         "!border-solid": state.editor.selectedElement.id === id,
         "!border-dashed border border-slate-300": !state.editor.liveMode,
@@ -78,13 +86,18 @@ const AnimatedShinyButtonComponent = ({ element }: Props) => {
       {...(!state.editor.liveMode ? draggable.listeners : {})}
       {...(!state.editor.liveMode ? draggable.attributes : {})}
     >
-      <AnimatedShinyBackgroundButton
+      {showSpacingGuides && (
+        <SpacingVisualizer styles={computedStyles} />
+      )}
+
+      <AnimatedTextShinyButton
+        buttonClass={buttonClass}
         className={clsx("w-full", {
-          "pointer-events-none": !state.editor.liveMode,
+          "pointer-events-none": !state.editor.liveMode, // disabled edit mode
         })}
       >
         {buttonText}
-      </AnimatedShinyBackgroundButton>
+      </AnimatedTextShinyButton>
 
       {state.editor.selectedElement.id === id && !state.editor.liveMode && (
         <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">

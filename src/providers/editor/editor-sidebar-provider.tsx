@@ -83,76 +83,21 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
     const settingProperty = e.target.id;
     let value = e.target.value;
 
-    console.log("🔧 handleChangeCustomValues çağrıldı:", { settingProperty, value });
-    console.log("📊 Mevcut element:", {
-      elementId: state.editor.selectedElement.id,
-      elementType: state.editor.selectedElement.type,
-      currentContent: state.editor.selectedElement.content,
-    });
-
     const styleObject = {
       [settingProperty]: value,
     };
 
     if (activeDevice === "Desktop") {
-      console.log("🖥️ Desktop için content güncelleniyor:", styleObject);
-
       // Update base content values
       dispatch({
         type: "UPDATE_ELEMENT",
         payload: {
           elementDetails: {
             ...state.editor.selectedElement,
-            content: {
-              ...state.editor.selectedElement.content,
-              ...styleObject,
-            },
+            content: value,
           },
         },
       });
-
-      console.log("✅ Desktop content güncellendi");
-    } else {
-      console.log(`📱 ${activeDevice} için responsive content güncelleniyor:`, styleObject);
-
-      // For responsive devices, update responsiveContent
-      const elementContent = state.editor.selectedElement.content;
-
-      // Only proceed if we have object content (not array)
-      if (typeof elementContent === "object" && !Array.isArray(elementContent)) {
-        const baseContent = elementContent;
-        const responsiveContent = baseContent.responsiveContent || {};
-        const deviceContent = responsiveContent[activeDevice] || {};
-
-        console.log("📋 Responsive content yapısı:", {
-          baseContent,
-          responsiveContent,
-          deviceContent,
-        });
-
-        dispatch({
-          type: "UPDATE_ELEMENT",
-          payload: {
-            elementDetails: {
-              ...state.editor.selectedElement,
-              content: {
-                ...baseContent,
-                responsiveContent: {
-                  ...responsiveContent,
-                  [activeDevice]: {
-                    ...deviceContent,
-                    ...styleObject,
-                  },
-                },
-              },
-            },
-          },
-        });
-
-        console.log(`✅ ${activeDevice} responsive content güncellendi`);
-      } else {
-        console.warn("⚠️ Element content array, responsive güncelleme yapılamıyor");
-      }
     }
   };
 
@@ -200,14 +145,10 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
 
   // Handle changes to styles - now considers active device
   const handleOnChanges = (e: any) => {
-    const styleSettings = e.target.id;
+    const settingProperty = e.target.id;
     let value = e.target.value;
-    const styleObject = {
-      [styleSettings]: value,
-    };
 
     if (activeDevice === "Desktop") {
-      // Update desktop (base) styles
       dispatch({
         type: "UPDATE_ELEMENT",
         payload: {
@@ -215,27 +156,7 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
             ...state.editor.selectedElement,
             styles: {
               ...state.editor.selectedElement.styles,
-              ...styleObject,
-            },
-          },
-        },
-      });
-    } else {
-      // Update responsive styles for the current device
-      const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
-      const deviceStyles = currentResponsiveStyles[activeDevice] || {};
-
-      dispatch({
-        type: "UPDATE_ELEMENT",
-        payload: {
-          elementDetails: {
-            ...state.editor.selectedElement,
-            responsiveStyles: {
-              ...currentResponsiveStyles,
-              [activeDevice]: {
-                ...deviceStyles,
-                ...styleObject,
-              },
+              [settingProperty]: value,
             },
           },
         },

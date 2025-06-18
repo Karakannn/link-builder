@@ -2,9 +2,10 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { NeonGradientCard } from "@/components/ui/neon-gradient-card";
 import { Trash } from "lucide-react";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = {
   element: EditorElement;
@@ -13,6 +14,7 @@ type Props = {
 const NeonGradientCardComponent = ({ element }: Props) => {
   const { state, dispatch } = useEditor();
   const { id, styles, content, type } = element;
+  const [showSpacingGuides, setShowSpacingGuides] = useState(false);
 
   // dnd-kit draggable
   const draggable = useDraggable({
@@ -93,6 +95,12 @@ const NeonGradientCardComponent = ({ element }: Props) => {
     letterSpacing: computedStyles.letterSpacing,
   };
 
+  useEffect(() => {
+    setShowSpacingGuides(
+      state.editor.selectedElement.id === id && !state.editor.liveMode
+    );
+  }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
   const CardContent = () => (
     <div style={layoutStyles}>
       <NeonGradientCard
@@ -159,7 +167,8 @@ const NeonGradientCardComponent = ({ element }: Props) => {
   return (
     <div
       ref={draggable.setNodeRef}
-      className={clsx("p-[2px] relative transition-all", {
+      style={computedStyles}
+      className={clsx("relative transition-all", {
         "!border-blue-500": state.editor.selectedElement.id === id,
         "!border-solid": state.editor.selectedElement.id === id,
         "!border-dashed border border-slate-300": !state.editor.liveMode,
@@ -171,6 +180,10 @@ const NeonGradientCardComponent = ({ element }: Props) => {
       {...(!state.editor.liveMode ? draggable.listeners : {})}
       {...(!state.editor.liveMode ? draggable.attributes : {})}
     >
+      {showSpacingGuides && (
+        <SpacingVisualizer styles={computedStyles} />
+      )}
+
       {state.editor.liveMode && cardHref && cardHref !== "#" ? (
         <a 
           href={cardHref} 

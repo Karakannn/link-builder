@@ -9,12 +9,16 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useEditorSidebar } from '@/providers/editor/editor-sidebar-provider'
 import { AlignLeft, AlignRight, AlignJustify, AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart } from 'lucide-react'
 import React from 'react'
+import { expandSpacingShorthand } from "@/lib/utils";
 
 type Props = {}
 
 const DimensionsProperties = (props: Props) => {
 
     const { getCurrentStyles, handleOnChanges } = useEditorSidebar();
+    
+    const currentStyles = expandSpacingShorthand(getCurrentStyles());
+    console.log("🔧 Dimensions component - current styles:", currentStyles);
 
     return (
         <AccordionItem value="Dimensions" className="px-0 py-0 border-y">
@@ -26,33 +30,34 @@ const DimensionsProperties = (props: Props) => {
                             <div className="flex gap-4">
                                 <div>
                                     <Label className="text-muted-foreground">Height</Label>
-                                    <Input id="height" placeholder="px" onChange={handleOnChanges} value={getCurrentStyles().height} />
+                                    <Input id="height" placeholder="px" onChange={handleOnChanges} value={currentStyles.height || ""} />
                                 </div>
                                 <div>
                                     <Label className="text-muted-foreground">Width</Label>
-                                    <Input placeholder="px" id="width" onChange={handleOnChanges} value={getCurrentStyles().width} />
+                                    <Input placeholder="px" id="width" onChange={handleOnChanges} value={currentStyles.width || ""} />
                                 </div>
                             </div>
+                            
                             <p>Margin px</p>
                             <div className="flex gap-4 flex-col">
                                 <div className="flex gap-4">
                                     <div>
                                         <Label className="text-muted-foreground">Top</Label>
-                                        <Input id="marginTop" placeholder="px" onChange={handleOnChanges} value={getCurrentStyles().marginTop} />
+                                        <Input id="marginTop" placeholder="px" onChange={handleOnChanges} value={currentStyles.marginTop || ""} />
                                     </div>
                                     <div>
                                         <Label className="text-muted-foreground">Bottom</Label>
-                                        <Input placeholder="px" id="marginBottom" onChange={handleOnChanges} value={getCurrentStyles().marginBottom} />
+                                        <Input placeholder="px" id="marginBottom" onChange={handleOnChanges} value={currentStyles.marginBottom || ""} />
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
                                     <div>
                                         <Label className="text-muted-foreground">Left</Label>
-                                        <Input placeholder="px" id="marginLeft" onChange={handleOnChanges} value={getCurrentStyles().marginLeft} />
+                                        <Input placeholder="px" id="marginLeft" onChange={handleOnChanges} value={currentStyles.marginLeft || ""} />
                                     </div>
                                     <div>
                                         <Label className="text-muted-foreground">Right</Label>
-                                        <Input placeholder="px" id="marginRight" onChange={handleOnChanges} value={getCurrentStyles().marginRight} />
+                                        <Input placeholder="px" id="marginRight" onChange={handleOnChanges} value={currentStyles.marginRight || ""} />
                                     </div>
                                 </div>
                             </div>
@@ -63,21 +68,21 @@ const DimensionsProperties = (props: Props) => {
                                 <div className="flex gap-4">
                                     <div>
                                         <Label className="text-muted-foreground">Top</Label>
-                                        <Input placeholder="px" id="paddingTop" onChange={handleOnChanges} value={getCurrentStyles().paddingTop} />
+                                        <Input placeholder="px" id="paddingTop" onChange={handleOnChanges} value={currentStyles.paddingTop || ""} />
                                     </div>
                                     <div>
                                         <Label className="text-muted-foreground">Bottom</Label>
-                                        <Input placeholder="px" id="paddingBottom" onChange={handleOnChanges} value={getCurrentStyles().paddingBottom} />
+                                        <Input placeholder="px" id="paddingBottom" onChange={handleOnChanges} value={currentStyles.paddingBottom || ""} />
                                     </div>
                                 </div>
                                 <div className="flex gap-4">
                                     <div>
                                         <Label className="text-muted-foreground">Left</Label>
-                                        <Input placeholder="px" id="paddingLeft" onChange={handleOnChanges} value={getCurrentStyles().paddingLeft} />
+                                        <Input placeholder="px" id="paddingLeft" onChange={handleOnChanges} value={currentStyles.paddingLeft || ""} />
                                     </div>
                                     <div>
                                         <Label className="text-muted-foreground">Right</Label>
-                                        <Input placeholder="px" id="paddingRight" onChange={handleOnChanges} value={getCurrentStyles().paddingRight} />
+                                        <Input placeholder="px" id="paddingRight" onChange={handleOnChanges} value={currentStyles.paddingRight || ""} />
                                     </div>
                                 </div>
                             </div>

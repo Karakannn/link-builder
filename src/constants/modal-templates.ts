@@ -95,64 +95,58 @@ export const MODAL_TEMPLATES = [
       if (layout.id === "sidebar") {
         return [
           {
-            id: "modal-outer-container",
-            name: "Modal Outer Container",
+            id: "modal-container",
+            name: "Modal Container",
             type: "container",
             styles: {
               display: "flex",
+              width: "600px",
+              height: "400px",
+              padding: "0px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
             },
             content: [
               {
-                id: "modal-container",
-                name: "Modal Container",
+                id: "modal-image",
+                name: "Modal Image",
                 type: "container",
                 styles: {
+                  width: "40%",
+                  background: theme.gradient,
                   display: "flex",
-                  width: "100%",
-                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "48px",
                 },
                 content: [
                   {
-                    id: "modal-image",
-                    name: "Modal Image",
-                    type: "container",
+                    id: "image-icon",
+                    name: "Image Icon",
+                    type: "text",
                     styles: {
-                      width: "40%",
-                      background: theme.gradient,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
                       fontSize: "48px",
                     },
-                    content: [
-                      {
-                        id: "image-icon",
-                        name: "Image Icon",
-                        type: "text",
-                        styles: {
-                          fontSize: "48px",
-                        },
-                        content: {
-                          innerText: "👋",
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    id: "modal-content",
-                    name: "Modal Content",
-                    type: "container",
-                    styles: {
-                      width: "60%",
-                      padding: "40px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
+                    content: {
+                      innerText: "👋",
                     },
-                    content: baseContent,
                   },
                 ],
+              },
+              {
+                id: "modal-content",
+                name: "Modal Content",
+                type: "container",
+                styles: {
+                  width: "60%",
+                  padding: "40px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                },
+                content: baseContent,
               },
             ],
           },
@@ -161,28 +155,21 @@ export const MODAL_TEMPLATES = [
         // Centered layout
         return [
           {
-            id: "modal-outer-container",
-            name: "Modal Outer Container",
+            id: "modal-container",
+            name: "Modal Container",
             type: "container",
             styles: {
               display: "flex",
               flexDirection: "column",
+              width: "500px",
+              height: "300px",
+              padding: "40px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+              gap: "0.5rem",
             },
-            content: [
-              {
-                id: "modal-container",
-                name: "Modal Container",
-                type: "container",
-                styles: {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.5rem",
-                  width: "100%",
-                  height: "100%",
-                },
-                content: baseContent,
-              },
-            ],
+            content: baseContent,
           },
         ];
       }
@@ -201,8 +188,8 @@ export const MODAL_TEMPLATES = [
           type: "text",
           styles: {
             fontSize: "48px",
-            marginBottom: "20px",
             textAlign: "center",
+            marginBottom: "20px",
           },
           content: {
             innerText: "📧",
@@ -213,14 +200,14 @@ export const MODAL_TEMPLATES = [
           name: "Modal Title",
           type: "text",
           styles: {
-            fontSize: "24px",
+            fontSize: "28px",
             fontWeight: "bold",
             color: theme.primaryColor,
-            marginBottom: "15px",
+            marginBottom: "20px",
             textAlign: "center",
           },
           content: {
-            innerText: "Güncel Kalın!",
+            innerText: "Bültenimize Katılın!",
           },
         },
         {
@@ -228,32 +215,31 @@ export const MODAL_TEMPLATES = [
           name: "Modal Subtitle",
           type: "text",
           styles: {
-            fontSize: "14px",
+            fontSize: "16px",
             color: "#666",
-            marginBottom: "25px",
-            lineHeight: "1.5",
+            marginBottom: "30px",
+            lineHeight: "1.6",
             textAlign: "center",
           },
           content: {
-            innerText: "En son haberler ve güncellemeler için e-posta bültenimize kayıt olun.",
+            innerText: "En güncel haberler ve özel teklifler için e-posta bültenimize abone olun.",
           },
         },
         {
           id: "modal-input",
           name: "Modal Input",
-          type: "text",
+          type: "input",
           styles: {
             width: "100%",
             padding: "12px 16px",
-            fontSize: "14px",
-            border: `2px solid #e5e7eb`,
+            fontSize: "16px",
+            border: "2px solid #e1e5e9",
             borderRadius: "8px",
             marginBottom: "20px",
             outline: "none",
-            textAlign: "center",
           },
           content: {
-            innerText: "E-posta adresinizi girin",
+            placeholder: "E-posta adresinizi girin",
           },
         },
         {
@@ -282,64 +268,58 @@ export const MODAL_TEMPLATES = [
       if (layout.id === "sidebar") {
         return [
           {
-            id: "modal-outer-container",
-            name: "Modal Outer Container",
+            id: "modal-container",
+            name: "Modal Container",
             type: "container",
             styles: {
               display: "flex",
+              width: "600px",
+              height: "400px",
+              padding: "0px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
             },
             content: [
               {
-                id: "modal-container",
-                name: "Modal Container",
+                id: "modal-image",
+                name: "Modal Image",
                 type: "container",
                 styles: {
+                  width: "40%",
+                  background: theme.gradient,
                   display: "flex",
-                  width: "100%",
-                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "48px",
                 },
                 content: [
                   {
-                    id: "modal-image",
-                    name: "Modal Image",
-                    type: "container",
+                    id: "image-icon",
+                    name: "Image Icon",
+                    type: "text",
                     styles: {
-                      width: "40%",
-                      background: theme.gradient,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
                       fontSize: "48px",
                     },
-                    content: [
-                      {
-                        id: "image-icon",
-                        name: "Image Icon",
-                        type: "text",
-                        styles: {
-                          fontSize: "48px",
-                        },
-                        content: {
-                          innerText: "📧",
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    id: "modal-content",
-                    name: "Modal Content",
-                    type: "container",
-                    styles: {
-                      width: "60%",
-                      padding: "40px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
+                    content: {
+                      innerText: "📧",
                     },
-                    content: baseContent,
                   },
                 ],
+              },
+              {
+                id: "modal-content",
+                name: "Modal Content",
+                type: "container",
+                styles: {
+                  width: "60%",
+                  padding: "40px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                },
+                content: baseContent,
               },
             ],
           },
@@ -348,28 +328,21 @@ export const MODAL_TEMPLATES = [
         // Centered layout
         return [
           {
-            id: "modal-outer-container",
-            name: "Modal Outer Container",
+            id: "modal-container",
+            name: "Modal Container",
             type: "container",
             styles: {
               display: "flex",
               flexDirection: "column",
+              width: "500px",
+              height: "300px",
+              padding: "40px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+              gap: "0.5rem",
             },
-            content: [
-              {
-                id: "modal-container",
-                name: "Modal Container",
-                type: "container",
-                styles: {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.5rem",
-                  width: "100%",
-                  height: "100%",
-                },
-                content: baseContent,
-              },
-            ],
+            content: baseContent,
           },
         ];
       }
@@ -388,8 +361,8 @@ export const MODAL_TEMPLATES = [
           type: "text",
           styles: {
             fontSize: "48px",
-            marginBottom: "20px",
             textAlign: "center",
+            marginBottom: "20px",
           },
           content: {
             innerText: "🎉",
@@ -402,8 +375,8 @@ export const MODAL_TEMPLATES = [
           styles: {
             fontSize: "28px",
             fontWeight: "bold",
-            color: "white",
-            marginBottom: "15px",
+            color: theme.primaryColor,
+            marginBottom: "20px",
             textAlign: "center",
           },
           content: {
@@ -416,9 +389,9 @@ export const MODAL_TEMPLATES = [
           type: "text",
           styles: {
             fontSize: "16px",
-            color: "rgba(255, 255, 255, 0.9)",
-            marginBottom: "25px",
-            lineHeight: "1.5",
+            color: "#666",
+            marginBottom: "30px",
+            lineHeight: "1.6",
             textAlign: "center",
           },
           content: {
@@ -430,14 +403,15 @@ export const MODAL_TEMPLATES = [
           name: "Modal Button",
           type: "shimmerButton",
           styles: {
-            padding: "15px 30px",
-            fontSize: "18px",
-            backgroundColor: "white",
-            color: theme.primaryColor,
+            width: "100%",
+            padding: "12px 24px",
+            fontSize: "16px",
+            backgroundColor: theme.primaryColor,
+            color: "white",
             border: "none",
             borderRadius: "8px",
             cursor: "pointer",
-            fontWeight: "600",
+            fontWeight: "500",
             textAlign: "center",
           },
           content: {
@@ -450,64 +424,58 @@ export const MODAL_TEMPLATES = [
       if (layout.id === "sidebar") {
         return [
           {
-            id: "modal-outer-container",
-            name: "Modal Outer Container",
+            id: "modal-container",
+            name: "Modal Container",
             type: "container",
             styles: {
               display: "flex",
+              width: "600px",
+              height: "400px",
+              padding: "0px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
             },
             content: [
               {
-                id: "modal-container",
-                name: "Modal Container",
+                id: "modal-image",
+                name: "Modal Image",
                 type: "container",
                 styles: {
+                  width: "40%",
+                  background: theme.gradient,
                   display: "flex",
-                  width: "100%",
-                  height: "100%",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "white",
+                  fontSize: "48px",
                 },
                 content: [
                   {
-                    id: "modal-image",
-                    name: "Modal Image",
-                    type: "container",
+                    id: "image-icon",
+                    name: "Image Icon",
+                    type: "text",
                     styles: {
-                      width: "40%",
-                      background: theme.gradient,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "white",
                       fontSize: "48px",
                     },
-                    content: [
-                      {
-                        id: "image-icon",
-                        name: "Image Icon",
-                        type: "text",
-                        styles: {
-                          fontSize: "48px",
-                        },
-                        content: {
-                          innerText: "🎉",
-                        },
-                      },
-                    ],
-                  },
-                  {
-                    id: "modal-content",
-                    name: "Modal Content",
-                    type: "container",
-                    styles: {
-                      width: "60%",
-                      padding: "40px",
-                      display: "flex",
-                      flexDirection: "column",
-                      justifyContent: "center",
+                    content: {
+                      innerText: "🎉",
                     },
-                    content: baseContent,
                   },
                 ],
+              },
+              {
+                id: "modal-content",
+                name: "Modal Content",
+                type: "container",
+                styles: {
+                  width: "60%",
+                  padding: "40px",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                },
+                content: baseContent,
               },
             ],
           },
@@ -516,28 +484,21 @@ export const MODAL_TEMPLATES = [
         // Centered layout
         return [
           {
-            id: "modal-outer-container",
-            name: "Modal Outer Container",
+            id: "modal-container",
+            name: "Modal Container",
             type: "container",
             styles: {
               display: "flex",
               flexDirection: "column",
+              width: "500px",
+              height: "300px",
+              padding: "40px",
+              backgroundColor: "white",
+              borderRadius: "12px",
+              boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+              gap: "0.5rem",
             },
-            content: [
-              {
-                id: "modal-container",
-                name: "Modal Container",
-                type: "container",
-                styles: {
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "0.5rem",
-                  width: "100%",
-                  height: "100%",
-                },
-                content: baseContent,
-              },
-            ],
+            content: baseContent,
           },
         ];
       }
@@ -550,56 +511,49 @@ export const MODAL_TEMPLATES = [
     thumbnail: "✨",
     getContent: (theme: any, layout: any) => [
       {
-        id: "modal-outer-container",
-        name: "Modal Outer Container",
+        id: "modal-container",
+        name: "Modal Container",
         type: "container",
         styles: {
           display: "flex",
           flexDirection: "column",
+          width: "500px",
+          height: "300px",
+          padding: "40px",
+          backgroundColor: "white",
+          borderRadius: "12px",
+          boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+          gap: "0.5rem",
         },
         content: [
           {
-            id: "modal-container",
-            name: "Modal Container",
-            type: "container",
+            id: "modal-title",
+            name: "Modal Title",
+            type: "text",
             styles: {
-              display: "flex",
-              flexDirection: "column",
-              gap: "0.5rem",
-              width: "100%",
-              height: "100%",
+              fontSize: "24px",
+              fontWeight: "bold",
+              color: theme.primaryColor,
+              marginBottom: "20px",
+              textAlign: "center",
             },
-            content: [
-              {
-                id: "modal-title",
-                name: "Modal Title",
-                type: "text",
-                styles: {
-                  fontSize: "24px",
-                  fontWeight: "bold",
-                  color: theme.primaryColor,
-                  marginBottom: "20px",
-                  textAlign: "center",
-                },
-                content: {
-                  innerText: "Özel Modal",
-                },
-              },
-              {
-                id: "modal-content",
-                name: "Modal Content",
-                type: "text",
-                styles: {
-                  fontSize: "16px",
-                  color: "#666",
-                  lineHeight: "1.6",
-                  textAlign: "center",
-                },
-                content: {
-                  innerText: "Bu modalı istediğiniz gibi özelleştirebilirsiniz. Editörde düzenleyerek içeriği değiştirin.",
-                },
-              },
-            ],
+            content: {
+              innerText: "Özel Modal",
+            },
+          },
+          {
+            id: "modal-content",
+            name: "Modal Content",
+            type: "text",
+            styles: {
+              fontSize: "16px",
+              color: "#666",
+              lineHeight: "1.6",
+              textAlign: "center",
+            },
+            content: {
+              innerText: "Bu modalı istediğiniz gibi özelleştirebilirsiniz. Editörde düzenleyerek içeriği değiştirin.",
+            },
           },
         ],
       },

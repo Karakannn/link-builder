@@ -56,6 +56,7 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
   return (
     /*   <><Pages layout={Layout.Horizontal} /></> */
     <div
+      data-editor-container="true"
       className={clsx("use-automation-zoom-in h-[calc(100vh_-_97px)] overflow-hidden mr-[385px] bg-background transition-all rounded-md", {
         "!p-0 !mr-0": state.editor.previewMode === true || state.editor.liveMode === true,
         "!w-[850px]": state.editor.device === "Tablet",

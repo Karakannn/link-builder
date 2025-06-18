@@ -3,9 +3,10 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { Badge, Trash } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = {
     element: EditorElement;
@@ -15,6 +16,7 @@ const LinkComponent = ({ element }: Props) => {
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const { dispatch, state } = useEditor();
     const { id, styles, content } = element;
+    const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -76,11 +78,17 @@ const LinkComponent = ({ element }: Props) => {
         }
     }, [computedContent]);
 
+    useEffect(() => {
+        setShowSpacingGuides(
+            state.editor.selectedElement.id === id && !state.editor.liveMode
+        );
+    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
     return (
         <div
             ref={draggable.setNodeRef}
             style={computedStyles}
-            className={clsx("p-[2px] w-full m-[5px] relative text-[16px] transition-all", {
+            className={clsx("relative transition-all", {
                 "!border-blue-500": state.editor.selectedElement.id === id,
                 "!border-solid": state.editor.selectedElement.id === id,
                 "!border-dashed border border-slate-300": !state.editor.liveMode,
@@ -93,6 +101,10 @@ const LinkComponent = ({ element }: Props) => {
             {...(!state.editor.liveMode ? draggable.listeners : {})}
             {...(!state.editor.liveMode ? draggable.attributes : {})}
         >
+            {showSpacingGuides && (
+                <SpacingVisualizer styles={computedStyles} />
+            )}
+
             {state.editor.selectedElement.id === id && !state.editor.liveMode && <Badge className="absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg ">{state.editor.selectedElement.name}</Badge>}
 
             {!Array.isArray(computedContent) && (state.editor.previewMode || state.editor.liveMode) && (

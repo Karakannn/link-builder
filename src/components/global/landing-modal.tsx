@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { useEditor } from "@/providers/editor/editor-provider";
 import { X } from "lucide-react";
-import Recursive from "@/app/_components/editor/_components-editor/recursive";
 
 interface LandingModalProps {
     isOpen: boolean;
@@ -12,7 +11,6 @@ interface LandingModalProps {
 }
 
 export function LandingModal({ isOpen, onClose}: LandingModalProps) {
-    const [modalKey, setModalKey] = useState(0);
     const { state, dispatch } = useEditor();
     const elements = state.editor.elements;
 
@@ -21,11 +19,10 @@ export function LandingModal({ isOpen, onClose}: LandingModalProps) {
     // Filter out __body and get actual content elements
     const contentElements = elements.filter(element => element.type !== '__body');
     
-    // Update modal key when modal opens to force re-render
+    // Update modal when modal opens to force re-render
     useEffect(() => {
         if (isOpen) {
-            console.log("Modal opened, updating modalKey...");
-            setModalKey(prev => prev + 1);
+            console.log("Modal opened, enabling live mode...");
             
             // Enable live mode when modal opens
             dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: true } });
@@ -38,7 +35,7 @@ export function LandingModal({ isOpen, onClose}: LandingModalProps) {
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-hidden p-0">
-                <div className="flex flex-col h-full" key={modalKey}>
+                <div className="flex flex-col h-full">
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b bg-muted">
                         <h2 className="text-lg font-semibold text-foreground">Landing Modal Preview</h2>
@@ -70,7 +67,16 @@ export function LandingModal({ isOpen, onClose}: LandingModalProps) {
                                             {contentElements.map((element, index) => {
                                                 console.log(`Rendering content element ${index}:`, element);
                                                 return (
-                                                    <Recursive key={`${element.id}-${modalKey}`} element={element} />
+                                                    <div key={element.id} className="mb-4">
+                                                        <div className="text-sm text-muted-foreground mb-2">
+                                                            {element.name} ({element.type})
+                                                        </div>
+                                                        <div className="p-3 bg-muted rounded border">
+                                                            <pre className="text-xs overflow-auto">
+                                                                {JSON.stringify(element.styles, null, 2)}
+                                                            </pre>
+                                                        </div>
+                                                    </div>
                                                 );
                                             })}
                                         </div>

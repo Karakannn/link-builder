@@ -23,15 +23,20 @@ export const ModalEditorWrapper = ({ pageDetails }: Props) => {
     });
   }, [pageDetails]);
 
-  const handleClick = () => {
-    dispatch({
-      type: "CHANGE_CLICKED_ELEMENT",
-      payload: {},
-    });
+  const handleClick = (e: React.MouseEvent) => {
+    // Only clear selection if clicking on the background area, not on elements or sidebar
+    if (e.target === e.currentTarget) {
+      console.log("🖱️ Background clicked, clearing selection");
+      dispatch({
+        type: "CHANGE_CLICKED_ELEMENT",
+        payload: {},
+      });
+    }
   };
 
   return (
     <div
+      data-editor-container="true"
       className={clsx(
         "use-automation-zoom-in h-[calc(100vh_-_97px)] overflow-auto bg-background transition-all rounded-md",
         {

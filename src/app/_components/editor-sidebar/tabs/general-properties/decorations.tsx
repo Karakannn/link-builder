@@ -121,7 +121,13 @@ const DecorationsProperties = (props: Props) => {
                 </ColorPicker>
               </PopoverContent>
             </Popover>
-            <Input placeholder="#HFI245" className="flex-1" id="backgroundColor" onChange={handleOnChanges} value={getCurrentStyles().backgroundColor} />
+            <Input 
+              placeholder="#HFI245" 
+              className="flex-1" 
+              id="backgroundColor" 
+              onChange={handleOnChanges}
+              value={getCurrentStyles().backgroundColor || ""} 
+            />
           </div>
         </div>
         <div className="flex flex-col gap-2">
@@ -133,7 +139,7 @@ const DecorationsProperties = (props: Props) => {
                 backgroundImage: getCurrentStyles().backgroundImage,
               }}
             />
-            <Input placeholder="url()" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundImage" onChange={handleOnChanges} value={getCurrentStyles().backgroundImage} />
+            <Input placeholder="url()" className="!border-y-0 rounded-none !border-r-0 mr-2" id="backgroundImage" onChange={handleOnChanges} value={getCurrentStyles().backgroundImage || ""} />
           </div>
         </div>
         <div className="flex flex-col gap-2">

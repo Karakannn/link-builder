@@ -23,7 +23,6 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
         <Sheet open={true} modal={false}>
             <Tabs className="w-full" defaultValue="Settings">
                 <SheetContent
-
                     side={"right"}
                     className={clsx("mt-[97px] w-16 z-[80] shadow-none p-0 focus:border-none transition-all overflow-hidden", {
                         hidden: state.editor.previewMode,
@@ -36,6 +35,10 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
                     className={clsx("mt-[97px] w-80 z-[40] shadow-none p-0 mr-16 focus:border-none transition-all overflow-hidden", {
                         hidden: state.editor.previewMode,
                     })}
+                    onClick={(e) => {
+                        console.log("🔧 Sidebar main area clicked:", e);
+                        e.stopPropagation();
+                    }}
                 >
                     <EditorSidebarProvider>
                         <div className="grid gap-4 h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar">

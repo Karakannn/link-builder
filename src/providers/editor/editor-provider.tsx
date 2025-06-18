@@ -418,27 +418,20 @@ const deleteAnElement = (editorArray: EditorElement[], action: EditorAction) => 
 
 const handleClickedElement = (state: EditorState, action: EditorAction): EditorState => {
   if (action.type !== "CHANGE_CLICKED_ELEMENT") throw Error("You sent the wrong action type on the CHANGE_CLICKED_ELEMENT editor State");
+  
+  const newSelectedElement = action.payload.elementDetails || {
+    id: "",
+    name: "",
+    styles: {},
+    type: null,
+    content: [],
+  };
+  
   return {
     ...state,
     editor: {
       ...state.editor,
-      selectedElement: action.payload.elementDetails || {
-        id: "",
-        name: "",
-        styles: {},
-        type: null,
-        content: [],
-      },
-    },
-    history: {
-      ...state.history,
-      history: [
-        ...state.history.history.slice(0, state.history.currentIndex + 1),
-        {
-          ...state.editor,
-        },
-      ],
-      currentIndex: state.history.currentIndex + 1,
+      selectedElement: newSelectedElement,
     },
   };
 };
@@ -695,20 +688,21 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
 
       const updateElements = updateAnElement(state.editor.elements, action);
 
+      // Check if the updated element is the currently selected element
       const updatedElementIsSelected = state.editor.selectedElement.id === action.payload.elementDetails.id;
+
+      console.log("🔍 Updated element ID:", action.payload.elementDetails.id);
+      console.log("🔍 Selected element ID:", state.editor.selectedElement.id);
+      console.log("🔍 Is updated element selected:", updatedElementIsSelected);
 
       const updatedEditorStateWithUpdate = {
         ...state.editor,
         elements: updateElements,
+        // Only update selectedElement if the updated element is the selected one
+        // Otherwise, keep the current selected element but update it with the new data
         selectedElement: updatedElementIsSelected
           ? action.payload.elementDetails
-          : {
-            id: "",
-            content: [],
-            name: "",
-            styles: {},
-            type: null,
-          },
+          : state.editor.selectedElement, // Keep the current selected element
       };
 
       const updatedHistoryWithUpdate = [
@@ -729,7 +723,6 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
       };
 
       console.log("✅ UPDATE_ELEMENT reducer completed");
-
 
       return updateEditor;
 

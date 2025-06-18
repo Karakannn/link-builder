@@ -2,7 +2,7 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
-import { getElementStyles } from "@/lib/utils";
+import { getElementStyles, expandSpacingShorthand } from "@/lib/utils";
 import { useDroppable, useDndContext } from "@dnd-kit/core";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 import { useSortable } from "@dnd-kit/sortable";
@@ -13,6 +13,7 @@ import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import DropZoneWrapper, { Layout, Position } from "./dropzone-wrapper";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = {
   element: EditorElement;
@@ -26,6 +27,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
   const [measureRef, containerHeight] = useElementHeight(false);
+  const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { over } = useDndContext();
 
   const sortable = useSortable({
@@ -41,12 +43,19 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
     disabled: type === "__body" || state.editor.liveMode,
   });
 
+  const handleContainerClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log("🔧 Container clicked:", { id, name, type, styles });
+    handleSelectElement(e);
+  };
 
-  const computedStyles = {
+  const computedStyles = expandSpacingShorthand({
     ...getElementStyles(element, state.editor.device),
     transform: CSS.Transform.toString(sortable.transform),
     transition: sortable.transition,
-  };
+  });
+
+  console.log("🔧 Container computed styles:", { id, computedStyles, selectedElement: state.editor.selectedElement.id });
 
   const setNodeRef = (node: HTMLDivElement | null) => {
     sortable.setNodeRef(node);
@@ -56,6 +65,12 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
   // Insert zone'a drop edilip edilmediğini kontrol et
   const isOverInsertZone = over?.data?.current?.type === 'insert';
   const isActive = active || sortable.isDragging;
+
+  useEffect(() => {
+    const shouldShowGuides = state.editor.selectedElement.id === id && !state.editor.liveMode;
+    console.log("🔧 Container spacing guides:", { id, selectedId: state.editor.selectedElement.id, shouldShowGuides, type });
+    setShowSpacingGuides(shouldShowGuides);
+  }, [state.editor.selectedElement.id, id, state.editor.liveMode, type]);
 
   // Layout specific styles
   const getLayoutStyles = () => {
@@ -119,10 +134,14 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
           "before:left-0 before:right-0 before:h-[2px] before:-bottom-[15px]": insertPosition === Position.After && layout === Layout.Vertical,
           "before:top-0 before:bottom-0 before:w-[2px] before:-right-[9px]": insertPosition === Position.After && layout === Layout.Horizontal,
         })}
-        onClick={handleSelectElement}
+        onClick={handleContainerClick}
         {...(type !== "__body" && !state.editor.liveMode ? sortable.listeners : {})}
         {...(type !== "__body" && !state.editor.liveMode ? sortable.attributes : {})}
       >
+        {showSpacingGuides && (
+          <SpacingVisualizer styles={computedStyles} />
+        )}
+
         {(sortable.isOver || sortable.isOver) && !state.editor.liveMode && !isOverInsertZone && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium z-10">Drop Here</span>

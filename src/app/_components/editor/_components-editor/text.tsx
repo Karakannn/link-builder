@@ -2,8 +2,9 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import { Trash } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = {
     element: EditorElement;
@@ -14,6 +15,7 @@ const TextComponent = ({ element }: Props) => {
     const { id, styles, content, type } = element;
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
+    const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -72,11 +74,17 @@ const TextComponent = ({ element }: Props) => {
         }
     }, [content]);
 
+    useEffect(() => {
+        setShowSpacingGuides(
+            state.editor.selectedElement.id === id && !state.editor.liveMode
+        );
+    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
     return (
         <div
             ref={draggable.setNodeRef}
             style={computedStyles}
-            className={clsx("p-[2px] w-full m-[5px] relative text-[16px] transition-all", {
+            className={clsx("relative transition-all", {
                 "!border-blue-500": state.editor.selectedElement.id === id,
                 "!border-solid": state.editor.selectedElement.id === id,
                 "!border-dashed border border-slate-300": !state.editor.liveMode,
@@ -89,6 +97,10 @@ const TextComponent = ({ element }: Props) => {
             {...(!state.editor.liveMode ? draggable.listeners : {})}
             {...(!state.editor.liveMode ? draggable.attributes : {})}
         >
+            {showSpacingGuides && (
+                <SpacingVisualizer styles={computedStyles} />
+            )}
+
             <span 
                 ref={spanRef} 
                 suppressHydrationWarning={true} 
