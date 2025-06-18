@@ -7,20 +7,43 @@ import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { getAuthUserDetails } from "@/actions/auth";
 import { LandingModalProvider } from "@/providers/landing-modal-provider";
+import { ModalEditorWrapper } from "./_components/modal-editor-wrapper";
 
 const defaultContent: EditorElement[] = [
     {
-        id: "landing-modal-content",
-        content: [],
-        name: "Landing Modal Content",
+        id: "modal-outer-container",
+        content: [
+            {
+                id: "modal-container",
+                content: [
+                    {
+                        id: "modal-content",
+                        content: [],
+                        name: "Modal Content",
+                        styles: {
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "20px",
+                            minHeight: "200px",
+                        },
+                        type: "container",
+                    }
+                ],
+                name: "Modal Container",
+                styles: {
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "0.5rem",
+                    width: "100%",
+                    height: "100%",
+                },
+                type: "container",
+            }
+        ],
+        name: "Modal Outer Container",
         styles: {
-            padding: "20px",
             display: "flex",
             flexDirection: "column",
-            gap: "20px",
-            minHeight: "300px",
-            backgroundColor: "white",
-            borderRadius: "8px",
         },
         type: "container",
     },
@@ -70,7 +93,7 @@ export default async function ModalBuilderPage({ params }: Props) {
                         <FunnelEditorNavigation
                             pageDetails={{
                                 id: params.modalId,
-                                title: modalContent?.name || "Modal",
+                                title: (modalContent as any)?.name || "Modal",
                                 slug: `modal-${params.modalId}`,
                                 content: JSON.stringify(content),
                                 siteId: `modal-${params.modalId}`,
@@ -81,8 +104,8 @@ export default async function ModalBuilderPage({ params }: Props) {
                             }}
                             user={user}
                         />
-                        <div className="h-full flex justify-center">
-                            <FunnelEditor pageDetails={content} liveMode={false} />
+                        <div className="mr-[385px]">
+                            <ModalEditorWrapper pageDetails={content} />
                         </div>
                         <FunnelEditorSidebar subaccountId={""} />
                     </div>
