@@ -156,41 +156,41 @@ const NeonGradientCardComponent = ({ element }: Props) => {
 
   return (
     <ElementContextMenu element={element}>
-      <div
-        ref={draggable.setNodeRef}
-        style={computedStyles}
-        className={clsx("relative transition-all", {
-          "!border-blue-500": state.editor.selectedElement.id === id,
-          "!border-solid": state.editor.selectedElement.id === id,
-          "!border-dashed border border-slate-300": !state.editor.liveMode,
-          "cursor-grab": !state.editor.liveMode,
-          "cursor-grabbing": draggable.isDragging,
-          "opacity-50": draggable.isDragging,
-        })}
-        onClick={handleOnClickBody}
-        {...(!state.editor.liveMode ? draggable.listeners : {})}
-        {...(!state.editor.liveMode ? draggable.attributes : {})}
-      >
-        {showSpacingGuides && (
-          <SpacingVisualizer styles={computedStyles} />
-        )}
+    <div
+      ref={draggable.setNodeRef}
+      style={computedStyles}
+      className={clsx("relative transition-all", {
+        "!border-blue-500": state.editor.selectedElement.id === id,
+        "!border-solid": state.editor.selectedElement.id === id,
+        "!border-dashed border border-slate-300": !state.editor.liveMode,
+        "cursor-grab": !state.editor.liveMode,
+        "cursor-grabbing": draggable.isDragging,
+        "opacity-50": draggable.isDragging,
+      })}
+      onClick={handleOnClickBody}
+      {...(!state.editor.liveMode ? draggable.listeners : {})}
+      {...(!state.editor.liveMode ? draggable.attributes : {})}
+    >
+      {showSpacingGuides && (
+        <SpacingVisualizer styles={computedStyles} />
+      )}
 
-        {state.editor.liveMode && cardHref && cardHref !== "#" ? (
-          <a 
-            href={cardHref} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="flex items-center relative overflow-hidden cursor-pointer rounded-xl"
-          >
-            <CardContent />
-          </a>
-        ) : (
+      {state.editor.liveMode && cardHref && cardHref !== "#" ? (
+        <a 
+          href={cardHref} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex items-center relative overflow-hidden cursor-pointer rounded-xl"
+        >
           <CardContent />
-        )}
+        </a>
+      ) : (
+        <CardContent />
+      )}
 
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
-      </div>
+        </div>
     </ElementContextMenu>
   );
 };

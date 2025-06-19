@@ -20,13 +20,6 @@ import AnimatedTextButtonPlaceholder from "./animated-text-button-placeholder";
 // New card components
 import NeonGradientCardPlaceholder from "./neon-gradient-card-placeholder";
 
-// New background components
-import AnimatedGridPatternPlaceholder from "./animated-grid-pattern-placeholder";
-import InteractiveGridPatternPlaceholder from "./interactive-grid-pattern-placeholder";
-import RetroGridPlaceholder from "./retro-grid-placeholder";
-import DotPatternPlaceholder from "./dot-pattern-placeholder";
-import MarqueePlaceholder from "./marquee-placeholder";
-
 // New layout and media components
 import GridLayoutPlaceholder from "./grid-layout-placeholder";
 import GifPlaceholder from "./gif-placeholder";
@@ -34,12 +27,15 @@ import GifPlaceholder from "./gif-placeholder";
 // Closable container component
 import ClosableContainerPlaceholder from "./closable-container-placeholder";
 
+// Marquee component
+import MarqueePlaceholder from "./marquee-placeholder";
+
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
         label: string;
         id: EditorBtns;
-        category: "layout" | "buttons" | "backgrounds" | "marquee" | "text" | "media" | "cards";
+        category: "layout" | "buttons" | "marquee" | "text" | "media" | "cards";
     }[] = [
         // Layout Elements
         {
@@ -135,32 +131,6 @@ const ComponentsTab = () => {
             id: "neonGradientCard",
             category: "cards",
         },
-
-        // Background Elements
-        {
-            Component: <AnimatedGridPatternPlaceholder />,
-            label: "Animated Grid",
-            id: "animatedGridPattern",
-            category: "backgrounds",
-        },
-        {
-            Component: <InteractiveGridPatternPlaceholder />,
-            label: "Interactive Grid",
-            id: "interactiveGridPattern",
-            category: "backgrounds",
-        },
-        {
-            Component: <RetroGridPlaceholder />,
-            label: "Retro Grid",
-            id: "retroGrid",
-            category: "backgrounds",
-        },
-        {
-            Component: <DotPatternPlaceholder />,
-            label: "Dot Pattern",
-            id: "dotPattern",
-            category: "backgrounds",
-        },
         
         // Marquee Elements
         {
@@ -185,7 +155,6 @@ const ComponentsTab = () => {
         { id: "media", name: "Media", defaultOpen: true },
         { id: "cards", name: "Cards", defaultOpen: true },
         { id: "buttons", name: "Buttons", defaultOpen: false },
-        { id: "backgrounds", name: "Backgrounds", defaultOpen: false },
         { id: "marquee", name: "Marquee", defaultOpen: false },
     ];
 

@@ -1,21 +1,23 @@
+import React, { Suspense } from "react";
 import { EditorElement } from "@/providers/editor/editor-provider";
-import TextComponent from "./text";
-import { Container } from "./container";
-import { ClosableContainer } from "../elements/closable-container";
-import VideoComponent from "./video";
-import { Container as TwoColumns } from "./container";
-import { BodyContainer as Body } from "./body";
-import LinkComponent from "./link";
-import ShimmerButtonComponent from "./shimmer-button";
-import AnimatedShinyButtonComponent from "./animated-shiny-button";
-import NeonGradientButtonComponent from "./neon-gradient-button";
-import AnimatedBorderButtonComponent from "./animated-border-button";
-import AnimatedTextButtonComponent from "./animated-text-button";
-import NeonGradientCardComponent from "./neon-gradient-card";
-import MarqueeComponent from "./marquee";
-import { GridLayoutComponent as GridLayout } from "./grid-layout";
-import { ColumnComponent as Column } from "./column";
-import GifComponent from "./gif";
+
+const TextComponent = React.lazy(() => import("./text"));
+const Container = React.lazy(() => import("./container").then(m => ({ default: m.Container })));
+const ClosableContainer = React.lazy(() => import("../elements/closable-container").then(m => ({ default: m.ClosableContainer })));
+const VideoComponent = React.lazy(() => import("./video"));
+const TwoColumns = React.lazy(() => import("./container").then(m => ({ default: m.Container })));
+const Body = React.lazy(() => import("./body").then(m => ({ default: m.BodyContainer })));
+const LinkComponent = React.lazy(() => import("./link"));
+const ShimmerButtonComponent = React.lazy(() => import("./shimmer-button"));
+const AnimatedShinyButtonComponent = React.lazy(() => import("./animated-shiny-button"));
+const NeonGradientButtonComponent = React.lazy(() => import("./neon-gradient-button"));
+const AnimatedBorderButtonComponent = React.lazy(() => import("./animated-border-button"));
+const AnimatedTextButtonComponent = React.lazy(() => import("./animated-text-button"));
+const NeonGradientCardComponent = React.lazy(() => import("./neon-gradient-card"));
+const MarqueeComponent = React.lazy(() => import("./marquee"));
+const GridLayout = React.lazy(() => import("./grid-layout").then(m => ({ default: m.GridLayoutComponent })));
+const Column = React.lazy(() => import("./column").then(m => ({ default: m.ColumnComponent })));
+const GifComponent = React.lazy(() => import("./gif"));
 
 type Props = {
   element: EditorElement;
@@ -24,39 +26,107 @@ type Props = {
 const Recursive = ({ element }: Props) => {
   switch (element.type) {
     case "text":
-      return <TextComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <TextComponent element={element} />
+        </Suspense>
+      );
     case "container":
-      return <Container element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <Container element={element} />
+        </Suspense>
+      );
     case "closableContainer":
-      return <ClosableContainer element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <ClosableContainer element={element} />
+        </Suspense>
+      );
     case "video":
-      return <VideoComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <VideoComponent element={element} />
+        </Suspense>
+      );
     case "2Col":
-      return <TwoColumns element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <TwoColumns element={element} />
+        </Suspense>
+      );
     case "__body":
-      return <Body element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <Body element={element} />
+        </Suspense>
+      );
     case "link":
-      return <LinkComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <LinkComponent element={element} />
+        </Suspense>
+      );
     case "shimmerButton":
-      return <ShimmerButtonComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <ShimmerButtonComponent element={element} />
+        </Suspense>
+      );
     case "animatedShinyButton":
-      return <AnimatedShinyButtonComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <AnimatedShinyButtonComponent element={element} />
+        </Suspense>
+      );
     case "neonGradientButton":
-      return <NeonGradientButtonComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <NeonGradientButtonComponent element={element} />
+        </Suspense>
+      );
     case "animatedBorderButton":
-      return <AnimatedBorderButtonComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <AnimatedBorderButtonComponent element={element} />
+        </Suspense>
+      );
     case "animatedTextButton":
-      return <AnimatedTextButtonComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <AnimatedTextButtonComponent element={element} />
+        </Suspense>
+      );
     case "neonGradientCard":
-      return <NeonGradientCardComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <NeonGradientCardComponent element={element} />
+        </Suspense>
+      );
     case "marquee":
-      return <MarqueeComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <MarqueeComponent element={element} />
+        </Suspense>
+      );
     case "gridLayout":
-      return <GridLayout element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <GridLayout element={element} />
+        </Suspense>
+      );
     case "column":
-      return <Column element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <Column element={element} />
+        </Suspense>
+      );
     case "gif":
-      return <GifComponent element={element} />;
+      return (
+        <Suspense fallback={null}>
+          <GifComponent element={element} />
+        </Suspense>
+      );
     default:
       return null;
   }

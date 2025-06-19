@@ -40,10 +40,10 @@ const LinkComponent = ({ element }: Props) => {
     const handleOnClickBody = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (!state.editor.liveMode && !draggable.isDragging) {
-            dispatch({
-                type: "CHANGE_CLICKED_ELEMENT",
-                payload: {
-                    elementDetails: element,
+        dispatch({
+            type: "CHANGE_CLICKED_ELEMENT",
+            payload: {
+                elementDetails: element,
                 },
             });
         }
@@ -57,26 +57,26 @@ const LinkComponent = ({ element }: Props) => {
 
     return (
         <ElementContextMenu element={element}>
-            <div
-                ref={draggable.setNodeRef}
-                style={computedStyles}
-                className={clsx("relative transition-all", {
-                    "!border-blue-500": state.editor.selectedElement.id === id,
-                    "!border-solid": state.editor.selectedElement.id === id,
-                    "!border-dashed border border-slate-300": !state.editor.liveMode,
-                    "cursor-grab": !state.editor.liveMode,
-                    "cursor-grabbing": draggable.isDragging,
-                    "opacity-50": draggable.isDragging,
-                })}
-                onClick={handleOnClickBody}
-                {...(!state.editor.liveMode ? draggable.listeners : {})}
-                {...(!state.editor.liveMode ? draggable.attributes : {})}
-            >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+        <div
+            ref={draggable.setNodeRef}
+            style={computedStyles}
+            className={clsx("relative transition-all", {
+                "!border-blue-500": state.editor.selectedElement.id === id,
+                "!border-solid": state.editor.selectedElement.id === id,
+                "!border-dashed border border-slate-300": !state.editor.liveMode,
+                "cursor-grab": !state.editor.liveMode,
+                "cursor-grabbing": draggable.isDragging,
+                "opacity-50": draggable.isDragging,
+            })}
+            onClick={handleOnClickBody}
+            {...(!state.editor.liveMode ? draggable.listeners : {})}
+            {...(!state.editor.liveMode ? draggable.attributes : {})}
+        >
+            {showSpacingGuides && (
+                <SpacingVisualizer styles={computedStyles} />
+            )}
 
-                {!Array.isArray(computedContent) && (state.editor.previewMode || state.editor.liveMode) && (
+            {!Array.isArray(computedContent) && (state.editor.previewMode || state.editor.liveMode) && (
                     <a
                         href={computedContent.href || "#"}
                         target="_blank"
@@ -94,12 +94,12 @@ const LinkComponent = ({ element }: Props) => {
                 {!Array.isArray(computedContent) && !state.editor.previewMode && !state.editor.liveMode && (
                     <div className="w-full h-full bg-blue-500 hover:bg-blue-600 text-white flex items-center justify-center transition-colors cursor-pointer">
                         {computedContent.innerText || "Link"}
-                    </div>
-                )}
+                </div>
+            )}
 
                 <BadgeElementName element={element} />
                 <DeleteElementButton element={element} />
-            </div>
+        </div>
         </ElementContextMenu>
     );
 };

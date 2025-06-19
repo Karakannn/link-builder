@@ -73,13 +73,13 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
     } else {
       // Fallback: body'ye ekle
       console.log("🔧 Fallback: adding to body");
-      dispatch({
-        type: "ADD_ELEMENT",
-        payload: {
+    dispatch({
+      type: "ADD_ELEMENT",
+      payload: {
           containerId: "__body",
-          elementDetails: duplicatedElement,
-        },
-      });
+        elementDetails: duplicatedElement,
+      },
+    });
     }
   };
 

@@ -9,10 +9,6 @@ import NeonGradientCardCustomProperties from "./custom-properties/neon-gradient-
 import GridLayoutCustomProperties from "./custom-properties/grid-layout-custom";
 import GifCustomProperties from "./custom-properties/gif-custom";
 import MarqueeCustomProperties from "./custom-properties/marquee-custom";
-import AnimatedGridBackgroundCustomProperties from "./custom-properties/animated-grid-background-custom";
-import RetroGridBackgroundCustomProperties from "./custom-properties/retro-grid-background-custom";
-import DotPatternBackgroundCustomProperties from "./custom-properties/dot-pattern-background-custom";
-import InteractiveGridBackgroundCustomProperties from "./custom-properties/interactive-grid-background-custom";
 import ShimmerButtonCustomProperties from "./custom-properties/shimmer-button-custom";
 import BodyCustomProperties from "./custom-properties/body-custom";
 
@@ -25,10 +21,6 @@ type CustomElementType =
   | "neonGradientButton"
   | "neonGradientCard"
   | "marquee"
-  | "animatedGridPattern"
-  | "retroGrid"
-  | "dotPattern"
-  | "interactiveGridPattern"
   | "gridLayout"
   | "column"
   | "gif"
@@ -43,10 +35,6 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   neonGradientButton: NeonGradientCardCustomProperties,
   neonGradientCard: NeonGradientCardCustomProperties,
   marquee: MarqueeCustomProperties,
-  animatedGridPattern: AnimatedGridBackgroundCustomProperties,
-  retroGrid: RetroGridBackgroundCustomProperties,
-  dotPattern: DotPatternBackgroundCustomProperties,
-  interactiveGridPattern: InteractiveGridBackgroundCustomProperties,
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,
   column: () => <div className="px-6 text-muted-foreground">Column properties managed by Grid Layout</div>,

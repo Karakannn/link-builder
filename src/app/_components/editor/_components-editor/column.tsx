@@ -121,7 +121,7 @@ export const ColumnComponent = ({
             {...sortable.listeners}
             {...sortable.attributes}
             onClick={(e) => e.stopPropagation()}
-          >
+      >
             <GripVertical size={12} />
           </div>
         )}
@@ -147,19 +147,19 @@ export const ColumnComponent = ({
           ref={droppable.setNodeRef}
           className="min-h-[60px]"
         >
-          {Array.isArray(content) && content.length > 0 ? (
+        {Array.isArray(content) && content.length > 0 ? (
             <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
               {content.map((childElement, index) => (
-                <Recursive key={childElement.id} element={childElement} />
+            <Recursive key={childElement.id} element={childElement} />
               ))}
             </SortableContext>
-          ) : (
+        ) : (
             !isPreviewMode && (
-              <div className="min-h-[60px] flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-300 rounded">
-                Drop elements here
-              </div>
+          <div className="min-h-[60px] flex items-center justify-center text-gray-400 text-sm border-2 border-dashed border-gray-300 rounded">
+            Drop elements here
+          </div>
             )
-          )}
+        )}
         </div>
 
         <BadgeElementName element={element} />

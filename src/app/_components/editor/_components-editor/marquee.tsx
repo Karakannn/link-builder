@@ -106,21 +106,21 @@ const MarqueeComponent = ({ element }: Props) => {
 
   return (
     <ElementContextMenu element={element}>
-      <div
-        ref={draggable.setNodeRef}
-        style={computedStyles}
-        className={clsx("relative transition-all", {
-          "!border-blue-500": state.editor.selectedElement.id === id,
-          "!border-solid": state.editor.selectedElement.id === id,
-          "!border-dashed border border-slate-300": !state.editor.liveMode,
-          "cursor-grab": !state.editor.liveMode,
-          "cursor-grabbing": draggable.isDragging,
-          "opacity-50": draggable.isDragging,
-        })}
-        onClick={handleOnClickBody}
-        {...(!state.editor.liveMode ? draggable.listeners : {})}
-        {...(!state.editor.liveMode ? draggable.attributes : {})}
-      >
+    <div
+      ref={draggable.setNodeRef}
+      style={computedStyles}
+      className={clsx("relative transition-all", {
+        "!border-blue-500": state.editor.selectedElement.id === id,
+        "!border-solid": state.editor.selectedElement.id === id,
+        "!border-dashed border border-slate-300": !state.editor.liveMode,
+        "cursor-grab": !state.editor.liveMode,
+        "cursor-grabbing": draggable.isDragging,
+        "opacity-50": draggable.isDragging,
+      })}
+      onClick={handleOnClickBody}
+      {...(!state.editor.liveMode ? draggable.listeners : {})}
+      {...(!state.editor.liveMode ? draggable.attributes : {})}
+    >
         {showSpacingGuides && (
           <SpacingVisualizer styles={computedStyles} />
         )}
@@ -142,17 +142,17 @@ const MarqueeComponent = ({ element }: Props) => {
                       className="object-cover"
                     />
                   )}
-                </div>
+        </div>
               ))
             ) : (
               <span className="text-white">Marquee Content</span>
-            )}
+      )}
           </div>
         </div>
 
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
-      </div>
+    </div>
     </ElementContextMenu>
   );
 };

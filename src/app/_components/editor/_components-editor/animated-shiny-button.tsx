@@ -61,36 +61,36 @@ const AnimatedShinyButtonComponent = ({ element }: Props) => {
 
   return (
     <ElementContextMenu element={element}>
-      <div
-        ref={draggable.setNodeRef}
-        style={computedStyles}
-        className={clsx("relative transition-all", {
-          "!border-blue-500": state.editor.selectedElement.id === id,
-          "!border-solid": state.editor.selectedElement.id === id,
-          "!border-dashed border border-slate-300": !state.editor.liveMode,
-          "cursor-grab": !state.editor.liveMode,
-          "cursor-grabbing": draggable.isDragging,
-          "opacity-50": draggable.isDragging,
-        })}
-        onClick={handleOnClickBody}
-        {...(!state.editor.liveMode ? draggable.listeners : {})}
-        {...(!state.editor.liveMode ? draggable.attributes : {})}
-      >
-        {showSpacingGuides && (
-          <SpacingVisualizer styles={computedStyles} />
-        )}
+    <div
+      ref={draggable.setNodeRef}
+      style={computedStyles}
+      className={clsx("relative transition-all", {
+        "!border-blue-500": state.editor.selectedElement.id === id,
+        "!border-solid": state.editor.selectedElement.id === id,
+        "!border-dashed border border-slate-300": !state.editor.liveMode,
+        "cursor-grab": !state.editor.liveMode,
+        "cursor-grabbing": draggable.isDragging,
+        "opacity-50": draggable.isDragging,
+      })}
+      onClick={handleOnClickBody}
+      {...(!state.editor.liveMode ? draggable.listeners : {})}
+      {...(!state.editor.liveMode ? draggable.attributes : {})}
+    >
+      {showSpacingGuides && (
+        <SpacingVisualizer styles={computedStyles} />
+      )}
 
         <div
-          className={clsx("w-full", {
-            "pointer-events-none": !state.editor.liveMode, // disabled edit mode
-          })}
-        >
-          {buttonText}
+        className={clsx("w-full", {
+          "pointer-events-none": !state.editor.liveMode, // disabled edit mode
+        })}
+      >
+        {buttonText}
         </div>
 
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
-      </div>
+    </div>
     </ElementContextMenu>
   );
 };
