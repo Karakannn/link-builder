@@ -258,7 +258,7 @@ const initialState: EditorState = {
 
 // Add element editor
 const addAnElement = (editorArray: EditorElement[], action: EditorAction): EditorElement[] => {
-  if (action.type !== "ADD_ELEMENT") throw Error("You sent the wrong action type on the ADD_ELEMENT editor State");
+  if (action.type !== "ADD_ELEMENT") return editorArray;
 
   return editorArray.map((item) => {
     if (item.id === action.payload.containerId && Array.isArray(item.content)) {
@@ -266,13 +266,12 @@ const addAnElement = (editorArray: EditorElement[], action: EditorAction): Edito
         ...item,
         content: [...item.content, action.payload.elementDetails],
       };
-    } else if (item.content && Array.isArray(item.content)) {
+    } else if (Array.isArray(item.content)) {
       return {
         ...item,
         content: addAnElement(item.content, action),
       };
     }
-
     return item;
   });
 };
@@ -301,24 +300,10 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
 
   const { elementId, targetContainerId } = action.payload;
 
-  console.log("MOVE_ELEMENT - Element ID:", elementId);
-  console.log("MOVE_ELEMENT - Target Container ID:", targetContainerId);
-
   // Step 1: Find the element and its parent
   const { element, parent } = findElementAndParent(elements, elementId);
 
   if (!element || !parent) {
-    console.error("Could not find element or its parent:", elementId);
-    return elements;
-  }
-
-  console.log("Found element to move:", element);
-  console.log("Original parent:", parent.id);
-  console.log("Target container:", targetContainerId);
-
-  // Check if trying to move to its own container
-  if (parent.id === targetContainerId) {
-    console.log("Element is already in this container, no need to move");
     return elements;
   }
 
@@ -329,11 +314,8 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
   const { element: elementCopy, parent: parentCopy } = findElementAndParent(newElements, elementId);
 
   if (!elementCopy || !parentCopy || !Array.isArray(parentCopy.content)) {
-    console.error("Could not find element copy or parent copy or parent content is not an array");
     return elements;
   }
-
-  console.log("Found element copy:", elementCopy);
 
   // Step 4: Find the target container in the copied elements
   const findTargetContainer = (elements: EditorElement[], id: string): EditorElement | null => {
@@ -352,16 +334,12 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
   const targetContainer = findTargetContainer(newElements, targetContainerId);
 
   if (!targetContainer) {
-    console.error("Target container not found:", targetContainerId);
     return elements;
   }
 
   if (!Array.isArray(targetContainer.content)) {
-    console.error("Target container doesn't have an array content");
     return elements;
   }
-
-  console.log("Found target container:", targetContainer.id);
 
   // Step 5: Remove the element from its original parent
   parentCopy.content = parentCopy.content.filter((item) => item.id !== elementId);
@@ -369,31 +347,19 @@ const moveElement = (elements: EditorElement[], action: EditorAction): EditorEle
   // Step 6: Add the element to the target container directly
   targetContainer.content.push(elementCopy);
 
-  console.log("Element moved successfully from", parentCopy.id, "to", targetContainer.id);
-
   return newElements;
 };
 
 const updateAnElement = (editorArray: EditorElement[], action: EditorAction): EditorElement[] => {
   if (action.type !== "UPDATE_ELEMENT") throw Error("You sent the wrong action type on the UPDATE_ELEMENT editor State");
 
-  console.log("🔍 updateAnElement called, looking for ID:", action.payload.elementDetails.id);
-  console.log("🔍 Array has", editorArray.length, "elements");
-
   return editorArray.map((item) => {
-    console.log("🔎 Checking element:", item.id, "vs target:", action.payload.elementDetails.id);
-    
     if (item.id === action.payload.elementDetails.id) {
-      console.log("✅ Found matching element! Updating...");
-      console.log("🔄 Old content length:", Array.isArray(item.content) ? item.content.length : 'not array');
-      console.log("🔄 New content length:", Array.isArray(action.payload.elementDetails.content) ? action.payload.elementDetails.content.length : 'not array');
-      
       return {
         ...item,
         ...action.payload.elementDetails,
       };
     } else if (item.content && Array.isArray(item.content)) {
-      console.log("🔄 Searching in nested content of:", item.id);
       return {
         ...item,
         content: updateAnElement(item.content, action),
@@ -558,13 +524,8 @@ const handleLoadData = (initialState: EditorState, initialEditorState: EditorSta
 const insertAnElement = (editorArray: EditorElement[], action: EditorAction): EditorElement[] => {
   if (action.type !== "INSERT_ELEMENT") throw Error("You sent the wrong action type on the INSERT_ELEMENT editor State");
 
-  console.log("📥 INSERT_ELEMENT function called");
-  console.log("   - Insert Index:", action.payload.insertIndex);
-  console.log("   - Element:", action.payload.elementDetails.name);
-
   return editorArray.map((item) => {
     if (item.id === action.payload.containerId && Array.isArray(item.content)) {
-      console.log("   - Found container, inserting element at index", action.payload.insertIndex);
       const newContent = [...item.content];
       newContent.splice(action.payload.insertIndex, 0, action.payload.elementDetails);
 
@@ -587,21 +548,12 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
 
   const { elementId, containerId, insertIndex } = action.payload;
 
-  console.log("🔄 REORDER_ELEMENT function called");
-  console.log("   - Element ID:", elementId);
-  console.log("   - Container ID:", containerId);
-  console.log("   - Insert Index:", insertIndex);
-
   // Find the element and its parent
   const { element, parent } = findElementAndParent(elements, elementId);
 
   if (!element || !parent) {
-    console.error("   ❌ Could not find element or its parent:", elementId);
     return elements;
   }
-
-  console.log("   - Found element:", element.name);
-  console.log("   - Current parent:", parent.id);
 
   // Create a deep copy of the elements
   const newElements = JSON.parse(JSON.stringify(elements));
@@ -610,17 +562,14 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
   const { element: elementCopy, parent: parentCopy } = findElementAndParent(newElements, elementId);
 
   if (!elementCopy || !parentCopy || !Array.isArray(parentCopy.content)) {
-    console.error("   ❌ Could not find element copy or parent copy");
     return elements;
   }
 
   // Find current index of element
   const currentIndex = parentCopy.content.findIndex((item) => item.id === elementId);
-  console.log("   - Current index:", currentIndex);
 
   // Remove the element from its current position
   parentCopy.content = parentCopy.content.filter((item) => item.id !== elementId);
-  console.log("   - Removed element from current position");
 
   // Find the target container
   const findTargetContainer = (elements: EditorElement[], id: string): EditorElement | null => {
@@ -639,24 +588,17 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
   const targetContainer = findTargetContainer(newElements, containerId);
 
   if (!targetContainer || !Array.isArray(targetContainer.content)) {
-    console.error("   ❌ Target container not found or doesn't have array content");
     return elements;
   }
-
-  console.log("   - Found target container:", targetContainer.id);
-  console.log("   - Target container current length:", targetContainer.content.length);
 
   // If moving within same container, adjust index if needed
   let finalInsertIndex = insertIndex;
   if (containerId === parent.id && currentIndex < insertIndex) {
     finalInsertIndex = insertIndex - 1;
-    console.log("   - Adjusted insert index for same container:", finalInsertIndex);
   }
 
   // Insert the element at the specified index
   targetContainer.content.splice(finalInsertIndex, 0, elementCopy);
-  console.log("   ✅ Element inserted at index:", finalInsertIndex);
-  console.log("   - Target container new length:", targetContainer.content.length);
 
   return newElements;
 };
@@ -683,17 +625,10 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
       return newEditorState;
 
     case "UPDATE_ELEMENT":
-
-      console.log("🔧 UPDATE_ELEMENT reducer called:", action.payload);
-
       const updateElements = updateAnElement(state.editor.elements, action);
 
       // Check if the updated element is the currently selected element
       const updatedElementIsSelected = state.editor.selectedElement.id === action.payload.elementDetails.id;
-
-      console.log("🔍 Updated element ID:", action.payload.elementDetails.id);
-      console.log("🔍 Selected element ID:", state.editor.selectedElement.id);
-      console.log("🔍 Is updated element selected:", updatedElementIsSelected);
 
       const updatedEditorStateWithUpdate = {
         ...state.editor,
@@ -721,8 +656,6 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
           currentIndex: updatedHistoryWithUpdate.length - 1,
         },
       };
-
-      console.log("✅ UPDATE_ELEMENT reducer completed");
 
       return updateEditor;
 
@@ -778,7 +711,6 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
       };
       return deletedState;
     case "INSERT_ELEMENT":
-      console.log("🚀 INSERT_ELEMENT case triggered");
       const insertedElements = insertAnElement(state.editor.elements, action);
 
       const updatedEditorStateAfterInsert = {
@@ -798,11 +730,9 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         },
       };
 
-      console.log("✅ INSERT_ELEMENT completed");
       return insertedState;
 
     case "REORDER_ELEMENT":
-      console.log("🚀 REORDER_ELEMENT case triggered");
       const reorderedElements = reorderElement(state.editor.elements, action);
 
       const updatedEditorStateAfterReorder = {
@@ -822,7 +752,6 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         },
       };
 
-      console.log("✅ REORDER_ELEMENT completed");
       return reorderedState;
 
     case "CHANGE_CLICKED_ELEMENT":

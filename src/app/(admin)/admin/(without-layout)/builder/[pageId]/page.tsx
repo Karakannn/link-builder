@@ -22,6 +22,8 @@ export default async function page({ params }: Props) {
 
   const pageContent = page.content as EditorElement[];
 
+  
+
   return (
     <EditorProvider siteId={page.id} pageDetails={pageContent}>
       <DndContextProvider>

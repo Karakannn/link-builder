@@ -6,6 +6,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import { useDraggable } from "@dnd-kit/core";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 
 type Props = {
   element: EditorElement;
@@ -103,12 +105,8 @@ const NeonGradientButtonComponent = ({ element }: Props) => {
       >
         {buttonText}
       </NeonGradientCard>
-
-      {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-          <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
-        </div>
-      )}
+      <BadgeElementName element={element} />
+      <DeleteElementButton element={element} />
     </div>
   );
 };

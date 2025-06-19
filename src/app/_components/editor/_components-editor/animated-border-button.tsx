@@ -1,11 +1,12 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { Trash } from "lucide-react";
-import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import clsx from "clsx";
+import React, { useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
-import { AnimatedBorderGradientButton } from "@/components/ui/animated-border-gradient-button";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = {
   element: EditorElement;
@@ -37,9 +38,7 @@ const AnimatedBorderButtonComponent = ({ element }: Props) => {
 
   const handleOnClickBody = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("AnimatedBorderButton clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
     if (!state.editor.liveMode && !draggable.isDragging) {
-      console.log("Selecting animated border button:", id);
       dispatch({
         type: "CHANGE_CLICKED_ELEMENT",
         payload: {
@@ -47,16 +46,6 @@ const AnimatedBorderButtonComponent = ({ element }: Props) => {
         },
       });
     }
-  };
-
-  const handleDeleteElement = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    dispatch({
-      type: "DELETE_ELEMENT",
-      payload: {
-        elementDetails: element,
-      },
-    });
   };
 
   // Extract button specific props from content with defaults
@@ -71,40 +60,38 @@ const AnimatedBorderButtonComponent = ({ element }: Props) => {
   }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
   return (
-    <div
-      ref={draggable.setNodeRef}
-      style={computedStyles}
-      className={clsx("relative transition-all", {
-        "!border-blue-500": state.editor.selectedElement.id === id,
-        "!border-solid": state.editor.selectedElement.id === id,
-        "!border-dashed border border-slate-300": !state.editor.liveMode,
-        "cursor-grab": !state.editor.liveMode,
-        "cursor-grabbing": draggable.isDragging,
-        "opacity-50": draggable.isDragging,
-      })}
-      onClick={handleOnClickBody}
-      {...(!state.editor.liveMode ? draggable.listeners : {})}
-      {...(!state.editor.liveMode ? draggable.attributes : {})}
-    >
-      {showSpacingGuides && (
-        <SpacingVisualizer styles={computedStyles} />
-      )}
-
-      <AnimatedBorderGradientButton
-        buttonClass={buttonClass}
-        className={clsx("w-full", {
-          "pointer-events-none": !state.editor.liveMode, // disabled edit mode
+    <ElementContextMenu element={element}>
+      <div
+        ref={draggable.setNodeRef}
+        style={computedStyles}
+        className={clsx("relative transition-all", {
+          "!border-blue-500": state.editor.selectedElement.id === id,
+          "!border-solid": state.editor.selectedElement.id === id,
+          "!border-dashed border border-slate-300": !state.editor.liveMode,
+          "cursor-grab": !state.editor.liveMode,
+          "cursor-grabbing": draggable.isDragging,
+          "opacity-50": draggable.isDragging,
         })}
+        onClick={handleOnClickBody}
+        {...(!state.editor.liveMode ? draggable.listeners : {})}
+        {...(!state.editor.liveMode ? draggable.attributes : {})}
       >
-        {buttonText}
-      </AnimatedBorderGradientButton>
+        {showSpacingGuides && (
+          <SpacingVisualizer styles={computedStyles} />
+        )}
 
-      {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-          <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
+        <div
+          className={clsx("w-full", {
+            "pointer-events-none": !state.editor.liveMode, // disabled edit mode
+          })}
+        >
+          {buttonText}
         </div>
-      )}
-    </div>
+
+        <BadgeElementName element={element} />
+        <DeleteElementButton element={element} />
+      </div>
+    </ElementContextMenu>
   );
 };
 

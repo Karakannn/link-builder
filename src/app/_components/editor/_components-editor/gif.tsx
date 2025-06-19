@@ -1,11 +1,14 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import clsx from "clsx";
-import { Trash, Play, Pause } from "lucide-react";
-import React, { useState, useRef } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import clsx from "clsx";
+import { Play, Pause } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = {
     element: EditorElement;
@@ -50,16 +53,6 @@ const GifComponent = ({ element }: Props) => {
         }
     };
 
-    const handleDeleteElement = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        dispatch({
-            type: "DELETE_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
-    };
-
     const toggleGif = (e: React.MouseEvent) => {
         e.stopPropagation();
         if (imgRef.current) {
@@ -86,83 +79,83 @@ const GifComponent = ({ element }: Props) => {
     const controls = gifProps.controls || false;
 
     return (
-        <div
-            ref={draggable.setNodeRef}
-            style={computedStyles}
-            className={clsx("relative text-[16px] transition-all group", {
-                "!border-blue-500": state.editor.selectedElement.id === id,
-                "!border-solid": state.editor.selectedElement.id === id,
-                "!border-dashed border border-slate-300": !state.editor.liveMode,
-                "cursor-grab": !state.editor.liveMode,
-                "cursor-grabbing": draggable.isDragging,
-                "opacity-50": draggable.isDragging,
-            })}
-            onClick={handleOnClick}
-            {...(!state.editor.liveMode ? draggable.listeners : {})}
-            {...(!state.editor.liveMode ? draggable.attributes : {})}
-        >
-            {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                <Badge className="absolute -top-[23px] -left-[1px] rounded-none rounded-t-lg">
-                    {state.editor.selectedElement.name}
-                </Badge>
-            )}
+        <ElementContextMenu element={element}>
+            <div
+                ref={draggable.setNodeRef}
+                style={computedStyles}
+                className={clsx("relative transition-all", {
+                    "!border-blue-500": state.editor.selectedElement.id === id,
+                    "!border-solid": state.editor.selectedElement.id === id,
+                    "!border-dashed border border-slate-300": !state.editor.liveMode,
+                    "cursor-grab": !state.editor.liveMode,
+                    "cursor-grabbing": draggable.isDragging,
+                    "opacity-50": draggable.isDragging,
+                })}
+                onClick={handleOnClick}
+                {...(!state.editor.liveMode ? draggable.listeners : {})}
+                {...(!state.editor.liveMode ? draggable.attributes : {})}
+            >
+                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
+                    <BadgeElementName element={element} />
+                )}
 
-            <div className="relative inline-block">
-                {src ? (
-                    <img 
-                        ref={imgRef}
-                        src={src}
-                        alt={alt}
-                        className={clsx("max-w-full h-auto rounded", {
-                            "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
-                        })}
-                        style={{
-                            width: computedStyles.width || 'auto',
-                            height: computedStyles.height || 'auto',
-                            maxWidth: '100%',
-                        }}
-                        onLoad={() => {
-                            if (!autoplay && imgRef.current) {
-                                // If autoplay is false, pause immediately
-                                setIsPlaying(false);
-                            }
-                        }}
-                    />
-                ) : (
-                    <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                        <div className="text-center text-gray-500">
-                            <div className="text-4xl mb-2">🎬</div>
-                            <div>No GIF source</div>
-                            <div className="text-sm">Add a GIF URL in settings</div>
+                <div className="relative inline-block">
+                    {src ? (
+                        <img 
+                            ref={imgRef}
+                            src={src}
+                            alt={alt}
+                            className={clsx("max-w-full h-auto rounded", {
+                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                            })}
+                            style={{
+                                width: computedStyles.width || 'auto',
+                                height: computedStyles.height || 'auto',
+                                maxWidth: '100%',
+                                animationPlayState: isPlaying ? "running" : "paused",
+                            }}
+                            onLoad={() => {
+                                if (!autoplay && imgRef.current) {
+                                    // If autoplay is false, pause immediately
+                                    setIsPlaying(false);
+                                }
+                            }}
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
+                            <div className="text-center text-gray-500">
+                                <div className="text-4xl mb-2">🎬</div>
+                                <div>No GIF source</div>
+                                <div className="text-sm">Add a GIF URL in settings</div>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Play/Pause controls for edit mode */}
-                {controls && src && !state.editor.liveMode && (
-                    <button
-                        onClick={toggleGif}
-                        className="absolute top-2 right-2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-colors"
-                        title={isPlaying ? "Pause GIF" : "Play GIF"}
-                    >
-                        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                    </button>
-                )}
+                    {/* Play/Pause controls for edit mode */}
+                    {controls && src && !state.editor.liveMode && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity">
+                            <button
+                                onClick={toggleGif}
+                                className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+                            >
+                                {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                            </button>
+                        </div>
+                    )}
 
-                {/* GIF indicator */}
-                {src && (
-                    <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-                        GIF
-                    </div>
+                    {/* GIF indicator */}
+                    {src && (
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
+                            GIF
+                        </div>
+                    )}
+                </div>
+
+                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
+                    <DeleteElementButton element={element} />
                 )}
             </div>
-
-            {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-                    <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
-                </div>
-            )}
-        </div>
+        </ElementContextMenu>
     );
 };
 

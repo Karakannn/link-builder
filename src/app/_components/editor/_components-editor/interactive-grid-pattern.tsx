@@ -1,10 +1,12 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { InteractiveGridPattern } from "@/components/ui/interactive-grid-pattern";
-import { Trash } from "lucide-react";
-import clsx from "clsx";
-import React from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import clsx from "clsx";
+import React, { useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = {
   element: EditorElement;
@@ -64,6 +66,16 @@ const InteractiveGridPatternComponent = ({ element }: Props) => {
   const squares = patternProps.squares || [24, 24];
 
   return (
+    <ElementContextMenu element={element}>
+      <div
+        ref={draggable.setNodeRef}
+        style={computedStyles}
+        className={clsx("relative transition-all", {
+          "!border-blue-500": state.editor.selectedElement.id === id,
+          "!border-solid": state.editor.selectedElement.id === id,
+          "!border-dashed border border-slate-300": !state.editor.liveMode,
+          "cursor-grab": !state.editor.liveMode,
+          "cursor-grabbing": draggable.isDragging,
     <div
       ref={draggable.setNodeRef}
       style={computedStyles}
@@ -79,7 +91,7 @@ const InteractiveGridPatternComponent = ({ element }: Props) => {
       {...(!state.editor.liveMode ? draggable.listeners : {})}
       {...(!state.editor.liveMode ? draggable.attributes : {})}
     >
-      <InteractiveGridPattern
+      <SpacingVisualizer
         width={width}
         height={height}
         squares={squares as [number, number]}
@@ -94,7 +106,7 @@ const InteractiveGridPatternComponent = ({ element }: Props) => {
 
       {state.editor.selectedElement.id === id && !state.editor.liveMode && (
         <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-          <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
+          <DeleteElementButton onClick={handleDeleteElement} />
         </div>
       )}
     </div>

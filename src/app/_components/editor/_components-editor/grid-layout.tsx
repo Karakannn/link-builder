@@ -11,7 +11,7 @@ import { DragPlaceholder } from "./drag-placeholder";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
-import { useDndMonitor } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 
 type Props = { 
   element: EditorElement;
@@ -22,7 +22,6 @@ export const GridLayoutComponent = ({ element }: Props) => {
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
   const [measureRef, containerHeight] = useElementHeight(false);
-  const [dropTargetColumnId, setDropTargetColumnId] = useState<string | null>(null);
 
   const sortable = useSortable({
     id: id,
@@ -37,67 +36,27 @@ export const GridLayoutComponent = ({ element }: Props) => {
     disabled: state.editor.liveMode,
   });
 
-  // DndMonitor ile drop target'ı takip et
-  useDndMonitor({
-    onDragOver: (event) => {
-      const { over, active } = event;
-      
-      if (!over || !active) {
-        setDropTargetColumnId(null);
-        return;
-      }
-
-      // Sadece sidebar elementleri için drop target göster
-      const isFromSidebar = active.data?.current?.isSidebarElement;
-      const overType = over.data?.current?.type;
-      
-      if (isFromSidebar && overType === "column") {
-        setDropTargetColumnId(over.id as string);
-      } else {
-        setDropTargetColumnId(null);
-      }
-    },
-    onDragEnd: () => {
-      setDropTargetColumnId(null);
-    },
-    onDragCancel: () => {
-      setDropTargetColumnId(null);
-    },
-  });
-
-  // Get computed styles based on current device
   const computedStyles = {
     ...getElementStyles(element, state.editor.device),
     transform: CSS.Translate.toString(sortable.transform),
     transition: sortable.transition,
   };
 
-  // Grid columns - content array'indeki column'lar
   const gridColumns = Array.isArray(content) ? content : [];
 
-  // Grid ayarlarını styles'tan al
   const totalGridColumns = (computedStyles as any).gridColumns || 12;
   const columnSpans = (computedStyles as any).columnSpans || [];
   const gap = (computedStyles as any).gridGap || computedStyles.gap || "1rem";
 
   const defaultSpan = Math.floor(totalGridColumns / Math.max(gridColumns.length, 1));
 
-  // Generate grid template columns based on device
   const generateGridTemplate = () => {
-    const device = state.editor.device;
-
-    if (device === "Mobile") {
-      return "1fr";
-    } else if (device === "Tablet") {
-      return "repeat(2, 1fr)";
-    } else {
-      return `repeat(${totalGridColumns}, 1fr)`;
-    }
+    // Her zaman tam grid template kullan, device'a göre hardcode yapma
+    return `repeat(${totalGridColumns}, 1fr)`;
   };
 
   const gridTemplateColumns = generateGridTemplate();
 
-  // Final grid styles
   const finalGridStyles = {
     ...computedStyles,
     display: 'grid',
@@ -139,16 +98,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
         {Array.isArray(content) && content.length > 0 && (
           <SortableContext items={gridColumns.map((item) => item.id)} strategy={horizontalListSortingStrategy}>
             {gridColumns.map((columnElement, index) => {
-              // Column span hesaplama - device'a göre
-              let columnSpan: number;
-
-              if (state.editor.device === "Desktop") {
-                columnSpan = columnSpans[index] || defaultSpan;
-              } else if (state.editor.device === "Mobile") {
-                columnSpan = totalGridColumns;
-              } else {
-                columnSpan = Math.floor(totalGridColumns / 2);
-              }
+              const columnSpan = columnSpans[index] || defaultSpan;
 
               return (
                 <ColumnComponent
@@ -156,7 +106,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
                   element={columnElement}
                   gridSpan={columnSpan}
                   totalGridColumns={totalGridColumns}
-                  isDropTarget={dropTargetColumnId === columnElement.id} // Drop target state'i geçir
+                  isPreviewMode={state.editor.previewMode || state.editor.liveMode}
                 />
               );
             })}
@@ -165,6 +115,11 @@ export const GridLayoutComponent = ({ element }: Props) => {
 
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
+        
+        {/* Spacing Visualizer - only in edit mode and when selected */}
+        {!state.editor.previewMode && !state.editor.liveMode && state.editor.selectedElement.id === id && (
+          <SpacingVisualizer styles={computedStyles} />
+        )}
       </div>
     </ElementContextMenu>
   );

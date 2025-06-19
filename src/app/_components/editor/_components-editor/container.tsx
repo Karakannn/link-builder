@@ -28,7 +28,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
   const { handleSelectElement } = useElementSelection(element);
   const [measureRef, containerHeight] = useElementHeight(false);
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-  const { over } = useDndContext();
+  const { over, active: activeDrag } = useDndContext();
 
   const sortable = useSortable({
     id: id,
@@ -55,8 +55,6 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
     transition: sortable.transition,
   });
 
-  console.log("🔧 Container computed styles:", { id, computedStyles, selectedElement: state.editor.selectedElement.id });
-
   const setNodeRef = (node: HTMLDivElement | null) => {
     sortable.setNodeRef(node);
     measureRef(node);
@@ -66,9 +64,39 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
   const isOverInsertZone = over?.data?.current?.type === 'insert';
   const isActive = active || sortable.isDragging;
 
+  // Sürüklenen element'in bu container'ın child'ı olup olmadığını kontrol et
+  const isDraggedElementChildOfThisContainer = () => {
+    if (!activeDrag || !Array.isArray(content)) return false;
+    
+    const draggedElementId = activeDrag.id;
+    // draggable- prefix'ini kaldır
+    const cleanDraggedElementId = String(draggedElementId).replace('draggable-', '');
+    
+    // Recursive olarak content içinde dragged element'i ara
+    const findElementInContent = (elements: EditorElement[]): boolean => {
+      for (const element of elements) {
+        if (element.id === cleanDraggedElementId) {
+          return true;
+        }
+        if (Array.isArray(element.content)) {
+          if (findElementInContent(element.content)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+    
+    return findElementInContent(content);
+  };
+
+  const shouldShowDropHere = (sortable.isOver || sortable.isOver) && 
+    !state.editor.liveMode && 
+    !isOverInsertZone && 
+    !isDraggedElementChildOfThisContainer();
+
   useEffect(() => {
     const shouldShowGuides = state.editor.selectedElement.id === id && !state.editor.liveMode;
-    console.log("🔧 Container spacing guides:", { id, selectedId: state.editor.selectedElement.id, shouldShowGuides, type });
     setShowSpacingGuides(shouldShowGuides);
   }, [state.editor.selectedElement.id, id, state.editor.liveMode, type]);
 
@@ -124,7 +152,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
           "!border-yellow-400 !border-4": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type === "__body",
           "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
-          "!border-green-500 !border-2 !bg-green-50/50": (sortable.isOver || sortable.isOver) && !state.editor.liveMode,
+          "!border-green-500 !border-2 !bg-green-50/50": shouldShowDropHere,
           "cursor-grab": type !== "__body" && !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
@@ -142,7 +170,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
           <SpacingVisualizer styles={computedStyles} />
         )}
 
-        {(sortable.isOver || sortable.isOver) && !state.editor.liveMode && !isOverInsertZone && (
+        {shouldShowDropHere && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <span className="bg-green-500 text-white px-2 py-1 rounded-md text-sm font-medium z-10">Drop Here</span>
           </div>

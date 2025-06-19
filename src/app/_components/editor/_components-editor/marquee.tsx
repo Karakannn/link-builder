@@ -1,11 +1,14 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { Marquee, MarqueeContent, MarqueeFade, MarqueeItem } from "@/components/ui/marquee";
-import { Trash } from "lucide-react";
-import clsx from "clsx";
-import React from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import clsx from "clsx";
+import React, { useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import Image from "next/image";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = {
   element: EditorElement;
@@ -21,7 +24,14 @@ interface MarqueeItemData {
 
 const MarqueeComponent = ({ element }: Props) => {
   const { state, dispatch } = useEditor();
-  const { id, styles, content, type } = element;
+  const { id, name, type, styles, content } = element;
+  const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+
+  // Get computed styles based on current device
+  const computedStyles = getElementStyles(element, state.editor.device);
+
+  // Get computed content based on current device
+  const computedContent = getElementContent(element, state.editor.device);
 
   // dnd-kit draggable
   const draggable = useDraggable({
@@ -36,17 +46,9 @@ const MarqueeComponent = ({ element }: Props) => {
     disabled: state.editor.liveMode,
   });
 
-  // Get computed styles based on current device
-  const computedStyles = getElementStyles(element, state.editor.device);
-
-  // Get computed content based on current device
-  const computedContent = getElementContent(element, state.editor.device);
-
   const handleOnClickBody = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("Marquee clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
     if (!state.editor.liveMode && !draggable.isDragging) {
-      console.log("Selecting marquee:", id);
       dispatch({
         type: "CHANGE_CLICKED_ELEMENT",
         payload: {
@@ -56,15 +58,11 @@ const MarqueeComponent = ({ element }: Props) => {
     }
   };
 
-  const handleDeleteElement = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    dispatch({
-      type: "DELETE_ELEMENT",
-      payload: {
-        elementDetails: element,
-      },
-    });
-  };
+  useEffect(() => {
+    setShowSpacingGuides(
+      state.editor.selectedElement.id === id && !state.editor.liveMode
+    );
+  }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
   // Extract marquee specific props from content with defaults
   const marqueeProps = !Array.isArray(computedContent) ? computedContent : {};
@@ -107,45 +105,55 @@ const MarqueeComponent = ({ element }: Props) => {
   };
 
   return (
-    <div
-      ref={draggable.setNodeRef}
-      style={computedStyles}
-      className={clsx("relative transition-all", {
-        "!border-blue-500": state.editor.selectedElement.id === id,
-        "!border-solid": state.editor.selectedElement.id === id,
-        "!border-dashed border border-slate-300": !state.editor.liveMode,
-        "cursor-grab": !state.editor.liveMode,
-        "cursor-grabbing": draggable.isDragging,
-        "opacity-50": draggable.isDragging,
-      })}
-      onClick={handleOnClickBody}
-      {...(!state.editor.liveMode ? draggable.listeners : {})}
-      {...(!state.editor.liveMode ? draggable.attributes : {})}
-    >
-      <Marquee className="h-full overflow-hidden">
-        <MarqueeFade side="left" />
-        <MarqueeContent
-          direction={direction as "left" | "right"}
-          speed={speed}
-          pauseOnHover={pauseOnHover}
-        >
-          {items.map((item, index) => renderMarqueeItem(item, index))}
-        </MarqueeContent>
-        <MarqueeFade side="right" />
-      </Marquee>
-      
-      {!state.editor.liveMode && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/10 text-white text-sm font-medium opacity-0 hover:opacity-100 transition-opacity">
-          Marquee Element
-        </div>
-      )}
+    <ElementContextMenu element={element}>
+      <div
+        ref={draggable.setNodeRef}
+        style={computedStyles}
+        className={clsx("relative transition-all", {
+          "!border-blue-500": state.editor.selectedElement.id === id,
+          "!border-solid": state.editor.selectedElement.id === id,
+          "!border-dashed border border-slate-300": !state.editor.liveMode,
+          "cursor-grab": !state.editor.liveMode,
+          "cursor-grabbing": draggable.isDragging,
+          "opacity-50": draggable.isDragging,
+        })}
+        onClick={handleOnClickBody}
+        {...(!state.editor.liveMode ? draggable.listeners : {})}
+        {...(!state.editor.liveMode ? draggable.attributes : {})}
+      >
+        {showSpacingGuides && (
+          <SpacingVisualizer styles={computedStyles} />
+        )}
 
-      {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-          <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
+        <div className="w-full h-full overflow-hidden">
+          <div className="flex animate-marquee">
+            {Array.isArray(computedContent) ? (
+              computedContent.map((item, index) => (
+                <div key={index} className="flex-shrink-0 mx-4">
+                  {item.type === "text" && (
+                    <span className="text-white">{item.content}</span>
+                  )}
+                  {item.type === "image" && (
+                    <Image
+                      src={item.src}
+                      alt={item.alt || "Marquee image"}
+                      width={item.width || 50}
+                      height={item.height || 50}
+                      className="object-cover"
+                    />
+                  )}
+                </div>
+              ))
+            ) : (
+              <span className="text-white">Marquee Content</span>
+            )}
+          </div>
         </div>
-      )}
-    </div>
+
+        <BadgeElementName element={element} />
+        <DeleteElementButton element={element} />
+      </div>
+    </ElementContextMenu>
   );
 };
 

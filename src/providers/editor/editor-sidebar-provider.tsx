@@ -83,18 +83,50 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
     const settingProperty = e.target.id;
     let value = e.target.value;
 
-    const styleObject = {
-      [settingProperty]: value,
-    };
-
     if (activeDevice === "Desktop") {
-      // Update base content values
+      // Update base content values for Desktop
+      if (Array.isArray(state.editor.selectedElement.content)) {
+        // For containers, content is an array, so we don't update it here
+        return;
+      }
+      
       dispatch({
         type: "UPDATE_ELEMENT",
         payload: {
           elementDetails: {
             ...state.editor.selectedElement,
-            content: value,
+            content: {
+              ...state.editor.selectedElement.content,
+              [settingProperty]: value,
+            },
+          },
+        },
+      });
+    } else {
+      // Update responsive content for Tablet/Mobile
+      if (Array.isArray(state.editor.selectedElement.content)) {
+        // For containers, content is an array, so we don't update it here
+        return;
+      }
+      
+      const currentContent = state.editor.selectedElement.content as any;
+      const currentResponsiveContent = currentContent?.responsiveContent || {};
+      
+      dispatch({
+        type: "UPDATE_ELEMENT",
+        payload: {
+          elementDetails: {
+            ...state.editor.selectedElement,
+            content: {
+              ...currentContent,
+              responsiveContent: {
+                ...currentResponsiveContent,
+                [activeDevice]: {
+                  ...currentResponsiveContent[activeDevice],
+                  [settingProperty]: value,
+                },
+              },
+            },
           },
         },
       });
@@ -149,6 +181,7 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
     let value = e.target.value;
 
     if (activeDevice === "Desktop") {
+      // Update base styles for Desktop
       dispatch({
         type: "UPDATE_ELEMENT",
         payload: {
@@ -157,6 +190,25 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
             styles: {
               ...state.editor.selectedElement.styles,
               [settingProperty]: value,
+            },
+          },
+        },
+      });
+    } else {
+      // Update responsive styles for Tablet/Mobile
+      const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
+      
+      dispatch({
+        type: "UPDATE_ELEMENT",
+        payload: {
+          elementDetails: {
+            ...state.editor.selectedElement,
+            responsiveStyles: {
+              ...currentResponsiveStyles,
+              [activeDevice]: {
+                ...currentResponsiveStyles[activeDevice],
+                [settingProperty]: value,
+              },
             },
           },
         },

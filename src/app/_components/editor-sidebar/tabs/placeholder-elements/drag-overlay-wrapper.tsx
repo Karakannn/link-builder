@@ -11,7 +11,7 @@ export const DragOverlayWrapper = () => {
       dropAnimation={null}
       modifiers={[snapCenterToCursor]}
       style={{
-        zIndex: 999,
+        zIndex: 1000,
       }}
     >
       <div

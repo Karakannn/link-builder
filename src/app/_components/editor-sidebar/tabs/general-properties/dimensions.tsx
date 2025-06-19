@@ -16,9 +16,7 @@ type Props = {}
 const DimensionsProperties = (props: Props) => {
 
     const { getCurrentStyles, handleOnChanges } = useEditorSidebar();
-    
     const currentStyles = expandSpacingShorthand(getCurrentStyles());
-    console.log("🔧 Dimensions component - current styles:", currentStyles);
 
     return (
         <AccordionItem value="Dimensions" className="px-0 py-0 border-y">

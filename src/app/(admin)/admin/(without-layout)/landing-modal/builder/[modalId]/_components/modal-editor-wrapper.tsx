@@ -12,8 +12,11 @@ type Props = {
 export const ModalEditorWrapper = ({ pageDetails }: Props) => {
   const { dispatch, state } = useEditor();
 
+  console.log("🎭 ModalEditorWrapper rendering with pageDetails:", pageDetails);
+
   // Load data when component mounts
   useEffect(() => {
+    console.log("🎭 ModalEditorWrapper loading data:", pageDetails);
     dispatch({
       type: "LOAD_DATA",
       payload: {
@@ -34,6 +37,8 @@ export const ModalEditorWrapper = ({ pageDetails }: Props) => {
     }
   };
 
+  console.log("🎭 ModalEditorWrapper current state.editor.elements:", state.editor.elements);
+
   return (
     <div
       data-editor-container="true"
@@ -53,12 +58,15 @@ export const ModalEditorWrapper = ({ pageDetails }: Props) => {
         {/* Modal Preview Area - Now editable container */}
         <div className="relative min-w-[300px] min-h-[200px] max-w-[90vw] max-h-[90vh] overflow-hidden">
           {Array.isArray(state.editor.elements) &&
-            state.editor.elements.map((childElement) => (
-              <Recursive
-                key={childElement.id}
-                element={childElement}
-              />
-            ))
+            state.editor.elements.map((childElement) => {
+              console.log("🎭 Rendering element in modal:", childElement);
+              return (
+                <Recursive
+                  key={childElement.id}
+                  element={childElement}
+                />
+              );
+            })
           }
         </div>
       </div>

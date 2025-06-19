@@ -7,6 +7,7 @@ import {
   DragOverEvent, 
   DragStartEvent, 
   PointerSensor, 
+  pointerWithin, 
   rectIntersection, 
   useSensor, 
   useSensors 
@@ -34,17 +35,16 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     })
   );
 
-  // Collision detection - column için closestCorners
   const collisionDetection = (args: any) => {
-    const { active } = args;
+    const { active, over } = args;
     const draggedType = active?.data?.current?.type;
     
-    if (draggedType === "column") {
-      return closestCorners(args);
-    }
+    // Use pointerWithin for precise drop detection - only when mouse pointer is within drop zone
+    const result = pointerWithin(args);
     
-    return rectIntersection(args);
+    return result;
   };
+
 
   const childItems = state.editor.elements.map(child => child.id);
 
@@ -118,59 +118,64 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     const isFromEditor = active.data?.current?.isEditorElement;
     const elementId = active.data?.current?.elementId;
 
-    console.log("\n📋 Drag End Analysis:");
-    console.log("  - Dragged Type:", draggedType);
-    console.log("  - From Sidebar:", isFromSidebar);
-    console.log("  - From Editor:", isFromEditor);
-    console.log("  - Over Type:", over.data?.current?.type);
-    console.log("  - Over ID:", over.id);
-
-    // 🎯 Sidebar element -> Column drop (YENİ LOGIC)
+    // Sidebar element -> Column drop
     if (isFromSidebar && over.data?.current?.type === "column") {
-      console.log("\n🎯 SIDEBAR TO COLUMN DROP DETECTED");
-      
       const columnId = over.id as string;
       const containerId = over.data?.current?.containerId || columnId;
       
-      console.log("  - Target Column ID:", columnId);
-      console.log("  - Container ID:", containerId);
-      
       const newElement = createElement(draggedType);
       if (newElement) {
-        console.log("  - Created element:", newElement.name);
-        
         dispatch({
           type: "ADD_ELEMENT",
           payload: {
-            containerId: containerId, // Column'un ID'si containerId olarak kullanılıyor
+            containerId: containerId,
             elementDetails: newElement,
           },
         });
-        
-        console.log("✅ Element added to column successfully");
-      } else {
-        console.error("❌ Failed to create element");
       }
       return;
     }
 
-    // Column reordering zaten onDragOver'da handle edildi
+    // Column reordering already handled in onDragOver
     if (draggedType === "column" && isFromEditor) {
-      console.log("✅ Column reordering completed in onDragOver");
       return;
     }
 
     // Normal container/body drops
     if (over.data?.current?.type === "container" || over.data?.current?.type === "__body") {
-      console.log("\n🏠 CONTAINER/BODY DROP");
       handleContainerDrop(active, over)
+      return;
+    }
+
+    // Closable container drops
+    if (over.data?.current?.type === "closableContainer") {
+      const containerId = over.data?.current?.containerId || over.id as string;
+      
+      if (isFromSidebar) {
+        const newElement = createElement(draggedType);
+        if (newElement) {
+          dispatch({
+            type: "ADD_ELEMENT",
+            payload: {
+              containerId: containerId,
+              elementDetails: newElement,
+            },
+          });
+        }
+      } else if (isFromEditor && elementId) {
+        dispatch({
+          type: "MOVE_ELEMENT",
+          payload: {
+            elementId: elementId as string,
+            targetContainerId: containerId,
+          },
+        });
+      }
       return;
     }
 
     // INSERT operations (element positioning)
     if (over.data?.current?.type === "insert") {
-      console.log("\n🔄 INSERT OPERATION");
-      
       const { containerId, insertIndex } = over.data.current;
 
       if (isFromSidebar) {
@@ -197,8 +202,6 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
       }
       return;
     }
-
-    console.log("⚠️ Unhandled drop scenario");
   };
 
   function handleDragStart({ active }: DragStartEvent) {

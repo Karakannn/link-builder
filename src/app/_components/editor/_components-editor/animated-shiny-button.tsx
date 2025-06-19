@@ -1,11 +1,12 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { AnimatedTextShinyButton } from "@/components/ui/animated-text-shiny-button";
-import { Trash } from "lucide-react";
-import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import clsx from "clsx";
+import React, { useEffect, useState } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
+import BadgeElementName from "@/components/global/editor-element/badge-element-name";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = {
   element: EditorElement;
@@ -13,14 +14,20 @@ type Props = {
 
 const AnimatedShinyButtonComponent = ({ element }: Props) => {
   const { state, dispatch } = useEditor();
-  const { id, styles, content, type } = element;
+  const { id, name, type, styles, content } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+
+  // Get computed styles based on current device
+  const computedStyles = getElementStyles(element, state.editor.device);
+
+  // Get computed content based on current device
+  const computedContent = getElementContent(element, state.editor.device);
 
   // dnd-kit draggable
   const draggable = useDraggable({
     id: `draggable-${id}`,
     data: {
-      type: "animatedShinyButton",
+      type: "animated-shiny-button",
       elementId: id,
       name: "Animated Shiny Button",
       isSidebarElement: false,
@@ -29,17 +36,9 @@ const AnimatedShinyButtonComponent = ({ element }: Props) => {
     disabled: state.editor.liveMode,
   });
 
-  // Get computed styles based on current device
-  const computedStyles = getElementStyles(element, state.editor.device);
-
-  // Get computed content based on current device
-  const computedContent = getElementContent(element, state.editor.device);
-
   const handleOnClickBody = (e: React.MouseEvent) => {
     e.stopPropagation();
-    console.log("AnimatedShinyButton clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
     if (!state.editor.liveMode && !draggable.isDragging) {
-      console.log("Selecting animated shiny button:", id);
       dispatch({
         type: "CHANGE_CLICKED_ELEMENT",
         payload: {
@@ -49,62 +48,50 @@ const AnimatedShinyButtonComponent = ({ element }: Props) => {
     }
   };
 
-  const handleDeleteElement = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    dispatch({
-      type: "DELETE_ELEMENT",
-      payload: {
-        elementDetails: element,
-      },
-    });
-  };
-
-  // Extract button specific props from content with defaults
-  const buttonProps = !Array.isArray(computedContent) ? computedContent : {};
-  const buttonText = buttonProps.innerText || "Shiny Button";
-  const buttonClass = buttonProps.buttonClass || "default";
-
   useEffect(() => {
     setShowSpacingGuides(
       state.editor.selectedElement.id === id && !state.editor.liveMode
     );
   }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
+  // Extract button specific props from content with defaults
+  const buttonProps = !Array.isArray(computedContent) ? computedContent : {};
+  const buttonText = buttonProps.innerText || "Shiny Button";
+  const buttonClass = buttonProps.className || "bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-3 rounded-lg font-semibold";
+
   return (
-    <div
-      ref={draggable.setNodeRef}
-      style={computedStyles}
-      className={clsx("relative transition-all", {
-        "!border-blue-500": state.editor.selectedElement.id === id,
-        "!border-solid": state.editor.selectedElement.id === id,
-        "!border-dashed border border-slate-300": !state.editor.liveMode,
-        "cursor-grab": !state.editor.liveMode,
-        "cursor-grabbing": draggable.isDragging,
-        "opacity-50": draggable.isDragging,
-      })}
-      onClick={handleOnClickBody}
-      {...(!state.editor.liveMode ? draggable.listeners : {})}
-      {...(!state.editor.liveMode ? draggable.attributes : {})}
-    >
-      {showSpacingGuides && (
-        <SpacingVisualizer styles={computedStyles} />
-      )}
-
-      <AnimatedTextShinyButton
-        buttonClass={buttonClass}
-        className={clsx("w-full", {
-          "pointer-events-none": !state.editor.liveMode, // disabled edit mode
+    <ElementContextMenu element={element}>
+      <div
+        ref={draggable.setNodeRef}
+        style={computedStyles}
+        className={clsx("relative transition-all", {
+          "!border-blue-500": state.editor.selectedElement.id === id,
+          "!border-solid": state.editor.selectedElement.id === id,
+          "!border-dashed border border-slate-300": !state.editor.liveMode,
+          "cursor-grab": !state.editor.liveMode,
+          "cursor-grabbing": draggable.isDragging,
+          "opacity-50": draggable.isDragging,
         })}
+        onClick={handleOnClickBody}
+        {...(!state.editor.liveMode ? draggable.listeners : {})}
+        {...(!state.editor.liveMode ? draggable.attributes : {})}
       >
-        {buttonText}
-      </AnimatedTextShinyButton>
+        {showSpacingGuides && (
+          <SpacingVisualizer styles={computedStyles} />
+        )}
 
-      {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-        <div className="absolute bg-primary px-2.5 py-1 text-xs font-bold -top-[25px] -right-[1px] rounded-none rounded-t-lg !text-white">
-          <Trash className="cursor-pointer z-50" size={16} onClick={handleDeleteElement} />
+        <div
+          className={clsx("w-full", {
+            "pointer-events-none": !state.editor.liveMode, // disabled edit mode
+          })}
+        >
+          {buttonText}
         </div>
-      )}
-    </div>
+
+        <BadgeElementName element={element} />
+        <DeleteElementButton element={element} />
+      </div>
+    </ElementContextMenu>
   );
 };
 
