@@ -14,6 +14,7 @@ import RetroGridBackgroundCustomProperties from "./custom-properties/retro-grid-
 import DotPatternBackgroundCustomProperties from "./custom-properties/dot-pattern-background-custom";
 import InteractiveGridBackgroundCustomProperties from "./custom-properties/interactive-grid-background-custom";
 import ShimmerButtonCustomProperties from "./custom-properties/shimmer-button-custom";
+import BodyCustomProperties from "./custom-properties/body-custom";
 
 type CustomElementType =
   | "link"
@@ -30,7 +31,8 @@ type CustomElementType =
   | "interactiveGridPattern"
   | "gridLayout"
   | "column"
-  | "gif";
+  | "gif"
+  | "__body";
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
   link: LinkCustomProperties,
@@ -48,6 +50,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,
   column: () => <div className="px-6 text-muted-foreground">Column properties managed by Grid Layout</div>,
+  __body: BodyCustomProperties,
 };
 
 export const CustomTab = () => {

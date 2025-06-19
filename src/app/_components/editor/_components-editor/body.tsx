@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 import Recursive from "./recursive";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BACKGROUND_ANIMATIONS, BackgroundAnimation } from "@/constants/background-animations";
+import { useState, useEffect } from "react";
 
 interface BodyContainerProps {
   element: EditorElement;
@@ -39,14 +42,33 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
+  // Get background animation from element itself (since content is array)
+  const backgroundAnimation = element.backgroundAnimation || "none";
+
+  // Get background animation class
+  const backgroundAnimationConfig = BACKGROUND_ANIMATIONS.find(bg => bg.id === backgroundAnimation);
+  const backgroundClass = backgroundAnimationConfig?.className || "";
+
+  console.log("Body background debug:", {
+    elementContent: element.content,
+    isArray: Array.isArray(element.content),
+    elementBackground: element.backgroundAnimation,
+    backgroundAnimation,
+    backgroundClass,
+    backgroundAnimationConfig
+  });
+
+  const finalClassName = cn(
+    "w-full h-full min-h-[50px] transition-all duration-200 ease-in-out relative cursor-pointer hover:ring-1 hover:ring-gray-300",
+    backgroundClass,
+    isSelected && !isPreviewMode && "border-2 border-blue-500",
+    droppable.isOver && !isPreviewMode && "!border-green-500 !border-2 !bg-green-50/50"
+  );
+
   return (
     <div
       ref={droppable.setNodeRef}
-      className={cn(
-        "w-full h-full min-h-[50px] transition-all duration-200 ease-in-out",
-        isSelected && !isPreviewMode && "outline-dashed outline-2 outline-blue-500",
-        droppable.isOver && !isPreviewMode && "!border-green-500 !border-2 !bg-green-50/50"
-      )}
+      className={finalClassName}
       onClick={handleClick}
       data-body-container="true"
       style={{
@@ -55,8 +77,43 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
         width: "100%",
         height: "100%",
         minHeight: "50px",
+        pointerEvents: "auto",
+        zIndex: 1,
+        ...(isSelected && !isPreviewMode && {
+          border: "2px solid #3b82f6",
+          boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.2)"
+        })
       }}
     >
+      {/* Background Animation Select - only in edit mode */}
+      {!isPreviewMode && isSelected && (
+        <div className="absolute top-4 right-4 z-20 bg-white rounded-lg shadow-lg p-2 border">
+          <div className="text-xs font-medium text-gray-600 mb-1">Background</div>
+          <Select value={backgroundAnimation} onValueChange={(value) => {
+            dispatch({
+              type: "UPDATE_ELEMENT",
+              payload: {
+                elementDetails: {
+                  ...element,
+                  backgroundAnimation: value as BackgroundAnimation,
+                },
+              },
+            });
+          }}>
+            <SelectTrigger className="w-32 h-8 text-xs">
+              <SelectValue placeholder="Select background" />
+            </SelectTrigger>
+            <SelectContent>
+              {BACKGROUND_ANIMATIONS.map((animation) => (
+                <SelectItem key={animation.id} value={animation.id}>
+                  {animation.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* Drop indicator */}
       {droppable.isOver && !isPreviewMode && (
         <div 

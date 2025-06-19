@@ -15,6 +15,7 @@ export type EditorElement = {
   };
   name: string;
   type: EditorBtns;
+  backgroundAnimation?: string;
   content:
   | EditorElement[]
   | {
@@ -22,6 +23,9 @@ export type EditorElement = {
     href?: string;
     innerText?: string;
     src?: string;
+
+    // Background animation property
+    backgroundAnimation?: string;
 
     // Shimmer button properties
     shimmerColor?: string;
@@ -98,6 +102,7 @@ export type EditorElement = {
         href?: string;
         innerText?: string;
         src?: string;
+        backgroundAnimation?: string;
         shimmerColor?: string;
         shimmerSize?: string;
         shimmerDuration?: string;
@@ -152,6 +157,7 @@ export type EditorElement = {
         href?: string;
         innerText?: string;
         src?: string;
+        backgroundAnimation?: string;
         shimmerColor?: string;
         shimmerSize?: string;
         shimmerDuration?: string;

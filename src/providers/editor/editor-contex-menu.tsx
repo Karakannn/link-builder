@@ -10,7 +10,33 @@ interface ElementContextMenuProps {
 }
 
 const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
-  const { dispatch } = useEditor();
+  const { state, dispatch } = useEditor();
+
+  // Element'in parent container'ını ve index'ini bul
+  const findParentContainer = (targetElementId: string, elements: EditorElement[]): { containerId: string; index: number } | null => {
+    // Recursive olarak tüm elementlerde arama yap
+    const searchInElements = (elements: EditorElement[], parentId: string = "__body"): { containerId: string; index: number } | null => {
+      for (let i = 0; i < elements.length; i++) {
+        const element = elements[i];
+        
+        // Eğer bu element target ise, parent'ını döndür
+        if (element.id === targetElementId) {
+          return { containerId: parentId, index: i };
+        }
+        
+        // Eğer bu element'in content'i array ise (container ise), içinde ara
+        if (Array.isArray(element.content)) {
+          const result = searchInElements(element.content, element.id);
+          if (result) {
+            return result;
+          }
+        }
+      }
+      return null;
+    };
+    
+    return searchInElements(elements);
+  };
 
   const handleDuplicate = () => {
     const duplicatedElement = {
@@ -19,13 +45,42 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
       name: `${element.name} Copy`,
     };
 
-    dispatch({
-      type: "ADD_ELEMENT",
-      payload: {
-        containerId: "__body", // Parent container bulunabilir ama şimdilik body
-        elementDetails: duplicatedElement,
-      },
+    // Element'in parent container'ını ve index'ini bul
+    const parentInfo = findParentContainer(element.id, state.editor.elements);
+    
+    console.log("🔧 Duplicate operation:", {
+      elementId: element.id,
+      elementName: element.name,
+      parentInfo,
+      allElements: state.editor.elements
     });
+    
+    if (parentInfo) {
+      // Aynı container'da hemen altına ekle
+      console.log("🔧 Inserting at:", {
+        containerId: parentInfo.containerId,
+        insertIndex: parentInfo.index + 1
+      });
+      
+      dispatch({
+        type: "INSERT_ELEMENT",
+        payload: {
+          containerId: parentInfo.containerId,
+          elementDetails: duplicatedElement,
+          insertIndex: parentInfo.index + 1, // Hemen altına
+        },
+      });
+    } else {
+      // Fallback: body'ye ekle
+      console.log("🔧 Fallback: adding to body");
+      dispatch({
+        type: "ADD_ELEMENT",
+        payload: {
+          containerId: "__body",
+          elementDetails: duplicatedElement,
+        },
+      });
+    }
   };
 
   const handleDelete = () => {

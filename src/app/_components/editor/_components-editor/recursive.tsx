@@ -12,9 +12,6 @@ import NeonGradientButtonComponent from "./neon-gradient-button";
 import AnimatedBorderButtonComponent from "./animated-border-button";
 import AnimatedTextButtonComponent from "./animated-text-button";
 import NeonGradientCardComponent from "./neon-gradient-card";
-import AnimatedGridPatternComponent from "./animated-grid-pattern";
-import RetroGridComponent from "./retro-grid";
-import DotPatternComponent from "./dot-pattern";
 import MarqueeComponent from "./marquee";
 import { GridLayoutComponent as GridLayout } from "./grid-layout";
 import { ColumnComponent as Column } from "./column";
@@ -52,14 +49,6 @@ const Recursive = ({ element }: Props) => {
       return <AnimatedTextButtonComponent element={element} />;
     case "neonGradientCard":
       return <NeonGradientCardComponent element={element} />;
-    case "animatedGridPattern":
-      return <AnimatedGridPatternComponent element={element} />;
-    case "interactiveGridPattern":
-      return <AnimatedGridPatternComponent element={element} />;
-    case "retroGrid":
-      return <RetroGridComponent element={element} />;
-    case "dotPattern":
-      return <DotPatternComponent element={element} />;
     case "marquee":
       return <MarqueeComponent element={element} />;
     case "gridLayout":
