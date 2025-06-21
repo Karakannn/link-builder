@@ -94,6 +94,102 @@ const NeonGradientCardCustomProperties = (props: Props) => {
                 </div>
             </div>
             <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Background Color</p>
+                <div className="flex items-center gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                <div
+                                    className="w-4 h-4 rounded"
+                                    style={{ backgroundColor: getCurrentContent().backgroundColor as string || 'transparent' }}
+                                />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <ColorPicker
+                                value={getCurrentContent().backgroundColor}
+                                onChangeComplete={(value) => handleColorChange('backgroundColor', value)}
+                            >
+                                <ColorPickerSelection className="h-32" />
+                                <div className="flex flex-col gap-2 mt-4">
+                                    <ColorPickerHue />
+                                    <ColorPickerAlpha />
+                                    <div className="flex items-center gap-2">
+                                        <ColorPickerOutput />
+                                        <ColorPickerFormat />
+                                    </div>
+                                </div>
+                            </ColorPicker>
+                        </PopoverContent>
+                    </Popover>
+                    <Input id="backgroundColor" placeholder="#ffffff" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().backgroundColor || ''} />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Title Color</p>
+                <div className="flex items-center gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                <div
+                                    className="w-4 h-4 rounded"
+                                    style={{ backgroundColor: getCurrentContent().titleColor as string || '#ffffff' }}
+                                />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <ColorPicker
+                                value={getCurrentContent().titleColor}
+                                onChangeComplete={(value) => handleColorChange('titleColor', value)}
+                            >
+                                <ColorPickerSelection className="h-32" />
+                                <div className="flex flex-col gap-2 mt-4">
+                                    <ColorPickerHue />
+                                    <ColorPickerAlpha />
+                                    <div className="flex items-center gap-2">
+                                        <ColorPickerOutput />
+                                        <ColorPickerFormat />
+                                    </div>
+                                </div>
+                            </ColorPicker>
+                        </PopoverContent>
+                    </Popover>
+                    <Input id="titleColor" placeholder="#ffffff" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().titleColor || ''} />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Subtitle Color</p>
+                <div className="flex items-center gap-2">
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                <div
+                                    className="w-4 h-4 rounded"
+                                    style={{ backgroundColor: getCurrentContent().subtitleColor as string || '#cccccc' }}
+                                />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <ColorPicker
+                                value={getCurrentContent().subtitleColor}
+                                onChangeComplete={(value) => handleColorChange('subtitleColor', value)}
+                            >
+                                <ColorPickerSelection className="h-32" />
+                                <div className="flex flex-col gap-2 mt-4">
+                                    <ColorPickerHue />
+                                    <ColorPickerAlpha />
+                                    <div className="flex items-center gap-2">
+                                        <ColorPickerOutput />
+                                        <ColorPickerFormat />
+                                    </div>
+                                </div>
+                            </ColorPicker>
+                        </PopoverContent>
+                    </Popover>
+                    <Input id="subtitleColor" placeholder="#cccccc" className="flex-1" onChange={handleChangeCustomValues} value={getCurrentContent().subtitleColor || ''} />
+                </div>
+            </div>
+            <div className="flex flex-col gap-2">
                 <p className="text-muted-foreground">Border Size</p>
                 <Input id="borderSize" type="number" placeholder="2" onChange={handleChangeCustomValues} value={getCurrentContent().borderSize} />
             </div>

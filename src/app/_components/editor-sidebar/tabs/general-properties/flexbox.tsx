@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useEditorSidebar } from '@/providers/editor/editor-sidebar-provider'
-import { AlignLeft, AlignRight, AlignJustify, AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart } from 'lucide-react'
+import { AlignLeft, AlignRight, AlignJustify, AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, AlignVerticalJustifyEndIcon } from 'lucide-react'
 import React from 'react'
 
 type Props = {}
@@ -66,8 +66,11 @@ const FlexboxProperties = (props: Props) => {
                         <TabsTrigger value="center" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
                             <AlignVerticalJustifyCenter size={18} />
                         </TabsTrigger>
-                        <TabsTrigger value="normal" className="w-10 h-10 p-0 data-[state=active]:bg-muted ">
+                        <TabsTrigger value="start" className="w-10 h-10 p-0 data-[state=active]:bg-muted ">
                             <AlignVerticalJustifyStart size={18} />
+                        </TabsTrigger>
+                        <TabsTrigger value="end" className="w-10 h-10 p-0 data-[state=active]:bg-muted ">
+                            <AlignVerticalJustifyEndIcon size={18} />
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>

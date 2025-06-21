@@ -59,9 +59,12 @@ const NeonGradientCardComponent = ({ element }: Props) => {
   const secondColor = cardProps.secondColor || "#00FFF1";
   const borderSize = cardProps.borderSize || 2;
   const borderRadius = cardProps.borderRadius || 20;
+  const backgroundColor = cardProps.backgroundColor;
+  const titleColor = cardProps.titleColor;
+  const subtitleColor = cardProps.subtitleColor;
 
-  // Separate layout/dimension styles from typography styles
-  const layoutStyles = {
+  // Container styles (outer wrapper)
+  const containerStyles = {
     width: computedStyles.width,
     height: computedStyles.height,
     minWidth: computedStyles.minWidth,
@@ -75,14 +78,38 @@ const NeonGradientCardComponent = ({ element }: Props) => {
     marginLeft: computedStyles.marginLeft,
   };
 
-  const typographyStyles = {
-    fontSize: computedStyles.fontSize,
-    fontWeight: computedStyles.fontWeight,
-    color: computedStyles.color,
+  // Content layout styles (inner content container)
+  const contentLayoutStyles = {
+    display: 'flex',
+    flexDirection: computedStyles.flexDirection || 'column',
+    justifyContent: computedStyles.justifyContent || 'center',
+    alignItems: computedStyles.alignItems || 'center',
+    gap: computedStyles.gap || '8px',
+    padding: computedStyles.padding || '12px',
+    paddingTop: computedStyles.paddingTop,
+    paddingRight: computedStyles.paddingRight,
+    paddingBottom: computedStyles.paddingBottom,
+    paddingLeft: computedStyles.paddingLeft,
+    textAlign: computedStyles.textAlign || 'center',
+    width: '100%',
+    height: '100%',
+  };
+
+  // Typography styles for text elements (without color to let CSS variables work)
+  const titleStyles = {
+    fontSize: computedStyles.fontSize || '14px',
+    fontWeight: computedStyles.fontWeight || 'bold',
     fontFamily: computedStyles.fontFamily,
-    textAlign: computedStyles.textAlign,
-    lineHeight: computedStyles.lineHeight,
+    lineHeight: computedStyles.lineHeight || '1.2',
     letterSpacing: computedStyles.letterSpacing,
+    textAlign: computedStyles.textAlign || 'center',
+    margin: 0,
+  };
+
+  const subtitleStyles = {
+    ...titleStyles,
+    fontSize: computedStyles.fontSize ? `calc(${computedStyles.fontSize} * 0.8)` : '12px',
+    fontWeight: computedStyles.fontWeight || '600',
   };
 
   useEffect(() => {
@@ -92,59 +119,57 @@ const NeonGradientCardComponent = ({ element }: Props) => {
   }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
   const CardContent = () => (
-    <div style={layoutStyles}>
+    <div style={containerStyles}>
       <NeonGradientCard
         borderSize={borderSize}
         borderRadius={borderRadius}
         neonColors={{ firstColor, secondColor }}
-        className={clsx("w-full transition-all duration-300 ease-in-out", {
+        backgroundColor={backgroundColor}
+        titleColor={titleColor}
+        subtitleColor={subtitleColor}
+        className={clsx("w-full h-full transition-all duration-300 ease-in-out", {
           "pointer-events-none": !state.editor.liveMode,
         })}
       >
-        <div 
-          className="flex flex-col items-center justify-center p-1 md:p-3 gap-2"
-          style={{
-            justifyContent: computedStyles.justifyContent,
-            alignItems: computedStyles.alignItems,
-            flexDirection: computedStyles.flexDirection as any,
-            gap: computedStyles.gap,
-            padding: computedStyles.padding,
-            paddingTop: computedStyles.paddingTop,
-            paddingRight: computedStyles.paddingRight,
-            paddingBottom: computedStyles.paddingBottom,
-            paddingLeft: computedStyles.paddingLeft,
-          }}
-        >
+        <div style={contentLayoutStyles as React.CSSProperties}>
           {/* Logo Section */}
-          <div className="flex items-center justify-center w-full">
+          <div className="flex items-center justify-center">
             {cardLogo ? (
               <img 
                 className="max-w-[80%] h-6 object-contain" 
                 alt={cardTitle} 
                 src={cardLogo}
+                style={{ textAlign: 'center' }}
               />
             ) : (
-              <div className="max-w-[80%] h-6 bg-gray-300 dark:bg-gray-600 rounded flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
+              <div 
+                className="max-w-[80%] h-6 bg-gray-300 dark:bg-gray-600 rounded flex items-center justify-center text-xs text-gray-500 dark:text-gray-400"
+                style={{ textAlign: 'center' }}
+              >
                 Logo
               </div>
             )}
           </div>
           
           {/* Text Content */}
-          <div className="relative z-20">
+          <div className="relative z-20 w-full" style={{ textAlign: computedStyles.textAlign || 'center' }}>
             <h3 
-              className="text-xs md:text-sm text-center font-bold text-gray-900 dark:text-gray-100"
-              style={typographyStyles}
+              className="text-xs md:text-sm font-bold text-[var(--title-color)]"
+              style={{
+                ...titleStyles,
+                position: 'relative',
+                zIndex: 30,
+              } as React.CSSProperties}
             >
               {cardTitle}
             </h3>
             <h3 
-              className="text-[10px] md:text-xs text-center font-bold text-gray-600 dark:text-gray-400"
+              className="text-[10px] md:text-xs font-bold text-[var(--subtitle-color)]"
               style={{
-                ...typographyStyles,
-                fontSize: typographyStyles.fontSize ? `calc(${typographyStyles.fontSize} * 0.8)` : undefined,
-                color: typographyStyles.color ? `${typographyStyles.color}80` : undefined,
-              }}
+                ...subtitleStyles,
+                position: 'relative',
+                zIndex: 30,
+              } as React.CSSProperties}
             >
               {cardSubtitle}
             </h3>
@@ -180,7 +205,7 @@ const NeonGradientCardComponent = ({ element }: Props) => {
           href={cardHref} 
           target="_blank" 
           rel="noopener noreferrer"
-          className="flex items-center relative overflow-hidden cursor-pointer rounded-xl"
+          className="flex items-center relative overflow-hidden cursor-pointer rounded-xl w-full h-full"
         >
           <CardContent />
         </a>
