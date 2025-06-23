@@ -261,6 +261,101 @@ export const useEditorUtilities = () => {
           type: "animatedTextButton",
         } as EditorElement;
 
+      case "neonCard":
+        const neonCardId = crypto.randomUUID();
+        const containerElementId = crypto.randomUUID();
+        const imageElementId = crypto.randomUUID();
+        const titleElementId = crypto.randomUUID();
+        const subtitleElementId = crypto.randomUUID();
+        
+        return {
+          ...baseElement,
+          id: neonCardId,
+          name: "Neon Card",
+          content: [
+            // Container wrapper for layout control
+            {
+              id: containerElementId,
+              name: "Card Container",
+              type: "container" as any,
+              styles: {
+                display: "flex",
+                flexDirection: "column" as const,
+                gap: "0px",
+                width: "100%",
+                height: "100%",
+                padding: "0px",
+                ...containerDefaultStyles,
+              } as React.CSSProperties,
+              content: [
+                // Image element (using gif type for image functionality)
+                {
+                  id: imageElementId,
+                  name: "Card Image",
+                  type: "gif" as any,
+                  styles: {
+                    width: "100%",
+                    height: "200px",
+                    objectFit: "cover" as const,
+                    borderRadius: "8px 8px 0 0",
+                    ...defaultStyles,
+                  } as React.CSSProperties,
+                  content: {
+                    src: "/file.svg",
+                    alt: "Card Image",
+                    autoplay: false,
+                    loop: false,
+                    controls: false,
+                  },
+                },
+                // Title text element
+                {
+                  id: titleElementId,
+                  name: "Card Title",
+                  type: "text" as any,
+                  styles: {
+                    fontSize: "24px",
+                    fontWeight: "bold",
+                    color: "#1f2937",
+                    textAlign: "center" as const,
+                    margin: "16px 0 8px 0",
+                    ...textDefaultStyles,
+                  } as React.CSSProperties,
+                  content: {
+                    innerText: "Neon Card Title",
+                  },
+                },
+                // Subtitle text element
+                {
+                  id: subtitleElementId,
+                  name: "Card Subtitle",
+                  type: "text" as any,
+                  styles: {
+                    fontSize: "16px",
+                    fontWeight: "normal",
+                    color: "#6b7280",
+                    textAlign: "center" as const,
+                    margin: "0 0 16px 0",
+                    ...textDefaultStyles,
+                  } as React.CSSProperties,
+                  content: {
+                    innerText: "Amazing neon card subtitle",
+                  },
+                },
+              ],
+            },
+          ],
+          styles: {
+            width: "350px",
+            textAlign: "center" as const,
+            margin: "10px auto",
+            minHeight: "300px",
+            padding: "0px",
+            ...defaultStyles,
+          } as React.CSSProperties,
+          type: "neonCard",
+        };
+
       case "marquee":
         return {
           ...baseElement,

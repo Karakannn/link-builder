@@ -13,6 +13,7 @@ const AnimatedShinyButtonComponent = React.lazy(() => import("./animated-shiny-b
 const NeonGradientButtonComponent = React.lazy(() => import("./neon-gradient-button"));
 const AnimatedBorderButtonComponent = React.lazy(() => import("./animated-border-button"));
 const AnimatedTextButtonComponent = React.lazy(() => import("./animated-text-button"));
+const NeonCardComponent = React.lazy(() => import("./neon-card"));
 
 const MarqueeComponent = React.lazy(() => import("./marquee"));
 const GridLayout = React.lazy(() => import("./grid-layout").then(m => ({ default: m.GridLayoutComponent })));
@@ -97,7 +98,12 @@ const Recursive = ({ element }: Props) => {
           <AnimatedTextButtonComponent element={element} />
         </Suspense>
       );
-
+    case "neonCard":
+      return (
+        <Suspense fallback={null}>
+          <NeonCardComponent element={element} />
+        </Suspense>
+      );
     case "marquee":
       return (
         <Suspense fallback={null}>

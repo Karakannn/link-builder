@@ -43,6 +43,11 @@ export type EditorElement = {
     title?: string;
     subtitle?: string;
     logo?: string;
+    
+    // Neon card properties
+    imageSrc?: string;
+    imageAlt?: string;
+    imageHeight?: number;
 
     // Button common properties
     buttonClass?: string;
@@ -145,6 +150,11 @@ export type EditorElement = {
         template?: string;
         templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
         
+        // Neon card responsive properties
+        imageSrc?: string;
+        imageAlt?: string;
+        imageHeight?: number;
+        
         // GIF responsive properties
         alt?: string;
         autoplay?: boolean;
@@ -199,6 +209,12 @@ export type EditorElement = {
         autoFit?: boolean;
         template?: string;
         templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+        
+        // Neon card responsive properties
+        imageSrc?: string;
+        imageAlt?: string;
+        imageHeight?: number;
+        
         // GIF responsive properties
         alt?: string;
         autoplay?: boolean;

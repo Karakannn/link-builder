@@ -11,6 +11,7 @@ import GifCustomProperties from "./custom-properties/gif-custom";
 import MarqueeCustomProperties from "./custom-properties/marquee-custom";
 import ShimmerButtonCustomProperties from "./custom-properties/shimmer-button-custom";
 import BodyCustomProperties from "./custom-properties/body-custom";
+import NeonCardCustomProperties from "./custom-properties/neon-card-custom";
 
 type CustomElementType =
   | "link"
@@ -19,7 +20,7 @@ type CustomElementType =
   | "animatedBorderButton"
   | "animatedTextButton"
   | "neonGradientButton"
-
+  | "neonCard"
   | "marquee"
   | "gridLayout"
   | "column"
@@ -33,6 +34,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   animatedBorderButton: AnimatedButtonsCustomProperties,
   animatedTextButton: AnimatedButtonsCustomProperties,
   neonGradientButton: AnimatedButtonsCustomProperties,
+  neonCard: NeonCardCustomProperties,
   marquee: MarqueeCustomProperties,
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,

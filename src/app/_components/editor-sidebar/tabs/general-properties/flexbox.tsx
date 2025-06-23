@@ -1,13 +1,9 @@
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Button } from '@/components/ui/button'
-import { ColorPicker, ColorPickerSelection, ColorPickerHue, ColorPickerAlpha, ColorPickerOutput, ColorPickerFormat } from '@/components/ui/color-picker'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useEditorSidebar } from '@/providers/editor/editor-sidebar-provider'
-import { AlignLeft, AlignRight, AlignJustify, AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart } from 'lucide-react'
+import { AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, ArrowRight, ArrowDown } from 'lucide-react'
 import React from 'react'
 
 type Props = {}
@@ -88,10 +84,27 @@ const FlexboxProperties = (props: Props) => {
                     />
                     <Label className="text-muted-foreground">Flex</Label>
                 </div>
-                <div>
-                    <Label className="text-muted-foreground"> Direction</Label>
-                    <Input placeholder="px" id="flexDirection" onChange={handleOnChanges} value={getCurrentStyles().flexDirection} />
-                </div>
+                <Label className="text-muted-foreground">Direction</Label>
+                <Tabs
+                    onValueChange={(e) =>
+                        handleOnChanges({
+                            target: {
+                                id: "flexDirection",
+                                value: e,
+                            },
+                        })
+                    }
+                    value={getCurrentStyles().flexDirection}
+                >
+                    <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
+                        <TabsTrigger value="row" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
+                            <ArrowRight size={18} />
+                        </TabsTrigger>
+                        <TabsTrigger value="column" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
+                            <ArrowDown size={18} />
+                        </TabsTrigger>
+                    </TabsList>
+                </Tabs>
             </AccordionContent>
         </AccordionItem>
     )

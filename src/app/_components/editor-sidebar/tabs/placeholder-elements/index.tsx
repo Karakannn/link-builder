@@ -29,6 +29,9 @@ import ClosableContainerPlaceholder from "./closable-container-placeholder";
 // Marquee component
 import MarqueePlaceholder from "./marquee-placeholder";
 
+// Neon Card component
+import NeonCardPlaceholder from "./neon-card-placeholder";
+
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
@@ -124,7 +127,12 @@ const ComponentsTab = () => {
 
         
          // Card Elements
- 
+         {
+            Component: <NeonCardPlaceholder />,
+            label: "Neon Card",
+            id: "neonCard",
+            category: "cards",
+        },
         
         // Marquee Elements
         {

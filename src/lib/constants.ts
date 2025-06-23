@@ -13,7 +13,7 @@ export type EditorBtns =
   | "shimmerButton"
   | "animatedShinyButton"
   | "neonGradientButton"
-
+  | "neonCard"
   | "animatedBorderButton"
   | "animatedTextButton"
   | "marquee"
@@ -153,4 +153,22 @@ export const closableContainerDefaultStyles: React.CSSProperties = {
   paddingLeft: "20px",
   fontSize: "16px",
   minHeight: "100px",
+};
+
+// Specific default styles for neon card components
+export const neonCardDefaultStyles: React.CSSProperties = {
+  ...defaultStyles,
+  margin: "0px",
+  padding: "0px",
+  marginTop: "0px",
+  marginRight: "0px",
+  marginBottom: "0px",
+  marginLeft: "0px",
+  paddingTop: "0px",
+  paddingRight: "0px",
+  paddingBottom: "0px",
+  paddingLeft: "0px",
+  fontSize: "16px",
+  minHeight: "350px",
+  maxWidth: "400px",
 };
