@@ -17,8 +17,7 @@ import NeonGradientButtonPlaceholder from "./neon-gradient-button-placeholder";
 import AnimatedBorderButtonPlaceholder from "./animated-border-button-placeholder";
 import AnimatedTextButtonPlaceholder from "./animated-text-button-placeholder";
 
-// New card components
-import NeonGradientCardPlaceholder from "./neon-gradient-card-placeholder";
+
 
 // New layout and media components
 import GridLayoutPlaceholder from "./grid-layout-placeholder";
@@ -125,12 +124,7 @@ const ComponentsTab = () => {
 
         
          // Card Elements
-         {
-            Component: <NeonGradientCardPlaceholder />,
-            label: "Neon Card",
-            id: "neonGradientCard",
-            category: "cards",
-        },
+ 
         
         // Marquee Elements
         {

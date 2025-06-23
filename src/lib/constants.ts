@@ -13,7 +13,7 @@ export type EditorBtns =
   | "shimmerButton"
   | "animatedShinyButton"
   | "neonGradientButton"
-  | "neonGradientCard"
+
   | "animatedBorderButton"
   | "animatedTextButton"
   | "marquee"
@@ -21,6 +21,10 @@ export type EditorBtns =
   | "gridLayout"
   | "column"
   | "gif"
+  | "animatedGridPattern"
+  | "interactiveGridPattern"
+  | "retroGrid"
+  | "dotPattern"
   | null;
 
 export const defaultStyles: React.CSSProperties = {
@@ -115,21 +119,7 @@ export const shimmerButtonDefaultStyles: React.CSSProperties = {
   fontSize: "16px",
 };
 
-// Specific default styles for neon gradient card components
-export const neonGradientCardDefaultStyles: React.CSSProperties = {
-  ...defaultStyles,
-  margin: "0px",
-  padding: "24px",
-  marginTop: "0px",
-  marginRight: "0px",
-  marginBottom: "0px",
-  marginLeft: "0px",
-  paddingTop: "24px",
-  paddingRight: "24px",
-  paddingBottom: "24px",
-  paddingLeft: "24px",
-  fontSize: "16px",
-};
+
 
 // Specific default styles for container components
 export const containerDefaultStyles: React.CSSProperties = {

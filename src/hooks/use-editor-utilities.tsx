@@ -4,7 +4,7 @@ import {
   linkDefaultStyles, 
   animatedBorderButtonDefaultStyles,
   shimmerButtonDefaultStyles,
-  neonGradientCardDefaultStyles,
+
   containerDefaultStyles,
   closableContainerDefaultStyles
 } from '@/lib/constants';
@@ -225,28 +225,7 @@ export const useEditorUtilities = () => {
           type: "neonGradientButton",
         } as EditorElement;
 
-      case "neonGradientCard":
-        return {
-          ...baseElement,
-          name: "Neon Gradient Card",
-          content: {
-            title: "LinkBet",
-            subtitle: "999₺ Deneme Bonusu",
-            logo: "",
-            href: "#",
-            firstColor: "#ff00aa",
-            secondColor: "#00FFF1",
-            borderSize: 2,
-            borderRadius: "20",
-          },
-          styles: {
-            width: "200px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            ...neonGradientCardDefaultStyles,
-          } as React.CSSProperties,
-          type: "neonGradientCard",
-        } as EditorElement;
+
 
       case "animatedBorderButton":
         return {

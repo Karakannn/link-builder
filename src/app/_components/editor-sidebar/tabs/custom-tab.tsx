@@ -5,7 +5,7 @@ import { useEditor } from "@/providers/editor/editor-provider";
 
 import LinkCustomProperties from "./custom-properties/link-custom";
 import AnimatedButtonsCustomProperties from "./custom-properties/animated-button-custom";
-import NeonGradientCardCustomProperties from "./custom-properties/neon-gradient-card-custom";
+
 import GridLayoutCustomProperties from "./custom-properties/grid-layout-custom";
 import GifCustomProperties from "./custom-properties/gif-custom";
 import MarqueeCustomProperties from "./custom-properties/marquee-custom";
@@ -19,7 +19,7 @@ type CustomElementType =
   | "animatedBorderButton"
   | "animatedTextButton"
   | "neonGradientButton"
-  | "neonGradientCard"
+
   | "marquee"
   | "gridLayout"
   | "column"
@@ -32,8 +32,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   animatedShinyButton: AnimatedButtonsCustomProperties,
   animatedBorderButton: AnimatedButtonsCustomProperties,
   animatedTextButton: AnimatedButtonsCustomProperties,
-  neonGradientButton: NeonGradientCardCustomProperties,
-  neonGradientCard: NeonGradientCardCustomProperties,
+  neonGradientButton: AnimatedButtonsCustomProperties,
   marquee: MarqueeCustomProperties,
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,
