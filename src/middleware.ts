@@ -12,12 +12,11 @@ const isCustomDomain = (hostname: string): boolean => {
 
     // List of known hosting domains
     const hostingDomains = [
-        appDomain, // Bu en önemli - environment variable'dan gelir
+        appDomain,
         "localhost",
         "localhost:3000",
-        // "localhost:3001", // Bu satırı kaldırdım - artık custom domain olarak algılanacak
         "127.0.0.1",
-        "linkbuilder.com", // Eğer production domain'iniz varsa
+        "linkbuilder.com",
     ];
 
     // Separate check for hosting providers (these should NOT be treated as custom domains)
@@ -25,8 +24,6 @@ const isCustomDomain = (hostname: string): boolean => {
         "vercel.app",
         "vercel.com", 
         "netlify.app"
-        // ngrok.app, ngrok.io, ngrok-free.app deliberately EXCLUDED
-        // so ngrok URLs are treated as custom domains for testing
     ];
 
     console.log("🏠 App domain:", appDomain);
@@ -52,6 +49,11 @@ const isCustomDomain = (hostname: string): boolean => {
 
     // If it's a hosting domain, it's NOT a custom domain
     return !isHostingDomain;
+};
+
+// Helper function to normalize domain (remove www)
+const normalizeDomain = (hostname: string): string => {
+    return hostname.replace(/^www\./, '');
 };
 
 export default clerkMiddleware(async (auth, req: NextRequest) => {
@@ -88,10 +90,22 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
         if (isCustomDomain(realHostname)) {
             console.log("🌐 Custom domain detected:", realHostname);
 
-            // Rewrite to the custom domain route
+            // Normalize domain (remove www for consistent routing)
+            const normalizedDomain = normalizeDomain(realHostname);
+            
+            console.log("🔄 Domain normalization:", {
+                original: realHostname,
+                normalized: normalizedDomain,
+                hasWww: realHostname.startsWith('www.')
+            });
+
+            // Her zaman normalize edilmiş domain ile rewrite yap
+            // Custom domain page'de hem www'li hem www'siz kontrolü yapılacak
             const url = req.nextUrl.clone();
-            url.pathname = `/custom-domain/${realHostname}${pathname === "/" ? "" : pathname}`;
-            // Don't change hostname, keep original request host
+            url.pathname = `/custom-domain/${normalizedDomain}${pathname === "/" ? "" : pathname}`;
+            
+            // Orijinal hostname'i header olarak geç
+            url.searchParams.set('original_host', realHostname);
             
             console.log("🔄 Rewriting to:", url.pathname);
             return NextResponse.rewrite(url);
@@ -130,11 +144,12 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
         // Safe fallback for custom domains
         const hostname = req.nextUrl.hostname;
-        const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-one.vercel.app";
         
         if (isCustomDomain(hostname)) {
             const url = req.nextUrl.clone();
-            url.pathname = `/custom-domain/${hostname}`;
+            const normalizedDomain = normalizeDomain(hostname);
+            url.pathname = `/custom-domain/${normalizedDomain}`;
+            url.searchParams.set('original_host', hostname);
             return NextResponse.rewrite(url);
         }
 
