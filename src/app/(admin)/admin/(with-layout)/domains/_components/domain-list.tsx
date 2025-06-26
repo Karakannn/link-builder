@@ -35,7 +35,7 @@ export function DomainList({ domains, sites }: Props) {
     const [expandedDomain, setExpandedDomain] = useState<string | null>(null);
 
     // Get sites that have homepages
-    const sitesWithHomepage = sites.filter((site) => site.pages && site.pages.length > 0);
+    const sitesWithHomepage = sites.filter((site:any) => site.pages && site.pages.length > 0);
 
     const handleAddDomain = async () => {
         if (!domainName || !selectedSiteId) {

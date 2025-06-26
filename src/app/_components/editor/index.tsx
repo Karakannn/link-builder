@@ -5,8 +5,6 @@ import clsx from "clsx";
 import { EyeOff } from "lucide-react";
 import React, { useEffect } from "react";
 import Recursive from "./_components-editor/recursive";
-import { Pages } from "./dndexamples/Pages";
-import { Layout } from "./dndexamples/Page";
 
 type Props = {
   pageDetails: EditorElement[];

@@ -186,7 +186,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
                 index={index}
                 layout={layout}
               >
-                <Recursive element={childElement} layout={layout} />
+                <Recursive element={childElement} />
               </DropZoneWrapper>
             ))}
           </>
