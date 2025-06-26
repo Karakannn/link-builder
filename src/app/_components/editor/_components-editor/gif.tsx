@@ -19,10 +19,10 @@ const GifComponent = ({ element }: Props) => {
     const { id, name, type, styles, content } = element;
     const [isPlaying, setIsPlaying] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
-    
+
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
-    
+
     // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
 
@@ -80,81 +80,81 @@ const GifComponent = ({ element }: Props) => {
 
     return (
         <ElementContextMenu element={element}>
-        <div
-            ref={draggable.setNodeRef}
-            style={computedStyles}
+            <div
+                ref={draggable.setNodeRef}
+                style={computedStyles}
                 className={clsx("relative transition-all", {
-                "!border-blue-500": state.editor.selectedElement.id === id,
-                "!border-solid": state.editor.selectedElement.id === id,
-                "!border-dashed border border-slate-300": !state.editor.liveMode,
-                "cursor-grab": !state.editor.liveMode,
-                "cursor-grabbing": draggable.isDragging,
-                "opacity-50": draggable.isDragging,
-            })}
-            onClick={handleOnClick}
-            {...(!state.editor.liveMode ? draggable.listeners : {})}
-            {...(!state.editor.liveMode ? draggable.attributes : {})}
-        >
-            {state.editor.selectedElement.id === id && !state.editor.liveMode && (
+                    "!border-blue-500": state.editor.selectedElement.id === id,
+                    "!border-solid": state.editor.selectedElement.id === id,
+                    "!border-dashed border border-slate-300": !state.editor.liveMode,
+                    "cursor-grab": !state.editor.liveMode,
+                    "cursor-grabbing": draggable.isDragging,
+                    "opacity-50": draggable.isDragging,
+                })}
+                onClick={handleOnClick}
+                {...(!state.editor.liveMode ? draggable.listeners : {})}
+                {...(!state.editor.liveMode ? draggable.attributes : {})}
+            >
+                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
                     <BadgeElementName element={element} />
-            )}
+                )}
 
-            <div className="relative inline-block">
-                {src ? (
-                    <img 
-                        ref={imgRef}
-                        src={src}
-                        alt={alt}
-                        className={clsx("max-w-full h-auto rounded", {
-                            "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
-                        })}
-                        style={{
-                            width: computedStyles.width || 'auto',
-                            height: computedStyles.height || 'auto',
-                            maxWidth: '100%',
+                <div className="relative inline-block">
+                    {src ? (
+                        <img
+                            ref={imgRef}
+                            src={src}
+                            alt={alt}
+                            className={clsx("max-w-full h-auto rounded", {
+                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                            })}
+                            style={{
+                                width: computedStyles.width || 'auto',
+                                height: computedStyles.height || 'auto',
+                                maxWidth: '100%',
                                 animationPlayState: isPlaying ? "running" : "paused",
-                        }}
-                        onLoad={() => {
-                            if (!autoplay && imgRef.current) {
-                                // If autoplay is false, pause immediately
-                                setIsPlaying(false);
-                            }
-                        }}
-                    />
-                ) : (
-                    <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                        <div className="text-center text-gray-500">
-                            <div className="text-4xl mb-2">🎬</div>
-                            <div>No GIF source</div>
-                            <div className="text-sm">Add a GIF URL in settings</div>
+                            }}
+                            onLoad={() => {
+                                if (!autoplay && imgRef.current) {
+                                    // If autoplay is false, pause immediately
+                                    setIsPlaying(false);
+                                }
+                            }}
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
+                            <div className="text-center text-gray-500">
+                                <div className="text-4xl mb-2">🎬</div>
+                                <div>No GIF source</div>
+                                <div className="text-sm">Add a GIF URL in settings</div>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
-                {/* Play/Pause controls for edit mode */}
-                {controls && src && !state.editor.liveMode && (
+                    {/* Play/Pause controls for edit mode */}
+                    {controls && src && !state.editor.liveMode && (
                         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity">
-                    <button
-                        onClick={toggleGif}
+                            <button
+                                onClick={toggleGif}
                                 className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
-                    >
+                            >
                                 {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                    </button>
+                            </button>
                         </div>
-                )}
+                    )}
 
-                {/* GIF indicator */}
-                {src && (
-                    <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-                        GIF
-                    </div>
+                    {/* GIF indicator */}
+                    {src && (
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
+                            GIF
+                        </div>
+                    )}
+                </div>
+
+                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
+                    <DeleteElementButton element={element} />
                 )}
             </div>
-
-            {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                    <DeleteElementButton element={element} />
-            )}
-        </div>
         </ElementContextMenu>
     );
 };

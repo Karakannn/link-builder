@@ -22,7 +22,7 @@ const PositionProperties = (props: Props) => {
             </AccordionTrigger>
             <AccordionContent className="px-6">
                 <div className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-2 w-full">
                         <Label className="text-muted-foreground">Position Type</Label>
                         <Select
                             onValueChange={(value) =>
@@ -35,7 +35,7 @@ const PositionProperties = (props: Props) => {
                             }
                             value={getCurrentStyles().position || "static"}
                         >
-                            <SelectTrigger>
+                            <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Select position" />
                             </SelectTrigger>
                             <SelectContent>

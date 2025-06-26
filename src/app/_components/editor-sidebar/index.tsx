@@ -57,7 +57,7 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
 
                             <TabsContent value="Settings">
                                 <SheetHeader className="text-left p-6">
-                                    <SheetTitle>Styles</SheetTitle>
+                                    <SheetTitle>Stiller</SheetTitle>
                                     <SheetDescription>Stiller burada. Tüm komponentlara istediğin stili ekleyeyebilirsin</SheetDescription>
                                 </SheetHeader>
                                 <SettingsTab />

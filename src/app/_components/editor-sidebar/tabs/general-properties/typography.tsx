@@ -7,7 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useEditorSidebar } from '@/providers/editor/editor-sidebar-provider'
-import { AlignLeft, AlignRight, AlignJustify, AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart } from 'lucide-react'
+import { AlignLeft, AlignRight, AlignJustify, AlignCenter, AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart } from 'lucide-react'
 import React from 'react'
 
 type Props = {}
@@ -37,6 +37,9 @@ const TypographyProperties = (props: Props) => {
                         <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
                             <TabsTrigger value="left" className="w-10 h-10 data-[state=action]:bg-muted">
                                 <AlignLeft size={18} />
+                            </TabsTrigger>
+                            <TabsTrigger value="center" className="w-10 h-10 data-[state=action]:bg-muted">
+                                <AlignCenter size={18} />
                             </TabsTrigger>
                             <TabsTrigger value="right" className="w-10 h-10 data-[state=action]:bg-muted">
                                 <AlignRight size={18} />

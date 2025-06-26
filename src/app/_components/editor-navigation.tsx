@@ -8,10 +8,10 @@ import { UserNav } from "@/components/global/user-nav";
 import { DeviceTypes, useEditor } from "@/providers/editor/editor-provider";
 import { useLandingModal } from "@/providers/landing-modal-provider";
 import clsx from "clsx";
-import { ArrowLeftCircle, EyeIcon, Laptop, Redo2, Smartphone, Tablet, Undo2, Square } from "lucide-react";
+import { ArrowLeftCircle, EyeIcon, Laptop, Redo2, Smartphone, Tablet, Undo2, Square, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import React, { FocusEventHandler, useEffect } from "react";
+import React, { FocusEventHandler, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Page, User } from "@prisma/client";
 import { upsertPage } from "@/actions/page";
@@ -26,6 +26,8 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
   const pathname = usePathname();
   const { state, dispatch } = useEditor();
   const { openModal } = useLandingModal();
+  const [lastUpdated, setLastUpdated] = useState<Date>(pageDetails.updatedAt || new Date());
+  const [isSaving, setIsSaving] = useState(false);
 
   // Check if we're on the landing modal page
   const isLandingModalPage = pathname?.includes('landing-modal');
@@ -38,6 +40,24 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
       },
     });
   }, [pageDetails]);
+
+  // Format date for display
+  const formatLastUpdated = (date: Date) => {
+    const now = new Date();
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) {
+      return "Az önce";
+    } else if (diffInMinutes < 60) {
+      return `${diffInMinutes} dakika önce`;
+    } else if (diffInMinutes < 1440) { // 24 hours
+      const hours = Math.floor(diffInMinutes / 60);
+      return `${hours} saat önce`;
+    } else {
+      const days = Math.floor(diffInMinutes / 1440);
+      return `${days} gün önce`;
+    }
+  };
 
   const handleOnBlurTitleChange: FocusEventHandler<HTMLInputElement> = async (event) => {
     if (event.target.value === pageDetails.title) return;
@@ -53,13 +73,13 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
                   funnelId
               ); */
 
-      toast.message("Success", {
-        description: "Funnel page title updated successfully",
+      toast.message("Başarılı", {
+        description: "Sayfa başlığı başarıyla güncellendi",
       });
       router.refresh();
     } else {
-      toast.message("Oppse", {
-        description: "Funnel page title cannot be empty",
+      toast.message("Hata", {
+        description: "Sayfa başlığı boş olamaz",
       });
       event.target.value = pageDetails.title;
     }
@@ -81,6 +101,9 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
     dispatch({ type: "REDO" });
   };
   const handleOnSave = async () => {
+    if (isSaving) return; // Prevent multiple saves
+    
+    setIsSaving(true);
     const content = JSON.stringify(state.editor.elements);
 
     try {
@@ -91,18 +114,23 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
 
       console.log("response", response);
 
+      // Update last updated time
+      setLastUpdated(new Date());
+
       /*      await saveActivityLogsNotification({
                   agencyId: undefined,
                   description: `Updated a funnel page | ${response?.name}`,
                   subAccountId: subaccountId,
               }); */
-      toast("Success", {
-        description: "Page saved successfully",
+      toast("Başarılı", {
+        description: "Sayfa başarıyla kaydedildi",
       });
     } catch (error) {
-      toast("Oppse!", {
-        description: "Could not save editor",
+      toast("Hata!", {
+        description: "Editör kaydedilemedi",
       });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -186,14 +214,18 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
             <Redo2 />
           </Button>
           <div className="flex flex-col item-center mr-4">
-            <div className="flex flex-row items-center gap-4">
-              Draft
-              <Switch disabled defaultChecked={true} />
-              Publish
-            </div>
-            <span className="text-muted-foreground text-sm">Last updated şimdiiii</span>
+            <span className="text-muted-foreground text-sm">Son güncelleme: {formatLastUpdated(lastUpdated)}</span>
           </div>
-          <Button onClick={handleOnSave}>Save</Button>
+          <Button onClick={handleOnSave} disabled={isSaving}>
+            {isSaving ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Kaydediliyor...
+              </>
+            ) : (
+              "Kaydet"
+            )}
+          </Button>
           {isLandingModalPage && (
             <Button 
               variant="outline" 
@@ -201,7 +233,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
               className="ml-2 bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-700"
             >
               <Square className="w-4 h-4 mr-2" />
-              Preview Modal
+              Modal Önizle
             </Button>
           )}
           <div className="ml-2">
