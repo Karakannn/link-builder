@@ -15,11 +15,14 @@ const isCustomDomain = (hostname: string): boolean => {
 
   // List of known hosting domains
   const hostingDomains = [
-    appDomain,
-    "localhost",
-    "127.0.0.1",
-    "vercel.app",
-    "vercel.com"
+      appDomain,
+      "localhost",
+      "localhost:3000",
+      "127.0.0.1",
+      "vercel.app",
+      "vercel.com",
+      "linkbuilder.com",
+      "link-builder-phi.vercel.app",
   ];
   console.log("hostingDomains", hostingDomains);
   
@@ -64,7 +67,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
       
       // Rewrite to the site route with the domain as parameter
       const url = req.nextUrl.clone();
-      url.pathname = `/site/${hostname}${pathname === "/" ? "" : pathname}`;
+      url.pathname = `/custom-domain/${hostname}${pathname === "/" ? "" : pathname}`;
       url.hostname = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-phi.vercel.app";
       
       console.log("Rewriting to:", url.pathname);
@@ -102,7 +105,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     // Safe fallback for custom domains
     if (isCustomDomain(req.nextUrl.hostname)) {
       const url = req.nextUrl.clone();
-      url.pathname = `/site/${req.nextUrl.hostname}`;
+      url.pathname = `/custom-domain/${req.nextUrl.hostname}`;
       url.hostname = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-phi.vercel.app";
       return NextResponse.rewrite(url);
     }

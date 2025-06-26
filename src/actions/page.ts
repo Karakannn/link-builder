@@ -95,27 +95,38 @@ export const createInitialPage = async (user: User) => {
 };
 
 export const getAllSites = async () => {
-  try {
-    const user = await onAuthenticatedUser();
+    try {
+        const user = await onAuthenticatedUser();
 
-    if (!user || !user.id) {
-      return { status: 404, message: "User not found" };
+        if (!user || !user.id) {
+            return { status: 404, message: "User not found" };
+        }
+
+        const sites = await client.site.findMany({
+            where: {
+                userId: user.id,
+            },
+            include: {
+                pages: {
+                    where: {
+                        isHome: true,
+                    },
+                    select: {
+                        id: true,
+                        title: true,
+                    },
+                },
+            },
+        });
+
+        return {
+            status: 200,
+            sites,
+        };
+    } catch (error) {
+        console.error("Error fetching sites:", error);
+        return { status: 400, message: "Failed to fetch sites" };
     }
-
-    const sites = await client.site.findMany({
-      where: {
-        userId: user.id,
-      },
-    });
-
-    return {
-      status: 200,
-      sites,
-    };
-  } catch (error) {
-    console.error("Error fetching sites:", error);
-    return { status: 400, message: "Failed to fetch sites" };
-  }
 };
 
 export const getSitePages = async (siteId: string) => {
