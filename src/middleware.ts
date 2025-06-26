@@ -182,8 +182,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 export const config = {
     matcher: [
         /*
-         * Static dosyaları hariç tut
+         * Static dosyaları tamamen hariç tut - matcher'dan
          */
-        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)).*)",
+        "/((?!api|_next|favicon.ico|.*\\.).*)",
     ],
 };
