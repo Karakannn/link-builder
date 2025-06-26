@@ -7,6 +7,41 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 /**
+ * Parses custom CSS string and converts it to CSS properties object
+ * @param customCSS Custom CSS string
+ * @returns CSS properties object
+ */
+function parseCustomCSS(customCSS: string): any {
+  if (!customCSS || typeof customCSS !== 'string') {
+    return {};
+  }
+
+  const cssProperties: any = {};
+  
+  // CSS string'ini parse et - tüm property'leri kabul et
+  const cssRules = customCSS
+    .split(';')
+    .map(rule => rule.trim())
+    .filter(rule => rule && !rule.startsWith('/*') && !rule.startsWith('//')); // Sadece yorumları filtrele
+  
+  cssRules.forEach(rule => {
+    const colonIndex = rule.indexOf(':');
+    if (colonIndex > 0) {
+      const property = rule.substring(0, colonIndex).trim();
+      const value = rule.substring(colonIndex + 1).trim();
+      
+      if (property && value) {
+        // CSS property name'ini camelCase'e çevir
+        const camelCaseProperty = property.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+        cssProperties[camelCaseProperty] = value;
+      }
+    }
+  });
+
+  return cssProperties;
+}
+
+/**
  * Calculates the final styles based on current device and responsive overrides
  * @param element EditorElement with potential responsive styles
  * @param device Current device (Desktop, Tablet, Mobile)
@@ -18,6 +53,14 @@ export function getElementStyles(element: EditorElement, device: DeviceTypes): R
   
   // If we're on desktop or no responsive styles exist, return base styles
   if (device === "Desktop" || !element.responsiveStyles) {
+    // Apply custom CSS if it exists
+    if ((baseStyles as any).customCSS) {
+      const customCSSProperties = parseCustomCSS((baseStyles as any).customCSS);
+      return {
+        ...baseStyles,
+        ...customCSSProperties,
+      };
+    }
     return baseStyles;
   }
   
@@ -25,10 +68,22 @@ export function getElementStyles(element: EditorElement, device: DeviceTypes): R
   const responsiveOverrides = element.responsiveStyles[device];
   
   // Merge base styles with responsive overrides
-  return {
+  const mergedStyles = {
     ...baseStyles,
     ...responsiveOverrides
   };
+
+  // Apply custom CSS if it exists (responsive styles'da da olabilir)
+  const customCSS = (responsiveOverrides as any)?.customCSS || (baseStyles as any).customCSS;
+  if (customCSS) {
+    const customCSSProperties = parseCustomCSS(customCSS);
+    return {
+      ...mergedStyles,
+      ...customCSSProperties,
+    };
+  }
+
+  return mergedStyles;
 }
 
 /**

@@ -11,6 +11,7 @@ import LayersTab from "./tabs/layers-tab";
 import { SettingsTab } from "./tabs/settings-tab";
 import EditorSidebarProvider from "@/providers/editor/editor-sidebar-provider";
 import { CustomTab } from "./tabs/custom-tab";
+import { CustomCSSTab } from "./tabs/custom-css-tab";
 
 type Props = {
     userId: string;
@@ -48,6 +49,10 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                                     <SheetDescription>Custom Stiller burada. Tüm komponenta istediğin custom stili ekleyeyebilirsin</SheetDescription>
                                 </SheetHeader>
                                 <CustomTab />
+                            </TabsContent>
+
+                            <TabsContent value="CustomCSS">
+                                <CustomCSSTab />
                             </TabsContent>
 
                             <TabsContent value="Settings">
