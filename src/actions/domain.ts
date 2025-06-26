@@ -18,10 +18,10 @@ export const addDomain = async (data: { name: string; siteId: string }) => {
         if (!userData) return { status: 404, message: "User not found" };
 
         // Validate domain format
-        const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?)*$/;
+       /*  const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{1,61}[a-zA-Z0-9])?)*$/;
         if (!domainRegex.test(data.name)) {
             return { status: 400, message: "Invalid domain format" };
-        }
+        } */
 
         // Check if domain already exists
         const existingDomain = await client.domain.findUnique({

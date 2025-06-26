@@ -12,15 +12,21 @@ const isCustomDomain = (hostname: string): boolean => {
 
     // List of known hosting domains
     const hostingDomains = [
-        "link-builder-one.vercel.app", // Ana Vercel URL'iniz
+        appDomain, // Bu en önemli - environment variable'dan gelir
         "localhost",
         "localhost:3000",
+        // "localhost:3001", // Bu satırı kaldırdım - artık custom domain olarak algılanacak
         "127.0.0.1",
-        "vercel.app",
-        "vercel.com",
-        "netlify.app",
         "linkbuilder.com", // Eğer production domain'iniz varsa
-        appDomain,
+    ];
+
+    // Separate check for hosting providers (these should NOT be treated as custom domains)
+    const hostingProviders = [
+        "vercel.app",
+        "vercel.com", 
+        "netlify.app"
+        // ngrok.app, ngrok.io, ngrok-free.app deliberately EXCLUDED
+        // so ngrok URLs are treated as custom domains for testing
     ];
 
     console.log("🏠 App domain:", appDomain);
@@ -28,9 +34,11 @@ const isCustomDomain = (hostname: string): boolean => {
 
     // Exact match check first (most important)
     const isExactHostingDomain = hostingDomains.includes(hostname);
-
-    // Subdomain check
-    const isSubdomainOfHosting = hostingDomains.some((domain) => hostname !== domain && hostname.endsWith(`.${domain}`));
+    
+    // Subdomain check for hosting providers
+    const isSubdomainOfHosting = hostingProviders.some(provider => 
+        hostname.endsWith(`.${provider}`)
+    );
 
     const isHostingDomain = isExactHostingDomain || isSubdomainOfHosting;
 
@@ -39,7 +47,7 @@ const isCustomDomain = (hostname: string): boolean => {
         isExactHostingDomain,
         isSubdomainOfHosting,
         isHostingDomain,
-        isCustomDomain: !isHostingDomain,
+        isCustomDomain: !isHostingDomain
     });
 
     // If it's a hosting domain, it's NOT a custom domain
@@ -49,8 +57,22 @@ const isCustomDomain = (hostname: string): boolean => {
 export default clerkMiddleware(async (auth, req: NextRequest) => {
     try {
         const { hostname, pathname } = req.nextUrl;
+        
+        // Get real hostname from X-Forwarded-Host or Host header (for ngrok)
+        const realHostname = req.headers.get('x-forwarded-host') || 
+                           req.headers.get('host') || 
+                           hostname;
 
-        console.log("🚀 Processing request:", { hostname, pathname });
+        console.log("🚀 Processing request:", { 
+            hostname, 
+            realHostname, 
+            pathname,
+            appDomain: process.env.NEXT_PUBLIC_APP_DOMAIN,
+            headers: {
+                'x-forwarded-host': req.headers.get('x-forwarded-host'),
+                'host': req.headers.get('host')
+            }
+        });
 
         // Skip static files and API routes early
         if (
@@ -62,15 +84,15 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
             return NextResponse.next();
         }
 
-        // Handle custom domains
-        if (isCustomDomain(hostname)) {
-            console.log("🌐 Custom domain detected:", hostname);
+        // Handle custom domains using real hostname
+        if (isCustomDomain(realHostname)) {
+            console.log("🌐 Custom domain detected:", realHostname);
 
             // Rewrite to the custom domain route
             const url = req.nextUrl.clone();
-            url.pathname = `/custom-domain/${hostname}${pathname === "/" ? "" : pathname}`;
-            url.hostname = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-one.vercel.app";
-
+            url.pathname = `/custom-domain/${realHostname}${pathname === "/" ? "" : pathname}`;
+            // Don't change hostname, keep original request host
+            
             console.log("🔄 Rewriting to:", url.pathname);
             return NextResponse.rewrite(url);
         }
@@ -107,10 +129,12 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
         });
 
         // Safe fallback for custom domains
-        if (isCustomDomain(req.nextUrl.hostname)) {
+        const hostname = req.nextUrl.hostname;
+        const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-one.vercel.app";
+        
+        if (isCustomDomain(hostname)) {
             const url = req.nextUrl.clone();
-            url.pathname = `/custom-domain/${req.nextUrl.hostname}`;
-            url.hostname = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-one.vercel.app";
+            url.pathname = `/custom-domain/${hostname}`;
             return NextResponse.rewrite(url);
         }
 
