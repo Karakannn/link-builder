@@ -15,7 +15,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
     const url = req.nextUrl;
     const hostname = req.headers.get("host") || req.nextUrl.hostname;
 
-    console.log("🚀 Processing request:", {
+    // Debug logları - error olarak at ki Vercel'de gözüksün
+    console.error("🚀 MIDDLEWARE:", {
         hostname,
         pathname: url.pathname,
         isCustomDomain: isCustomDomain(hostname),
@@ -23,23 +24,49 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
     // ÖNEMLİ: Static dosyaları custom domain logic'inden muaf tut
     // Bu kontroller matcher'dan önce geldiği için daha güvenli
-    if (url.pathname.startsWith("/_next/") || url.pathname.startsWith("/favicon") || url.pathname.match(/\.(css|js|woff2?|png|jpg|jpeg|gif|svg|ico|webp)$/)) {
-        console.log("📁 Static file request - bypassing custom domain logic");
+    if (
+        url.pathname.startsWith("/_next/") ||
+        url.pathname.startsWith("/favicon") ||
+        url.pathname.includes("static") ||
+        url.pathname.match(/\.(css|js|woff2?|png|jpg|jpeg|gif|svg|ico|webp|ttf|eot)$/)
+    ) {
+        console.error("📁 STATIC FILE:", url.pathname);
         return NextResponse.next();
     }
 
+    // Debug: Tüm istekleri logla
+    console.error("🔍 REQUEST:", {
+        pathname: url.pathname,
+        hostname,
+        search: url.search,
+        isStatic: url.pathname.startsWith("/_next/") || url.pathname.includes("static"),
+    });
+
     // Custom domain kontrolü
     if (isCustomDomain(hostname)) {
-        console.log("🌐 Custom domain detected:", hostname);
+        console.error("🌐 CUSTOM DOMAIN:", hostname);
+
+        // Static dosyaları ana domain'e yönlendir
+        if (
+            url.pathname.startsWith("/_next/") ||
+            url.pathname.startsWith("/favicon") ||
+            url.pathname.includes("static") ||
+            url.pathname.match(/\.(css|js|woff2?|png|jpg|jpeg|gif|svg|ico|webp|ttf|eot)$/)
+        ) {
+            const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-phi.vercel.app";
+            const redirectUrl = `https://${appDomain}${url.pathname}${url.search}`;
+            console.error("🔄 REDIRECTING STATIC:", redirectUrl);
+            return NextResponse.redirect(redirectUrl);
+        }
 
         // Custom domain'de sadece root path'e izin ver
         if (url.pathname !== "/") {
-            console.log("❌ Custom domain - only root path allowed:", url.pathname);
+            console.error("❌ CUSTOM DOMAIN NOT ROOT:", url.pathname);
             return new NextResponse(null, { status: 404 });
         }
 
         // Custom domain homepage'e rewrite et
-        console.log("🔄 Rewriting to:", `/custom-domain/${hostname}`);
+        console.error("🔄 REWRITING TO:", `/custom-domain/${hostname}`);
         return NextResponse.rewrite(new URL(`/custom-domain/${hostname}`, req.url));
     }
 
@@ -72,13 +99,8 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 export const config = {
     matcher: [
         /*
-         * Match all request paths except for the ones starting with:
-         * - api (API routes)
-         * - _next/static (static files)
-         * - _next/image (image optimization files)
-         * - favicon.ico (favicon file)
-         * - public files (public folder)
+         * Match all request paths except static files
          */
-        "/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf)).*)",
+        "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|woff|woff2|ttf|eot)).*)",
     ],
 };
