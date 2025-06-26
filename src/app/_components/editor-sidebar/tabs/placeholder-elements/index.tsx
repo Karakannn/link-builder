@@ -17,11 +17,10 @@ import NeonGradientButtonPlaceholder from "./neon-gradient-button-placeholder";
 import AnimatedBorderButtonPlaceholder from "./animated-border-button-placeholder";
 import AnimatedTextButtonPlaceholder from "./animated-text-button-placeholder";
 
-
-
 // New layout and media components
 import GridLayoutPlaceholder from "./grid-layout-placeholder";
 import GifPlaceholder from "./gif-placeholder";
+import ImagePlaceholder from "./image-placeholder";
 
 // Closable container component
 import ClosableContainerPlaceholder from "./closable-container-placeholder";
@@ -80,6 +79,12 @@ const ComponentsTab = () => {
         },
         
         // Media Elements
+        {
+            Component: <ImagePlaceholder />,
+            label: "Image",
+            id: "image",
+            category: "media",
+        },
         {
             Component: <VideoPlaceholder />,
             label: "Video",

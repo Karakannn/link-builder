@@ -29,7 +29,7 @@ export default async function page({ params }: Props) {
                     <div className="h-full flex justify-center">
                         <FunnelEditor pageDetails={pageContent} />
                     </div>
-                    <FunnelEditorSidebar subaccountId={""} />
+                    <FunnelEditorSidebar userId={user.id} />
                 </div>
                 <DragOverlayWrapper />
             </DndContextProvider>

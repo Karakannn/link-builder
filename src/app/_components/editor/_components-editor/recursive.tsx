@@ -19,6 +19,7 @@ const MarqueeComponent = React.lazy(() => import("./marquee"));
 const GridLayout = React.lazy(() => import("./grid-layout").then(m => ({ default: m.GridLayoutComponent })));
 const Column = React.lazy(() => import("./column").then(m => ({ default: m.ColumnComponent })));
 const GifComponent = React.lazy(() => import("./gif"));
+const ImageComponent = React.lazy(() => import("./image"));
 
 type Props = {
   element: EditorElement;
@@ -126,6 +127,12 @@ const Recursive = ({ element }: Props) => {
       return (
         <Suspense fallback={null}>
           <GifComponent element={element} />
+        </Suspense>
+      );
+    case "image":
+      return (
+        <Suspense fallback={null}>
+          <ImageComponent element={element} />
         </Suspense>
       );
     default:

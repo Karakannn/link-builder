@@ -12,6 +12,7 @@ import MarqueeCustomProperties from "./custom-properties/marquee-custom";
 import ShimmerButtonCustomProperties from "./custom-properties/shimmer-button-custom";
 import BodyCustomProperties from "./custom-properties/body-custom";
 import NeonCardCustomProperties from "./custom-properties/neon-card-custom";
+import ImageCustom from "./custom-properties/image-custom";
 
 type CustomElementType =
   | "link"
@@ -25,6 +26,7 @@ type CustomElementType =
   | "gridLayout"
   | "column"
   | "gif"
+  | "image"
   | "__body";
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
@@ -38,6 +40,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   marquee: MarqueeCustomProperties,
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,
+  image: ImageCustom,
   column: () => <div className="px-6 text-muted-foreground">Column properties managed by Grid Layout</div>,
   __body: BodyCustomProperties,
 };

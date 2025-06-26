@@ -13,10 +13,10 @@ import EditorSidebarProvider from "@/providers/editor/editor-sidebar-provider";
 import { CustomTab } from "./tabs/custom-tab";
 
 type Props = {
-    subaccountId: string;
+    userId: string;
 };
 
-const FunnelEditorSidebar = ({ subaccountId }: Props) => {
+const FunnelEditorSidebar = ({ userId }: Props) => {
     const { state } = useEditor();
 
     return (
@@ -58,7 +58,7 @@ const FunnelEditorSidebar = ({ subaccountId }: Props) => {
                                 <SettingsTab />
                             </TabsContent>
                             <TabsContent value="Media">
-                                <MediaBucketTab subaccountId={subaccountId} />
+                                <MediaBucketTab userId={userId} />
                             </TabsContent>
                             <TabsContent value="Components">
                                 <SheetHeader className="text-left p-6 ">

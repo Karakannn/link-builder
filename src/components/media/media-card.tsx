@@ -6,14 +6,43 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import Image from "next/image";
 import { Copy, MoreHorizontal, Trash } from "lucide-react";
 import { toast } from "sonner";
+import { deleteMedia } from "@/actions/media";
+import { useQueryClient } from "@tanstack/react-query";
 
 type Props = {
     file: any;
+    userId: string;
 };
 
-const MediaCard = ({ file }: Props) => {
+const MediaCard = ({ file, userId }: Props) => {
     const [loading, setLoading] = useState(false);
     const router = useRouter();
+    const queryClient = useQueryClient();
+
+    const handleDelete = async () => {
+        try {
+            setLoading(true);
+            await deleteMedia(file.id);
+            
+            // Invalidate and refetch user media query
+            await queryClient.invalidateQueries({
+                queryKey: ['user-media', userId]
+            });
+            
+            toast.message("Dosya Silindi", {
+                description: "Dosya başarıyla silindi",
+            });
+            
+            router.refresh();
+        } catch (error) {
+            console.error("Error deleting media:", error);
+            toast.error("Hata", {
+                description: "Dosya silinemedi",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <AlertDialog>
@@ -26,27 +55,27 @@ const MediaCard = ({ file }: Props) => {
                     <div className="p-4 relative">
                         <p className="text-muted-foreground">{file.createdAt.toDateString()}</p>
                         <p>{file.name}</p>
-                        <div className="absolute top-4 right-4 p-[1px] cursor-pointer">
+                        <div className="absolute top-4 right-4 p-[1px] ">
                             <DropdownMenuTrigger>
-                                <MoreHorizontal />
+                                <MoreHorizontal className="cursor-pointer" />
                             </DropdownMenuTrigger>
                         </div>
                     </div>
-                    <DropdownMenuContent>
-                        <DropdownMenuLabel>Menu</DropdownMenuLabel>
+                    <DropdownMenuContent className="z-[99]">
+                        <DropdownMenuLabel>Menü</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                             className="flex gap-2"
                             onClick={() => {
                                 navigator.clipboard.writeText(file.link);
-                                toast("Copied To Clipboard");
+                                toast("Panoya Kopyalandı");
                             }}
                         >
-                            <Copy size={15} /> Copy Image Link
+                            <Copy size={15} /> Resim Bağlantısını Kopyala
                         </DropdownMenuItem>
                         <AlertDialogTrigger asChild>
                             <DropdownMenuItem className="flex gap-2">
-                                <Trash size={15} /> Delete File
+                                <Trash size={15} /> Dosyayı Sil
                             </DropdownMenuItem>
                         </AlertDialogTrigger>
                     </DropdownMenuContent>
@@ -54,30 +83,17 @@ const MediaCard = ({ file }: Props) => {
             </DropdownMenu>
             <AlertDialogContent>
                 <AlertDialogHeader>
-                    <AlertDialogTitle className="text-left">Are you absolute sure?</AlertDialogTitle>
-                    <AlertDialogDescription className="text-left">Are you sure you want to delete this file? All subaccount using this file will no longer have access to it!</AlertDialogDescription>
+                    <AlertDialogTitle className="text-left">Emin misiniz?</AlertDialogTitle>
+                    <AlertDialogDescription className="text-left">Bu dosyayı silmek istediğinizden emin misiniz? Bu dosyayı kullanan tüm alt hesaplar artık bu dosyaya erişemeyecek!</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex items-center">
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>İptal</AlertDialogCancel>
                     <AlertDialogAction
                         disabled={loading}
                         className="bg-destructive hover:bg-destructive"
-                        onClick={async () => {
-                            setLoading(true);
-                            /*   const response = await deleteMedia(file.id);
-                              await saveActivityLogsNotification({
-                                  agencyId: undefined,
-                                  description: `Delete a media file | ${file.name}`,
-                                  subAccountId: response.subAccountId,
-                              }); */
-                            toast.message("Deleted File", {
-                                description: "Successfully deleted the file",
-                            });
-                            setLoading(false);
-                            router.refresh();
-                        }}
+                        onClick={handleDelete}
                     >
-                        Delete
+                        Sil
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

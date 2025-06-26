@@ -34,7 +34,11 @@ export default function RootLayout({
         <ReactQueryProvider>
           <ClerkProvider>
             <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
-                <ModalProvider>{children}</ModalProvider>
+              <ModalProvider>
+                <LandingModalProvider>
+                  {children}
+                </LandingModalProvider>
+              </ModalProvider>
             </ThemeProvider>
             <Toaster richColors />
           </ClerkProvider>

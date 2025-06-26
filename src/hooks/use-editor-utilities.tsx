@@ -149,6 +149,27 @@ export const useEditorUtilities = () => {
           type: "gif",
         } as EditorElement;
 
+      case "image":
+        return {
+          ...baseElement,
+          name: "Image",
+          content: {
+            src: "",
+            alt: "Image",
+            objectFit: "cover",
+            borderRadius: "0",
+            shadow: "none",
+            filter: "none",
+            opacity: "1",
+          } as any,
+          styles: { 
+            width: "300px", 
+            height: "auto", 
+            ...defaultStyles 
+          } as React.CSSProperties,
+          type: "image",
+        } as EditorElement;
+
       case "contactForm":
         return {
           ...baseElement,

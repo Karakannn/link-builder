@@ -1,29 +1,29 @@
 "use client";
 import React from "react";
 import { Button } from "../ui/button";
-/* import UploadMediaForm from "../forms/upload-media";
- */import { useModal } from "@/providers/modal-provider";
+import { useModal } from "@/providers/modal-provider";
 import CustomModal from "@/components/global/custom-modal";
+import UploadMediaForm from "../forms/upload-media";
 
 type Props = {
-    subaccountId: string;
+    userId: string;
+    siteId?: string;
 };
 
-const UploadButton = ({ subaccountId }: Props) => {
+const UploadButton = ({ userId, siteId }: Props) => {
     const { setOpen } = useModal();
 
     return (
         <Button
             onClick={() => {
                 setOpen(
-                    <CustomModal title="Upload Media" subheading="Upload a file to your media bucket">
-                        {/* <UploadMediaForm subaccountId={subaccountId}></UploadMediaForm> */}
-                        <>sa</>
+                    <CustomModal title="Medya Yükle" subheading="Medya koleksiyonunuza bir dosya yükleyin">
+                        <UploadMediaForm userId={userId} siteId={siteId}></UploadMediaForm>
                     </CustomModal>
                 );
             }}
         >
-            Upload
+            Yükle
         </Button>
     );
 };
