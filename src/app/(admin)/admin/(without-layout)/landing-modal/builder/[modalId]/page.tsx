@@ -43,19 +43,18 @@ const defaultContent: EditorElement[] = [
 ];
 
 type Props = {
-    params: {
-        modalId: string;
-    };
+    params: Promise<{ modalId: any }>;
 };
 
 export default async function ModalBuilderPage({ params }: Props) {
+    const resolvedParams = await params;
     const user = await getAuthUserDetails();
 
     if (!user) return <>loading...</>;
 
     let modalContent;
     try {
-        modalContent = await getLandingModalContent(params.modalId);
+        modalContent = await getLandingModalContent(resolvedParams.modalId);
     } catch (error) {
         console.error("Error fetching modal content:", error);
         modalContent = null;
@@ -79,17 +78,17 @@ export default async function ModalBuilderPage({ params }: Props) {
     console.log("content", content);
 
     return (
-        <EditorProvider siteId={`modal-${params.modalId}`} pageDetails={content}>
+        <EditorProvider siteId={`modal-${resolvedParams.modalId}`} pageDetails={content}>
             <LandingModalProvider>
                 <DndContextProvider>
                     <div className="flex flex-col h-full">
                         <FunnelEditorNavigation
                             pageDetails={{
-                                id: params.modalId,
+                                id: resolvedParams.modalId,
                                 title: (modalContent as any)?.name || "Modal",
-                                slug: `modal-${params.modalId}`,
+                                slug: `modal-${resolvedParams.modalId}`,
                                 content: JSON.stringify(content),
-                                siteId: `modal-${params.modalId}`,
+                                siteId: `modal-${resolvedParams.modalId}`,
                                 isHome: false,
                                 seo: null,
                                 updatedAt: new Date(),

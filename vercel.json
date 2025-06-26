@@ -85,5 +85,12 @@
       "destination": "https://link-builder-phi.vercel.app/$1",
       "permanent": true
     }
+  ],
+
+  "crons": [
+    {
+      "path": "/api/cron/check-ssl",
+      "schedule": "0 */6 * * *"
+    }
   ]
 }
