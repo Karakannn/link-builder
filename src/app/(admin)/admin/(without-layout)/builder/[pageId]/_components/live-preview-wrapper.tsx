@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import FunnelEditor from "@/app/_components/editor";
 import { useEditor } from "@/providers/editor/editor-provider";
 import { EditorElement } from "@/providers/editor/editor-provider";
-import { X } from "lucide-react";
+import { X, Laptop, Tablet, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { LandingModalTrigger } from "@/app/custom-domain/[domain]/_components/landing-modal-trigger";
 import { getSiteLandingModalSettings } from "@/actions/landing-modal";
+import { ResponsiveDeviceDetector } from "@/components/global/responsive-device-detector";
 
 interface LivePreviewWrapperProps {
     pageContent: EditorElement[];
@@ -27,7 +28,6 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
     } | null>(initialModalSettings || null);
 
     useEffect(() => {
-        console.log('[LivePreviewWrapper] useEffect: liveMode:', state.editor.liveMode, 'previewMode:', state.editor.previewMode, 'state:', state.editor);
         // Live mode'u aktif et
         dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: true } });
         // Preview mode'u aktif et
@@ -52,46 +52,67 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
         }
     }, []); // SADECE ilk renderda çalışacak
 
-    console.log('[LivePreviewWrapper] render: liveMode:', state?.editor?.liveMode, 'previewMode:', state?.editor?.previewMode, 'state:', state?.editor);
-
     const handleClose = () => {
         window.close();
     };
 
     const shouldShowLandingModal = landingModalSettings?.enableLandingModal && landingModalSettings?.selectedModalId;
 
+    // Device icon component
+    const getDeviceIcon = () => {
+        switch (state.editor.device) {
+            case "Mobile":
+                return <Smartphone className="h-4 w-4" />;
+            case "Tablet":
+                return <Tablet className="h-4 w-4" />;
+            default:
+                return <Laptop className="h-4 w-4" />;
+        }
+    };
+
     return (
         <LandingModalProvider isPreview={false}>
-            <div className="w-full h-screen relative">
-                {/* Close button */}
-                <div className="absolute top-4 right-4 z-50">
-                    <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={handleClose}
-                        className="gap-2"
-                    >
-                        <X className="h-4 w-4" />
-                        Kapat
-                    </Button>
-                </div>
+            <ResponsiveDeviceDetector>
+                <div className="w-full h-screen relative">
+                    {/* Header with close button and device indicator */}
+                    <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+                        {/* Device indicator */}
+                        <div className="flex items-center gap-2 px-3 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-border shadow-sm">
+                            {getDeviceIcon()}
+                            <span className="text-sm font-medium text-foreground">
+                                {state.editor.device}
+                            </span>
+                        </div>
+                        
+                        {/* Close button */}
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={handleClose}
+                            className="gap-2"
+                        >
+                            <X className="h-4 w-4" />
+                            Kapat
+                        </Button>
+                    </div>
 
-                {/* Live preview */}
-                <div className="w-full h-full">
-                    <FunnelEditor 
-                        pageDetails={pageContent} 
-                        liveMode={true}
-                    />
-                </div>
+                    {/* Live preview */}
+                    <div className="w-full h-full">
+                        <FunnelEditor 
+                            pageDetails={pageContent} 
+                            liveMode={true}
+                        />
+                    </div>
 
-                {/* Landing modal trigger - sadece gerekirse render et */}
-                {shouldShowLandingModal && (
-                    <LandingModalTrigger 
-                        modalId={landingModalSettings.selectedModalId!}
-                        siteId={siteId}
-                    />
-                )}
-            </div>
+                    {/* Landing modal trigger - sadece gerekirse render et */}
+                    {shouldShowLandingModal && (
+                        <LandingModalTrigger 
+                            modalId={landingModalSettings.selectedModalId!}
+                            siteId={siteId}
+                        />
+                    )}
+                </div>
+            </ResponsiveDeviceDetector>
         </LandingModalProvider>
     );
 } 

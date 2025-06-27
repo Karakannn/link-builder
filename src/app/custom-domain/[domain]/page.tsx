@@ -5,6 +5,7 @@ import { EditorElement } from "@/providers/editor/editor-provider";
 import EditorProvider from "@/providers/editor/editor-provider";
 import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { LandingModalTrigger } from "./_components/landing-modal-trigger";
+import { ResponsiveDeviceDetector } from "@/components/global/responsive-device-detector";
 
 type Props = {
     params: Promise<{ domain: string }>;
@@ -93,19 +94,21 @@ export default async function CustomDomainPage({ params }: Props) {
         return (
             <LandingModalProvider isPreview={false}>
                 <EditorProvider siteId={domain.site.id} pageDetails={pageContent}>
-                    <div className="w-full h-screen">
-                        <FunnelEditor 
-                            pageDetails={pageContent} 
-                            liveMode={true}
-                        />
-                        {/* Landing modal trigger - sadece gerekirse render et */}
-                        {shouldShowLandingModal && (
-                            <LandingModalTrigger 
-                                modalId={siteSettings.selectedModalId!}
-                                siteId={domain.site.id}
+                    <ResponsiveDeviceDetector>
+                        <div className="w-full h-screen">
+                            <FunnelEditor 
+                                pageDetails={pageContent} 
+                                liveMode={true}
                             />
-                        )}
-                    </div>
+                            {/* Landing modal trigger - sadece gerekirse render et */}
+                            {shouldShowLandingModal && (
+                                <LandingModalTrigger 
+                                    modalId={siteSettings.selectedModalId!}
+                                    siteId={domain.site.id}
+                                />
+                            )}
+                        </div>
+                    </ResponsiveDeviceDetector>
                 </EditorProvider>
             </LandingModalProvider>
         );

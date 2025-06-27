@@ -14,6 +14,7 @@ import BadgeElementName from "@/components/global/editor-element/badge-element-n
 import DropZoneWrapper, { Layout, Position } from "./dropzone-wrapper";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
+import { useLayout } from "@/hooks/use-layout";
 
 type Props = {
   element: EditorElement;
@@ -29,6 +30,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
   const [measureRef, containerHeight] = useElementHeight(false);
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { over, active: activeDrag } = useDndContext();
+  const { getLayoutStyles } = useLayout();
 
   const sortable = useSortable({
     id: id,
@@ -100,32 +102,6 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
     setShowSpacingGuides(shouldShowGuides);
   }, [state.editor.selectedElement.id, id, state.editor.liveMode, type]);
 
-  // Layout specific styles
-  const getLayoutStyles = () => {
-    switch (layout) {
-      case Layout.Horizontal:
-        return {
-          display: 'flex',
-          flexDirection: 'row' as const,
-          gap: '1rem',
-          flexWrap: 'wrap' as const,
-        };
-      case Layout.Grid:
-        return {
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-        };
-      case Layout.Vertical:
-      default:
-        return {
-          display: 'flex',
-          flexDirection: 'column' as const,
-          gap: '0.5rem',
-        };
-    }
-  };
-
   if (isActive) {
     return (
       <DragPlaceholder
@@ -141,7 +117,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
         ref={setNodeRef}
         style={{
           ...computedStyles,
-          ...getLayoutStyles(),
+          ...getLayoutStyles(layout),
         }}
         className={clsx("relative transition-all group", {
           "max-w-full w-full": type === "container" || type === "2Col",

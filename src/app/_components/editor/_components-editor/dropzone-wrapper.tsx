@@ -10,7 +10,6 @@ export enum Position {
 export enum Layout {
   Horizontal = 'horizontal',
   Vertical = 'vertical',
-  Grid = 'grid',
 }
 
 type DropZoneWrapperProps = {
@@ -34,7 +33,6 @@ const DropZoneWrapper = ({
 
   const isVertical = layout === Layout.Vertical;
   const isHorizontal = layout === Layout.Horizontal;
-  const isGrid = layout === Layout.Grid;
   const isBefore = insertPosition === Position.Before;
   const isAfter = insertPosition === Position.After;
 
@@ -77,8 +75,6 @@ const DropZoneWrapper = ({
         "w-full": isVertical,
         // Horizontal layout - elements side by side  
         "inline-block": isHorizontal,
-        // Grid layout - flexible grid
-        "": isGrid,
       }
     )}>
       {/* Before Drop Zone */}
@@ -88,7 +84,7 @@ const DropZoneWrapper = ({
           "absolute z-10",
           {
             // Vertical: Top drop zone
-            "-top-2 left-0 right-0 h-4 w-full": isVertical || isGrid,
+            "-top-2 left-0 right-0 h-4 w-full": isVertical,
             // Horizontal: Left drop zone  
             "-left-2 top-0 bottom-0 w-4 h-full": isHorizontal,
           }
@@ -100,14 +96,14 @@ const DropZoneWrapper = ({
               "bg-blue-500 shadow-lg animate-pulse",
               {
                 // Vertical: Horizontal line
-                "w-full h-2": isVertical || isGrid,
+                "w-full h-2": isVertical,
                 // Horizontal: Vertical line
                 "h-full w-2": isHorizontal,
               }
             )}
             style={{
               position: 'absolute',
-              ...(isVertical || isGrid ? {
+              ...(isVertical ? {
                 top: '50%',
                 transform: 'translateY(-50%)'
               } : {
@@ -147,7 +143,7 @@ const DropZoneWrapper = ({
           "absolute z-10",
           {
             // Vertical: Bottom drop zone
-            "-bottom-2 left-0 right-0 h-4 w-full": isVertical || isGrid,
+            "-bottom-2 left-0 right-0 h-4 w-full": isVertical,
             // Horizontal: Right drop zone
             "-right-2 top-0 bottom-0 w-4 h-full": isHorizontal,
           }
@@ -159,14 +155,14 @@ const DropZoneWrapper = ({
               "bg-blue-500 shadow-lg animate-pulse",
               {
                 // Vertical: Horizontal line
-                "w-full h-2": isVertical || isGrid,
+                "w-full h-2": isVertical,
                 // Horizontal: Vertical line  
                 "h-full w-2": isHorizontal,
               }
             )}
             style={{
               position: 'absolute',
-              ...(isVertical || isGrid ? {
+              ...(isVertical ? {
                 bottom: '50%',
                 transform: 'translateY(50%)'
               } : {

@@ -40,7 +40,7 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
     const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
   const finalClassName = cn(
-    "w-full h-full min-h-[50px] transition-all duration-200 ease-in-out relative cursor-pointer hover:ring-1 hover:ring-gray-300",
+    "w-full h-auto min-h-[50px] transition-all duration-200 ease-in-out relative hover:ring-1 hover:ring-gray-300",
     isSelected && !isPreviewMode && "border-2 border-blue-500",
     droppable.isOver && !isPreviewMode && "!border-green-500 !border-2 !bg-green-50/50"
   );
@@ -53,12 +53,9 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
                 data-body-container="true"
       style={{
         ...styles,
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        minHeight: "50px",
         pointerEvents: "auto",
         zIndex: 1,
+        height: "auto",
         ...(isSelected && !isPreviewMode && {
           border: "2px solid #3b82f6",
           boxShadow: "0 0 0 2px rgba(59, 130, 246, 0.2)"

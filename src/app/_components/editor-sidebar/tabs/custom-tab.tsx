@@ -5,7 +5,6 @@ import { useEditor } from "@/providers/editor/editor-provider";
 
 import LinkCustomProperties from "./custom-properties/link-custom";
 import AnimatedButtonsCustomProperties from "./custom-properties/animated-button-custom";
-
 import GridLayoutCustomProperties from "./custom-properties/grid-layout-custom";
 import GifCustomProperties from "./custom-properties/gif-custom";
 import MarqueeCustomProperties from "./custom-properties/marquee-custom";

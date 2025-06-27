@@ -38,12 +38,31 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
     return searchInElements(elements);
   };
 
-  const handleDuplicate = () => {
-    const duplicatedElement = {
+  // Recursive olarak element ve tüm child elementlerinin ID'lerini değiştir
+  const duplicateElementWithNewIds = (element: EditorElement): EditorElement => {
+    const newId = v4();
+    
+    // Eğer content array ise (container ise), child elementleri de duplicate et
+    if (Array.isArray(element.content)) {
+      return {
+        ...element,
+        id: newId,
+        name: `${element.name} Copy`,
+        content: element.content.map(childElement => duplicateElementWithNewIds(childElement))
+      };
+    }
+    
+    // Eğer content array değilse, sadece ID'yi değiştir
+    return {
       ...element,
-      id: v4(),
+      id: newId,
       name: `${element.name} Copy`,
     };
+  };
+
+  const handleDuplicate = () => {
+    // Element'i ve tüm child elementlerini yeni ID'lerle duplicate et
+    const duplicatedElement = duplicateElementWithNewIds(element);
 
     // Element'in parent container'ını ve index'ini bul
     const parentInfo = findParentContainer(element.id, state.editor.elements);
@@ -52,6 +71,7 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
       elementId: element.id,
       elementName: element.name,
       parentInfo,
+      duplicatedElementId: duplicatedElement.id,
       allElements: state.editor.elements
     });
     

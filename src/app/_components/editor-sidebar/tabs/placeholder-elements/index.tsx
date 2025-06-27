@@ -30,6 +30,7 @@ import MarqueePlaceholder from "./marquee-placeholder";
 
 // Neon Card component
 import NeonCardPlaceholder from "./neon-card-placeholder";
+import SponsorNeonCardPlaceholder from "./sponsor-neon-card-placeholder";
 
 const ComponentsTab = () => {
     const elements: {
@@ -136,6 +137,12 @@ const ComponentsTab = () => {
             Component: <NeonCardPlaceholder />,
             label: "Neon Card",
             id: "neonCard",
+            category: "cards",
+        },
+        {
+            Component: <SponsorNeonCardPlaceholder />,
+            label: "Sponsor Neon Card",
+            id: "sponsorNeonCard",
             category: "cards",
         },
         

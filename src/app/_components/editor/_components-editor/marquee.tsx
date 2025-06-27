@@ -9,9 +9,11 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { Layout } from "./dropzone-wrapper";
 
 type Props = {
   element: EditorElement;
+  layout?: Layout;
 };
 
 interface MarqueeItemData {
@@ -22,7 +24,7 @@ interface MarqueeItemData {
   height?: number;
 }
 
-const MarqueeComponent = ({ element }: Props) => {
+const MarqueeComponent = ({ element, layout = Layout.Vertical }: Props) => {
   const { state, dispatch } = useEditor();
   const { id, name, type, styles, content } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);

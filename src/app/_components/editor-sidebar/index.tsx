@@ -37,7 +37,6 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                         hidden: state.editor.previewMode,
                     })}
                     onClick={(e) => {
-                        console.log("🔧 Sidebar main area clicked:", e);
                         e.stopPropagation();
                     }}
                 >

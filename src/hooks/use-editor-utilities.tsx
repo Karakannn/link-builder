@@ -6,7 +6,8 @@ import {
   shimmerButtonDefaultStyles,
 
   containerDefaultStyles,
-  closableContainerDefaultStyles
+  closableContainerDefaultStyles,
+  supportsLayout
 } from '@/lib/constants';
 import { EditorElement, EditorState } from '@/providers/editor/editor-provider';
 import { UniqueIdentifier } from '@dnd-kit/core';
@@ -24,6 +25,9 @@ export const useEditorUtilities = () => {
       styles: { ...defaultStyles } as React.CSSProperties,
     };
 
+    // Add default layout for layout-supported elements
+    const layoutElement = supportsLayout(type as any) ? { layout: "vertical" as const } : {};
+
     switch (type) {
       case "text":
         return {
@@ -37,6 +41,7 @@ export const useEditorUtilities = () => {
       case "container":
         return {
           ...baseElement,
+          ...layoutElement,
           name: "Container",
           content: [],
           type: "container",
@@ -46,6 +51,7 @@ export const useEditorUtilities = () => {
       case "closableContainer":
         return {
           ...baseElement,
+          ...layoutElement,
           name: "Closable Container",
           content: [],
           type: "closableContainer",
@@ -55,6 +61,7 @@ export const useEditorUtilities = () => {
       case "2Col":
         return {
           ...baseElement,
+          ...layoutElement,
           name: "Two Columns",
           content: [
             {
@@ -173,6 +180,7 @@ export const useEditorUtilities = () => {
       case "contactForm":
         return {
           ...baseElement,
+          ...layoutElement,
           name: "Contact Form",
           content: [],
           styles: {} as React.CSSProperties,
@@ -246,8 +254,6 @@ export const useEditorUtilities = () => {
           type: "neonGradientButton",
         } as EditorElement;
 
-
-
       case "animatedBorderButton":
         return {
           ...baseElement,
@@ -291,6 +297,7 @@ export const useEditorUtilities = () => {
         
         return {
           ...baseElement,
+          ...layoutElement,
           id: neonCardId,
           name: "Neon Card",
           content: [
@@ -298,7 +305,8 @@ export const useEditorUtilities = () => {
             {
               id: containerElementId,
               name: "Card Container",
-              type: "container" as any,
+              type: "container",
+              layout: "vertical",
               styles: {
                 display: "flex",
                 flexDirection: "column" as const,
@@ -309,11 +317,10 @@ export const useEditorUtilities = () => {
                 ...containerDefaultStyles,
               } as React.CSSProperties,
               content: [
-                // Image element (using gif type for image functionality)
                 {
                   id: imageElementId,
                   name: "Card Image",
-                  type: "gif" as any,
+                  type: "gif",
                   styles: {
                     width: "100%",
                     height: "200px",
@@ -333,7 +340,7 @@ export const useEditorUtilities = () => {
                 {
                   id: titleElementId,
                   name: "Card Title",
-                  type: "text" as any,
+                  type: "text",
                   styles: {
                     fontSize: "24px",
                     fontWeight: "bold",
@@ -350,36 +357,169 @@ export const useEditorUtilities = () => {
                 {
                   id: subtitleElementId,
                   name: "Card Subtitle",
-                  type: "text" as any,
+                  type: "text",
                   styles: {
                     fontSize: "16px",
-                    fontWeight: "normal",
                     color: "#6b7280",
                     textAlign: "center" as const,
                     margin: "0 0 16px 0",
                     ...textDefaultStyles,
                   } as React.CSSProperties,
                   content: {
-                    innerText: "Amazing neon card subtitle",
+                    innerText: "Card description goes here",
                   },
                 },
               ],
             },
           ],
           styles: {
-            width: "350px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            minHeight: "300px",
-            padding: "0px",
+            width: "300px",
+            height: "auto",
             ...defaultStyles,
           } as React.CSSProperties,
           type: "neonCard",
-        };
+        } as EditorElement;
+
+      case "sponsorNeonCard":
+        const sponsorNeonCardId = crypto.randomUUID();
+        const sponsorContainerElementId = crypto.randomUUID();
+        const logoElementId = crypto.randomUUID();
+        const sponsorTitleElementId = crypto.randomUUID();
+        const sponsorTextElementId = crypto.randomUUID();
+        
+        return {
+          ...baseElement,
+          ...layoutElement,
+          id: sponsorNeonCardId,
+          name: "Sponsor Neon Card",
+          content: [
+            // Main container - exactly matches the example
+            {
+              id: sponsorContainerElementId,
+              name: "Main Container",
+              type: "container",
+              layout: "vertical",
+              styles: {
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center" as const,
+                justifyContent: "center" as const,
+                gap: "8px",
+                width: "100%",
+                height: "100%",
+                padding: "4px 12px",
+                margin: "0px",
+                ...containerDefaultStyles,
+              } as React.CSSProperties,
+              content: [
+                // Logo wrapper - exactly matches the example
+                {
+                  id: crypto.randomUUID(),
+                  name: "Logo Wrapper",
+                  type: "container",
+                  layout: "vertical",
+                  styles: {
+                    display: "flex",
+                    alignItems: "center" as const,
+                    justifyContent: "center" as const,
+                    width: "100%",
+                    margin: "0px",
+                    padding: "0px",
+                    ...containerDefaultStyles,
+                  } as React.CSSProperties,
+                  content: [
+                    // Logo image - exactly matches the example
+                    {
+                      id: logoElementId,
+                      name: "Sponsor Logo",
+                      type: "image",
+                      styles: {
+                        maxWidth: "80%",
+                        height: "24px",
+                        objectFit: "contain" as const,
+                        margin: "0px",
+                        padding: "0px",
+                        ...defaultStyles,
+                      } as React.CSSProperties,
+                      content: {
+                        src: "/file.svg",
+                        alt: "Sponsor Logo",
+                      },
+                    },
+                  ],
+                },
+                // Content wrapper - exactly matches the example
+                {
+                  id: crypto.randomUUID(),
+                  name: "Content Wrapper",
+                  type: "container",
+                  layout: "vertical",
+                  styles: {
+                    position: "relative" as const,
+                    zIndex: "20",
+                    display: "flex",
+                    flexDirection: "column" as const,
+                    alignItems: "center" as const,
+                    gap: "0px",
+                    margin: "0px",
+                    padding: "0px",
+                    ...containerDefaultStyles,
+                  } as React.CSSProperties,
+                  content: [
+                    // Title - exactly matches the example
+                    {
+                      id: sponsorTitleElementId,
+                      name: "Sponsor Title",
+                      type: "text",
+                      styles: {
+                        fontSize: "12px",
+                        fontWeight: "bold",
+                        color: "var(--card-color)",
+                        textAlign: "center" as const,
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1",
+                        ...textDefaultStyles,
+                      } as React.CSSProperties,
+                      content: {
+                        innerText: "Sponsor Title",
+                      },
+                    },
+                    // Text - exactly matches the example
+                    {
+                      id: sponsorTextElementId,
+                      name: "Sponsor Text",
+                      type: "text",
+                      styles: {
+                        fontSize: "10px",
+                        color: "var(--card-color)",
+                        textAlign: "center" as const,
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1",
+                        ...textDefaultStyles,
+                      } as React.CSSProperties,
+                      content: {
+                        innerText: "Sponsored content",
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          styles: {
+            width: "200px",
+            height: "auto",
+            ...defaultStyles,
+          } as React.CSSProperties,
+          type: "sponsorNeonCard",
+        } as EditorElement;
 
       case "marquee":
         return {
           ...baseElement,
+          ...layoutElement,
           name: "Marquee",
           content: {
             direction: "left",
@@ -393,7 +533,7 @@ export const useEditorUtilities = () => {
           },
           styles: {
             width: "100%",
-            height: "80px",
+            height: "60px",
             ...defaultStyles,
           } as React.CSSProperties,
           type: "marquee",

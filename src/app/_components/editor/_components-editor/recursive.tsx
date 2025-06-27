@@ -1,5 +1,7 @@
 import React, { Suspense } from "react";
 import { EditorElement } from "@/providers/editor/editor-provider";
+import { Layout } from "./dropzone-wrapper";
+import { useLayout } from "@/hooks/use-layout";
 
 const TextComponent = React.lazy(() => import("./text"));
 const Container = React.lazy(() => import("./container").then(m => ({ default: m.Container })));
@@ -14,6 +16,7 @@ const NeonGradientButtonComponent = React.lazy(() => import("./neon-gradient-but
 const AnimatedBorderButtonComponent = React.lazy(() => import("./animated-border-button"));
 const AnimatedTextButtonComponent = React.lazy(() => import("./animated-text-button"));
 const NeonCardComponent = React.lazy(() => import("./neon-card"));
+const SponsorNeonCardComponent = React.lazy(() => import("./sponsor-neon-card"));
 
 const MarqueeComponent = React.lazy(() => import("./marquee"));
 const GridLayout = React.lazy(() => import("./grid-layout").then(m => ({ default: m.GridLayoutComponent })));
@@ -26,6 +29,9 @@ type Props = {
 };
 
 const Recursive = ({ element }: Props) => {
+  const { getElementLayout } = useLayout();
+  const layout = getElementLayout(element);
+
   switch (element.type) {
     case "text":
       return (
@@ -36,13 +42,16 @@ const Recursive = ({ element }: Props) => {
     case "container":
       return (
         <Suspense fallback={null}>
-          <Container element={element} />
+          <Container 
+            element={element} 
+            layout={layout}
+          />
         </Suspense>
       );
     case "closableContainer":
       return (
         <Suspense fallback={null}>
-          <ClosableContainer element={element} />
+          <ClosableContainer element={element} layout={layout} />
         </Suspense>
       );
     case "video":
@@ -54,7 +63,7 @@ const Recursive = ({ element }: Props) => {
     case "2Col":
       return (
         <Suspense fallback={null}>
-          <TwoColumns element={element} />
+          <TwoColumns element={element} layout={layout} />
         </Suspense>
       );
     case "__body":
@@ -102,13 +111,19 @@ const Recursive = ({ element }: Props) => {
     case "neonCard":
       return (
         <Suspense fallback={null}>
-          <NeonCardComponent element={element} />
+          <NeonCardComponent element={element} layout={layout} />
+        </Suspense>
+      );
+    case "sponsorNeonCard":
+      return (
+        <Suspense fallback={null}>
+          <SponsorNeonCardComponent element={element} layout={layout} />
         </Suspense>
       );
     case "marquee":
       return (
         <Suspense fallback={null}>
-          <MarqueeComponent element={element} />
+          <MarqueeComponent element={element} layout={layout} />
         </Suspense>
       );
     case "gridLayout":

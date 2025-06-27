@@ -14,6 +14,7 @@ export type EditorBtns =
   | "animatedShinyButton"
   | "neonGradientButton"
   | "neonCard"
+  | "sponsorNeonCard"
   | "animatedBorderButton"
   | "animatedTextButton"
   | "marquee"
@@ -26,6 +27,22 @@ export type EditorBtns =
   | "retroGrid"
   | "dotPattern"
   | null;
+
+// Elements that support layout functionality (horizontal/vertical)
+export const LAYOUT_SUPPORTED_ELEMENTS: EditorBtns[] = [
+  "container",
+  "closableContainer", 
+  "2Col",
+  "neonCard",
+  "sponsorNeonCard",
+  "marquee",
+  "contactForm"
+];
+
+// Helper function to check if an element supports layout
+export const supportsLayout = (elementType: EditorBtns): boolean => {
+  return LAYOUT_SUPPORTED_ELEMENTS.includes(elementType);
+};
 
 export const defaultStyles: React.CSSProperties = {
   backgroundPosition: "center",

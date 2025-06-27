@@ -52,15 +52,20 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
     });
   };
 
+  // Check if we're in live mode (live preview or custom domain)
+  const isLiveMode = state.editor.liveMode || liveMode;
+
   return (
     /*   <><Pages layout={Layout.Horizontal} /></> */
     <div
       data-editor-container="true"
-      className={clsx("use-automation-zoom-in h-[calc(100vh_-_97px)] overflow-hidden mr-[385px] bg-background transition-all rounded-md", {
+      className={clsx("use-automation-zoom-in overflow-hidden overflow-y-auto mr-[385px] bg-background transition-all rounded-md", {
         "!p-0 !mr-0": state.editor.previewMode === true || state.editor.liveMode === true,
-        "!w-[850px]": state.editor.device === "Tablet",
-        "!w-[420px]": state.editor.device === "Mobile",
-        "w-full": state.editor.device === "Desktop",
+        "h-[calc(100vh_-_97px)]": !isLiveMode,
+        // Device-based widths only apply in edit mode, not in live mode
+        "!w-[850px]": !isLiveMode && state.editor.device === "Tablet",
+        "!w-[420px]": !isLiveMode && state.editor.device === "Mobile",
+        "w-full": isLiveMode || state.editor.device === "Desktop",
       })}
       onClick={handleClick}
     >

@@ -16,6 +16,7 @@ export type EditorElement = {
   name: string;
   type: EditorBtns;
   backgroundAnimation?: string;
+  layout?: 'vertical' | 'horizontal';
   content:
   | EditorElement[]
   | {
