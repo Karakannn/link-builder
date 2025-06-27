@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import FunnelEditor from "@/app/_components/editor";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import EditorProvider from "@/providers/editor/editor-provider";
+import { LandingModalProvider } from "@/providers/landing-modal-provider";
+import { LandingModalTrigger } from "./_components/landing-modal-trigger";
 
 type Props = {
     params: Promise<{ domain: string }>;
@@ -41,6 +43,7 @@ export default async function CustomDomainPage({ params }: Props) {
                             },
                             take: 1,
                         },
+                        settings: true, // Site settings'i dahil et
                     },
                 },
             },
@@ -48,6 +51,7 @@ export default async function CustomDomainPage({ params }: Props) {
 
         console.log("🔍 Domain found:", !!domain);
         console.log("🏠 Homepage found:", !!domain?.site?.pages?.[0]);
+        console.log("⚙️ Site settings:", domain?.site?.settings);
 
         if (!domain || !domain.site) {
             console.log("❌ Domain veya site bulunamadı:", domainName);
@@ -73,22 +77,37 @@ export default async function CustomDomainPage({ params }: Props) {
             notFound();
         }
 
+        // Landing modal ayarlarını kontrol et
+        const siteSettings = domain.site.settings;
+        const shouldShowLandingModal = siteSettings?.enableLandingModal && siteSettings?.selectedModalId;
+
         console.log("✅ Rendering custom domain page:", {
             domain: domainName,
             site: domain.site.name,
             page: homepage.title,
-            contentLength: pageContent.length
+            contentLength: pageContent.length,
+            shouldShowLandingModal,
+            selectedModalId: siteSettings?.selectedModalId
         });
 
         return (
-            <EditorProvider siteId={domain.site.id} pageDetails={pageContent}>
-                <div className="w-full h-screen">
-                    <FunnelEditor 
-                        pageDetails={pageContent} 
-                        liveMode={true}
-                    />
-                </div>
-            </EditorProvider>
+            <LandingModalProvider isPreview={false}>
+                <EditorProvider siteId={domain.site.id} pageDetails={pageContent}>
+                    <div className="w-full h-screen">
+                        <FunnelEditor 
+                            pageDetails={pageContent} 
+                            liveMode={true}
+                        />
+                        {/* Landing modal trigger - sadece gerekirse render et */}
+                        {shouldShowLandingModal && (
+                            <LandingModalTrigger 
+                                modalId={siteSettings.selectedModalId!}
+                                siteId={domain.site.id}
+                            />
+                        )}
+                    </div>
+                </EditorProvider>
+            </LandingModalProvider>
         );
 
     } catch (error) {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Globe, Home, Pencil, Plus, Trash2 } from "lucide-react";
+import { Calendar, Globe, Home, Pencil, Plus, Trash2, Eye } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -41,6 +41,11 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLivePreview = () => {
+    // Sayfayı live modda yeni sekmede aç
+    window.open(`/admin/builder/${page.id}?live=true`, '_blank');
   };
 
   return (
@@ -89,6 +94,16 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
           <Button variant="outline" size="sm" className="gap-1" onClick={() => onEdit(page.id)} disabled={isLoading}>
             <Pencil className="h-3.5 w-3.5" />
             Düzenle
+          </Button>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-1" 
+            onClick={handleLivePreview}
+            disabled={isLoading}
+          >
+            <Eye className="h-3.5 w-3.5" />
+            Önizleme
           </Button>
           {!page.isHome && (
             <Button 

@@ -47,7 +47,7 @@ const data = {
     ],
     documents: [
         {
-            name: "Media",
+            name: "Medya",
             url: "/admin/media",
             icon: IconDatabase,
         },

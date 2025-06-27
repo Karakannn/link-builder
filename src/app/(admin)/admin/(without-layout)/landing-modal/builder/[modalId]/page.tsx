@@ -79,27 +79,27 @@ export default async function ModalBuilderPage({ params }: Props) {
 
     return (
         <EditorProvider siteId={`modal-${resolvedParams.modalId}`} pageDetails={content}>
-            <LandingModalProvider>
+            <LandingModalProvider isPreview={true}>
                 <DndContextProvider>
                     <div className="flex flex-col h-full">
                         <FunnelEditorNavigation
                             pageDetails={{
                                 id: resolvedParams.modalId,
-                                title: (modalContent as any)?.name || "Modal",
+                                title: modalContent?.name || "Modal",
                                 slug: `modal-${resolvedParams.modalId}`,
                                 content: JSON.stringify(content),
                                 siteId: `modal-${resolvedParams.modalId}`,
                                 isHome: false,
                                 seo: null,
-                                updatedAt: new Date(),
-                                createdAt: new Date(),
+                                updatedAt: modalContent?.updatedAt || new Date(),
+                                createdAt: modalContent?.createdAt || new Date(),
                             }}
                             user={user}
                         />
                         <div className="mr-[385px]">
                             <ModalEditorWrapper pageDetails={content} />
                         </div>
-                        <FunnelEditorSidebar subaccountId={""} />
+                        <FunnelEditorSidebar userId={user.id} />
                     </div>
                     <DragOverlayWrapper />
                 </DndContextProvider>

@@ -15,6 +15,7 @@ import React, { FocusEventHandler, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Page, User } from "@prisma/client";
 import { upsertPage } from "@/actions/page";
+import { saveLandingModalContent } from "@/actions/landing-modal";
 
 interface Props {
   user: User;
@@ -91,7 +92,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
   };
 
   const handlePreviewModalClick = () => {
-    openModal();
+    openModal(state.editor.elements);
   };
 
   const handleUndo = () => {
@@ -107,27 +108,32 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
     const content = JSON.stringify(state.editor.elements);
 
     try {
-      const response = await upsertPage({
-        ...pageDetails,
-        content: content,
-      });
-
-      console.log("response", response);
+      let response;
+      
+      if (isLandingModalPage) {
+        // For landing modal pages, use saveLandingModalContent
+        const modalId = pageDetails.id;
+        response = await saveLandingModalContent(content, modalId);
+        console.log("Modal save response:", response);
+      } else {
+        // For regular pages, use upsertPage
+        response = await upsertPage({
+          ...pageDetails,
+          content: content,
+        });
+        console.log("Page save response:", response);
+      }
 
       // Update last updated time
       setLastUpdated(new Date());
 
-      /*      await saveActivityLogsNotification({
-                  agencyId: undefined,
-                  description: `Updated a funnel page | ${response?.name}`,
-                  subAccountId: subaccountId,
-              }); */
       toast("Başarılı", {
-        description: "Sayfa başarıyla kaydedildi",
+        description: isLandingModalPage ? "Modal başarıyla kaydedildi" : "Sayfa başarıyla kaydedildi",
       });
     } catch (error) {
+      console.error("Save error:", error);
       toast("Hata!", {
-        description: "Editör kaydedilemedi",
+        description: isLandingModalPage ? "Modal kaydedilemedi" : "Editör kaydedilemedi",
       });
     } finally {
       setIsSaving(false);
@@ -142,7 +148,7 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
         })}
       >
         <aside className="flex items-center gap-4 max-w-[260px] w-[300px]">
-          <Link href={`/admin/sites`}>
+          <Link href={isLandingModalPage ? `/admin/landing-modal` : `/admin/sites`}>
             <ArrowLeftCircle />
           </Link>
           <div className="flex flex-col w-full">

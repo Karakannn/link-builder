@@ -355,4 +355,26 @@ export async function getSiteLandingModalSettings(siteId: string) {
             message: "Site ayarları yüklenirken bir hata oluştu"
         };
     }
+}
+
+// Public action for getting landing modal content (no authentication required)
+export async function getPublicLandingModalContent(modalId: string) {
+    try {
+        if (!modalId) {
+            throw new Error("Modal ID is required");
+        }
+
+        // Get modal content without authentication
+        const landingModal = await client.landingModal.findUnique({
+            where: {
+                id: modalId,
+                isEnabled: true // Only get enabled modals
+            }
+        });
+
+        return landingModal;
+    } catch (error) {
+        console.error("[GET_PUBLIC_LANDING_MODAL]", error);
+        throw error;
+    }
 } 
