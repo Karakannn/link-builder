@@ -2,11 +2,12 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDraggable } from "@dnd-kit/core";
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { Image as ImageIcon, Download } from "lucide-react";
 
 type Props = {
@@ -19,7 +20,7 @@ const ImageComponent = ({ element }: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
-    const imgRef = useRef<HTMLImageElement>(null);
+    const spanRef = useRef<HTMLImageElement>(null);
     
     const computedStyles = getElementStyles(element, state.editor.device);
     const computedContent = getElementContent(element, state.editor.device);
@@ -90,7 +91,7 @@ const ImageComponent = ({ element }: Props) => {
     };
 
     return (
-        <ElementContextMenu element={element}>
+        <EditorElementWrapper element={element}>
             <div
                 ref={draggable.setNodeRef}
                 style={computedStyles}
@@ -198,7 +199,7 @@ const ImageComponent = ({ element }: Props) => {
                     <DeleteElementButton element={element} />
                 )}
             </div>
-        </ElementContextMenu>
+        </EditorElementWrapper>
     );
 };
 

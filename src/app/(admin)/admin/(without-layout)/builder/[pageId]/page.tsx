@@ -7,6 +7,7 @@ import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeh
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
+import { getSiteLandingModalSettings } from "@/actions/landing-modal";
 
 type Props = {
     params: Promise<{ pageId: string }>;
@@ -28,9 +29,27 @@ export default async function page({ params, searchParams }: Props) {
 
     // Live mode ise sadece preview göster
     if (isLiveMode) {
+        // Server-side'da modal ayarlarını al
+        let initialModalSettings = null;
+        try {
+            const modalSettingsResult = await getSiteLandingModalSettings(page.siteId);
+            if (modalSettingsResult.status === 200 && modalSettingsResult.settings) {
+                initialModalSettings = {
+                    enableLandingModal: modalSettingsResult.settings.enableLandingModal,
+                    selectedModalId: modalSettingsResult.settings.selectedModalId
+                };
+            }
+        } catch (error) {
+            console.error("❌ Error loading modal settings server-side:", error);
+        }
+
         return (
             <EditorProvider siteId={page.siteId} pageDetails={pageContent}>
-                <LivePreviewWrapper pageContent={pageContent} siteId={page.siteId} />
+                <LivePreviewWrapper 
+                    pageContent={pageContent} 
+                    siteId={page.siteId}
+                    initialModalSettings={initialModalSettings}
+                />
             </EditorProvider>
         );
     }

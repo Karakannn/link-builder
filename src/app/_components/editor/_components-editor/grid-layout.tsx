@@ -3,7 +3,6 @@ import clsx from "clsx";
 import React, { useState, useEffect } from "react";
 import { ColumnComponent } from "./column";
 import { getElementStyles } from "@/lib/utils";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
@@ -12,6 +11,7 @@ import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 
 type Props = { 
   element: EditorElement;
@@ -79,11 +79,13 @@ export const GridLayoutComponent = ({ element }: Props) => {
   }
 
   return (
-    <ElementContextMenu element={element}>
+    <EditorElementWrapper element={element}>
       <div
         ref={setNodeRef}
         style={finalGridStyles}
-        className={clsx("relative p-6 transition-all group min-h-[200px]", {
+        className={clsx("relative transition-all group", {
+          "max-w-full w-full": true,
+          "h-fit": true,
           "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
@@ -121,6 +123,6 @@ export const GridLayoutComponent = ({ element }: Props) => {
           <SpacingVisualizer styles={computedStyles} />
         )}
       </div>
-    </ElementContextMenu>
+    </EditorElementWrapper>
   );
 };

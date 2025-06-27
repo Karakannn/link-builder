@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
 import { getElementStyles, expandSpacingShorthand } from "@/lib/utils";
 import { useDroppable, useDndContext } from "@dnd-kit/core";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
@@ -14,6 +13,7 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import DropZoneWrapper, { Layout, Position } from "./dropzone-wrapper";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 
 type Props = {
   element: EditorElement;
@@ -136,7 +136,7 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
   }
 
   return (
-    <ElementContextMenu element={element}>
+    <EditorElementWrapper element={element}>
       <div
         ref={setNodeRef}
         style={{
@@ -201,6 +201,6 @@ export const Container = ({ element, layout = Layout.Vertical, insertPosition, a
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
       </div>
-    </ElementContextMenu>
+    </EditorElementWrapper>
   );
 };

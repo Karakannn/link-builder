@@ -21,13 +21,8 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
     // Update modal when modal opens to force re-render
     useEffect(() => {
         if (isOpen) {
-            console.log("Modal opened, enabling live mode...");
-            
             // Enable live mode when modal opens
             dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: true } });
-        } else {
-            // Disable live mode when modal closes
-            dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: false } });
         }
     }, [isOpen, dispatch]);
 

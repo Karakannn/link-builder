@@ -6,7 +6,7 @@ import { useDraggable } from "@dnd-kit/core";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 
 type Props = {
     element: EditorElement;
@@ -74,7 +74,7 @@ const TextComponent = ({ element }: Props) => {
     }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
     return (
-        <ElementContextMenu element={element}>
+        <EditorElementWrapper element={element}>
             <div
                 ref={draggable.setNodeRef}
                 style={computedStyles}
@@ -115,7 +115,7 @@ const TextComponent = ({ element }: Props) => {
                 <BadgeElementName element={element} />
                 <DeleteElementButton element={element} />
             </div>
-        </ElementContextMenu>
+        </EditorElementWrapper>
     );
 };
 

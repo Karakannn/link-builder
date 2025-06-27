@@ -13,39 +13,46 @@ import { getSiteLandingModalSettings } from "@/actions/landing-modal";
 interface LivePreviewWrapperProps {
     pageContent: EditorElement[];
     siteId: string;
+    initialModalSettings?: {
+        enableLandingModal: boolean;
+        selectedModalId: string | null;
+    } | null;
 }
 
-export function LivePreviewWrapper({ pageContent, siteId }: LivePreviewWrapperProps) {
-    const { dispatch } = useEditor();
+export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }: LivePreviewWrapperProps) {
+    const { dispatch, state } = useEditor();
     const [landingModalSettings, setLandingModalSettings] = useState<{
         enableLandingModal: boolean;
         selectedModalId: string | null;
-    } | null>(null);
+    } | null>(initialModalSettings || null);
 
     useEffect(() => {
+        console.log('[LivePreviewWrapper] useEffect: liveMode:', state.editor.liveMode, 'previewMode:', state.editor.previewMode, 'state:', state.editor);
         // Live mode'u aktif et
         dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: true } });
-        
         // Preview mode'u aktif et
         dispatch({ type: "TOGGLE_PREVIEW_MODE" });
-
-        // Site landing modal ayarlarını yükle
-        const loadLandingModalSettings = async () => {
-            try {
-                const result = await getSiteLandingModalSettings(siteId);
-                if (result.status === 200 && result.settings) {
-                    setLandingModalSettings({
-                        enableLandingModal: result.settings.enableLandingModal,
-                        selectedModalId: result.settings.selectedModalId
-                    });
+        
+        // Eğer initialModalSettings yoksa, client-side'da yükle
+        if (!initialModalSettings) {
+            const loadLandingModalSettings = async () => {
+                try {
+                    const result = await getSiteLandingModalSettings(siteId);
+                    if (result.status === 200 && result.settings) {
+                        setLandingModalSettings({
+                            enableLandingModal: result.settings.enableLandingModal,
+                            selectedModalId: result.settings.selectedModalId
+                        });
+                    }
+                } catch (error) {
+                    console.error("❌ Error loading landing modal settings:", error);
                 }
-            } catch (error) {
-                console.error("❌ Error loading landing modal settings:", error);
-            }
-        };
+            };
+            loadLandingModalSettings();
+        }
+    }, []); // SADECE ilk renderda çalışacak
 
-        loadLandingModalSettings();
-    }, [dispatch, siteId]);
+    console.log('[LivePreviewWrapper] render: liveMode:', state?.editor?.liveMode, 'previewMode:', state?.editor?.previewMode, 'state:', state?.editor);
 
     const handleClose = () => {
         window.close();

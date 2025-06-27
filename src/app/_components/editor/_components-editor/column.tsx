@@ -1,10 +1,9 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
 import { getElementStyles } from "@/lib/utils";
 import { CSS } from '@dnd-kit/utilities';
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
@@ -12,6 +11,7 @@ import { GripVertical } from "lucide-react";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useDroppable, useDndContext } from "@dnd-kit/core";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 
 type Props = {
   element: EditorElement;
@@ -102,17 +102,24 @@ export const ColumnComponent = ({
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
   return (
-    <ElementContextMenu element={element}>
+    <EditorElementWrapper element={element}>
       <div
         ref={sortable.setNodeRef}
         style={columnStyles}
-        className={clsx("relative p-6 transition-all group", {
+        className={clsx("relative transition-all group", {
+          "max-w-full w-full": true,
+          "h-fit": true,
           "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
           "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
           "!border-green-500 !border-2 !bg-green-50/50": shouldShowDropHere,
+          "cursor-grab": !state.editor.liveMode,
+          "cursor-grabbing": sortable.isDragging,
+          "opacity-50": sortable.isDragging,
         })}
         onClick={handleSelectElement}
+        {...(!state.editor.liveMode ? sortable.listeners : {})}
+        {...(!state.editor.liveMode ? sortable.attributes : {})}
       >
         {/* Drag Handle - Only this area is draggable */}
         {!state.editor.liveMode && (
@@ -170,6 +177,6 @@ export const ColumnComponent = ({
           <SpacingVisualizer styles={computedStyles} />
         )}
       </div>
-    </ElementContextMenu>
+    </EditorElementWrapper>
   );
 };

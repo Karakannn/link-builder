@@ -2,13 +2,13 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
-import { Play, Pause } from "lucide-react";
+import { Play, Pause, Image as ImageIcon, Download } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { useDraggable } from "@dnd-kit/core";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 
 type Props = {
     element: EditorElement;
@@ -19,6 +19,9 @@ const GifComponent = ({ element }: Props) => {
     const { id, name, type, styles, content } = element;
     const [isPlaying, setIsPlaying] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
+    const [showOverlay, setShowOverlay] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
 
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -78,8 +81,36 @@ const GifComponent = ({ element }: Props) => {
     const loop = gifProps.loop !== false; // Default true
     const controls = gifProps.controls || false;
 
+    const handleImageLoad = () => {
+        if (!autoplay && imgRef.current) {
+            // If autoplay is false, pause immediately
+            setIsPlaying(false);
+        }
+        setIsLoading(false);
+        setHasError(false);
+    };
+
+    const handleImageError = () => {
+        setIsLoading(false);
+        setHasError(true);
+    };
+
+    const getShadowClass = () => {
+        // Implement the logic to determine the shadow class based on the element's styles
+        return "";
+    };
+
+    const getFilterClass = () => {
+        // Implement the logic to determine the filter class based on the element's styles
+        return "";
+    };
+
+    const objectFit = styles?.objectFit || "cover";
+    const borderRadius = styles?.borderRadius || 0;
+    const opacity = styles?.opacity || 1;
+
     return (
-        <ElementContextMenu element={element}>
+        <EditorElementWrapper element={element}>
             <div
                 ref={draggable.setNodeRef}
                 style={computedStyles}
@@ -99,54 +130,86 @@ const GifComponent = ({ element }: Props) => {
                     <BadgeElementName element={element} />
                 )}
 
-                <div className="relative inline-block">
+                <div 
+                    className="relative inline-block"
+                    onMouseEnter={() => setShowOverlay(true)}
+                    onMouseLeave={() => setShowOverlay(false)}
+                >
                     {src ? (
-                        <img
-                            ref={imgRef}
-                            src={src}
-                            alt={alt}
-                            className={clsx("max-w-full h-auto rounded", {
-                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
-                            })}
-                            style={{
-                                width: computedStyles.width || 'auto',
-                                height: computedStyles.height || 'auto',
-                                maxWidth: '100%',
-                                animationPlayState: isPlaying ? "running" : "paused",
-                            }}
-                            onLoad={() => {
-                                if (!autoplay && imgRef.current) {
-                                    // If autoplay is false, pause immediately
-                                    setIsPlaying(false);
-                                }
-                            }}
-                        />
+                        <div className="relative">
+                            <img 
+                                ref={imgRef}
+                                src={src}
+                                alt={alt}
+                                className={clsx(
+                                    "max-w-full h-auto transition-all duration-300",
+                                    getShadowClass(),
+                                    getFilterClass(),
+                                    {
+                                        "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                                    }
+                                )}
+                                style={{
+                                    width: computedStyles.width || 'auto',
+                                    height: computedStyles.height || 'auto',
+                                    maxWidth: '100%',
+                                    objectFit: objectFit as any,
+                                    borderRadius: `${borderRadius}px`,
+                                    opacity: opacity,
+                                }}
+                                onLoad={handleImageLoad}
+                                onError={handleImageError}
+                            />
+
+                            {isLoading && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                </div>
+                            )}
+
+                            {hasError && (
+                                <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
+                                    <div className="text-center text-gray-500">
+                                        <ImageIcon className="mx-auto h-12 w-12 mb-2" />
+                                        <div>GIF yuklenemedi</div>
+                                        <div className="text-sm">Gecerli bir GIF URL'si ekleyin</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {showOverlay && !state.editor.liveMode && src && !hasError && (
+                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 rounded">
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                const downloadLink = document.createElement('a');
+                                                downloadLink.href = src;
+                                                downloadLink.download = alt || 'gif';
+                                                downloadLink.click();
+                                            }}
+                                            className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+                                            title="Indir"
+                                        >
+                                            <Download size={16} />
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {src && !hasError && (
+                                <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
+                                    GIF
+                                </div>
+                            )}
+                        </div>
                     ) : (
                         <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
                             <div className="text-center text-gray-500">
-                                <div className="text-4xl mb-2">🎬</div>
-                                <div>No GIF source</div>
-                                <div className="text-sm">Add a GIF URL in settings</div>
+                                <ImageIcon className="mx-auto h-12 w-12 mb-2" />
+                                <div>GIF kaynagi yok</div>
+                                <div className="text-sm">Ayarlardan bir GIF URL'si ekleyin</div>
                             </div>
-                        </div>
-                    )}
-
-                    {/* Play/Pause controls for edit mode */}
-                    {controls && src && !state.editor.liveMode && (
-                        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 hover:opacity-100 transition-opacity">
-                            <button
-                                onClick={toggleGif}
-                                className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
-                            >
-                                {isPlaying ? <Pause size={20} /> : <Play size={20} />}
-                            </button>
-                        </div>
-                    )}
-
-                    {/* GIF indicator */}
-                    {src && (
-                        <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-                            GIF
                         </div>
                     )}
                 </div>
@@ -155,7 +218,7 @@ const GifComponent = ({ element }: Props) => {
                     <DeleteElementButton element={element} />
                 )}
             </div>
-        </ElementContextMenu>
+        </EditorElementWrapper>
     );
 };
 
