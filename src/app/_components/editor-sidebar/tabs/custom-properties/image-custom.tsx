@@ -3,10 +3,24 @@ import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import React from "react";
 
 const ImageCustom = () => {
     const { handleChangeCustomValues, getCurrentContent } = useEditorSidebar();
+
+    const currentContent = getCurrentContent();
+    const maxWidth = currentContent.maxWidth || "80%";
+    const height = currentContent.height || "24px";
+
+    const handleSliderChange = (property: string, value: number[]) => {
+        handleChangeCustomValues({
+            target: {
+                id: property,
+                value: value[0],
+            },
+        } as any);
+    };
 
     return (
         <div className="space-y-4">
@@ -17,7 +31,7 @@ const ImageCustom = () => {
                     id="src"
                     placeholder="https://example.com/image.jpg"
                     onChange={handleChangeCustomValues}
-                    value={getCurrentContent().src || ""}
+                    value={currentContent.src || ""}
                 />
             </div>
 
@@ -26,9 +40,31 @@ const ImageCustom = () => {
                 <Label htmlFor="alt">Alt Metni</Label>
                 <Input
                     id="alt"
-                    placeholder="Resim açıklaması"
+                    placeholder="Sponsor Logo"
                     onChange={handleChangeCustomValues}
-                    value={getCurrentContent().alt || ""}
+                    value={currentContent.alt || ""}
+                />
+            </div>
+
+            {/* Max Width */}
+            <div className="space-y-2">
+                <Label htmlFor="maxWidth">Maksimum Genişlik</Label>
+                <Input
+                    id="maxWidth"
+                    placeholder="80%"
+                    onChange={handleChangeCustomValues}
+                    value={maxWidth}
+                />
+            </div>
+
+            {/* Height */}
+            <div className="space-y-2">
+                <Label htmlFor="height">Yükseklik</Label>
+                <Input
+                    id="height"
+                    placeholder="24px"
+                    onChange={handleChangeCustomValues}
+                    value={height}
                 />
             </div>
 
@@ -39,19 +75,44 @@ const ImageCustom = () => {
                     onValueChange={(value) => handleChangeCustomValues({
                         target: { id: "objectFit", value }
                     } as any)}
-                    value={getCurrentContent().objectFit || "cover"}
+                    value={currentContent.objectFit || "contain"}
                 >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Resim sığdırma seçin" />
                     </SelectTrigger>
                     <SelectContent>
+                        <SelectItem value="contain">İçer (Önerilen)</SelectItem>
                         <SelectItem value="cover">Kapsa</SelectItem>
-                        <SelectItem value="contain">İçer</SelectItem>
                         <SelectItem value="fill">Doldur</SelectItem>
                         <SelectItem value="none">Yok</SelectItem>
                         <SelectItem value="scale-down">Küçült</SelectItem>
                     </SelectContent>
                 </Select>
+            </div>
+
+            {/* Border Radius */}
+            <div className="space-y-2">
+                <Label className="text-muted-foreground">
+                    Border Radius: {currentContent.borderRadius || 0}px
+                </Label>
+                <Slider
+                    value={[currentContent.borderRadius || 0]}
+                    onValueChange={(value) => handleSliderChange("borderRadius", value)}
+                    max={50}
+                    min={0}
+                    step={1}
+                    className="w-full"
+                />
+                <Input
+                    id="borderRadius"
+                    type="number"
+                    min="0"
+                    max="50"
+                    value={currentContent.borderRadius || 0}
+                    onChange={handleChangeCustomValues}
+                    placeholder="0"
+                    className="text-xs"
+                />
             </div>
 
             {/* Filter */}
@@ -61,7 +122,7 @@ const ImageCustom = () => {
                     onValueChange={(value) => handleChangeCustomValues({
                         target: { id: "filter", value }
                     } as any)}
-                    value={getCurrentContent().filter || "none"}
+                    value={currentContent.filter || "none"}
                 >
                     <SelectTrigger className="w-full">
                         <SelectValue placeholder="Filtre seçin" />

@@ -9,7 +9,7 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { Image as ImageIcon, Download } from "lucide-react";
+import { Image as ImageIcon, Upload } from "lucide-react";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
@@ -21,12 +21,14 @@ const ImageComponent = ({ element }: Props) => {
     const { id } = element;
     const [isLoading, setIsLoading] = useState(true);
     const [hasError, setHasError] = useState(false);
-    const [showOverlay, setShowOverlay] = useState(false);
     const imgRef = useRef<HTMLImageElement>(null);
     const { handleSelectElement } = useElementSelection(element);
-    
+
     const computedStyles = getElementStyles(element, state.editor.device);
     const computedContent = getElementContent(element, state.editor.device);
+
+    // Placeholder image data URL (a simple gray placeholder)
+    const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%239ca3af'%3EPlaceholder Image%3C/text%3E%3C/svg%3E";
 
     const sortable = useSortable({
         id: id,
@@ -42,8 +44,10 @@ const ImageComponent = ({ element }: Props) => {
 
     const imageProps = !Array.isArray(computedContent) ? computedContent : {};
     const src = imageProps.src || '';
-    const alt = imageProps.alt || 'Image';
-    const objectFit = imageProps.objectFit || 'cover';
+    const alt = imageProps.alt || 'Sponsor Logo';
+    const objectFit = imageProps.objectFit || 'contain';
+    const maxWidth = imageProps.maxWidth || '80%';
+    const height = imageProps.height || '24px';
     const borderRadius = imageProps.borderRadius || 0;
     const shadow = imageProps.shadow || 'none';
     const filter = imageProps.filter || 'none';
@@ -107,89 +111,84 @@ const ImageComponent = ({ element }: Props) => {
                     <BadgeElementName element={element} />
                 )}
 
-                <div 
-                    className="relative inline-block"
-                    onMouseEnter={() => setShowOverlay(true)}
-                    onMouseLeave={() => setShowOverlay(false)}
-                >
-                    {src ? (
-                        <div className="relative">
-                            <img 
-                                ref={imgRef}
-                                src={src}
-                                alt={alt}
-                                className={clsx(
-                                    "max-w-full h-auto transition-all duration-300",
-                                    getShadowClass(),
-                                    getFilterClass(),
-                                    {
-                                        "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
-                                    }
-                                )}
-                                style={{
-                                    width: computedStyles.width || 'auto',
-                                    height: computedStyles.height || 'auto',
-                                    maxWidth: '100%',
-                                    objectFit: objectFit as any,
-                                    borderRadius: `${borderRadius}px`,
-                                    opacity: opacity,
-                                }}
-                                onLoad={handleImageLoad}
-                                onError={handleImageError}
-                            />
-
-                            {isLoading && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                </div>
+                {src ? (
+                    <>
+                        <img
+                            ref={imgRef}
+                            src={src}
+                            alt={alt}
+                            className={clsx(
+                                "max-w-full h-auto transition-all duration-300",
+                                getShadowClass(),
+                                getFilterClass(),
+                                {
+                                    "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                                }
                             )}
+                            style={{
+                                width: computedStyles.width || 'auto',
+                                height: height,
+                                maxWidth: maxWidth,
+                                objectFit: objectFit as any,
+                                borderRadius: `${borderRadius}px`,
+                                opacity: opacity,
+                            }}
+                            onLoad={handleImageLoad}
+                            onError={handleImageError}
+                        />
 
-                            {hasError && (
-                                <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                                    <div className="text-center text-gray-500">
-                                        <ImageIcon className="mx-auto h-12 w-12 mb-2" />
-                                        <div>Resim yuklenemedi</div>
-                                        <div className="text-sm">Gecerli bir resim URL'si ekleyin</div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {showOverlay && !state.editor.liveMode && src && !hasError && (
-                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 rounded">
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                const downloadLink = document.createElement('a');
-                                                downloadLink.href = src;
-                                                downloadLink.download = alt || 'image';
-                                                downloadLink.click();
-                                            }}
-                                            className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
-                                            title="Indir"
-                                        >
-                                            <Download size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-
-                            {src && !hasError && (
-                                <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-                                    RESIM
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                            <div className="text-center text-gray-500">
-                                <ImageIcon className="mx-auto h-12 w-12 mb-2" />
-                                <div>Resim kaynagi yok</div>
-                                <div className="text-sm">Ayarlardan bir resim URL'si ekleyin</div>
+                        {isLoading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                             </div>
-                        </div>
-                    )}
-                </div>
+                        )}
+
+                        {hasError && (
+                            <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
+                                <div className="text-center text-gray-500">
+                                    <ImageIcon className="mx-auto h-12 w-12 mb-2" />
+                                    <div>Resim yuklenemedi</div>
+                                    <div className="text-sm">Gecerli bir resim URL'si ekleyin</div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <>
+                        {/* Placeholder Image */}
+                        <img
+                            src={placeholderImage}
+                            alt="Placeholder"
+                            className={clsx(
+                                "max-w-full h-auto transition-all duration-300",
+                                getShadowClass(),
+                                getFilterClass(),
+                                {
+                                    "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                                }
+                            )}
+                            style={{
+                                width: computedStyles.width || 'auto',
+                                height: height,
+                                maxWidth: maxWidth,
+                                objectFit: objectFit as any,
+                                borderRadius: `${borderRadius}px`,
+                                opacity: opacity,
+                            }}
+                        />
+
+                        {/* Placeholder Overlay */}
+                        {!state.editor.liveMode && (
+                            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center rounded">
+                                <div className="text-center text-white bg-black bg-opacity-50 px-4 py-2 rounded-lg">
+                                    <Upload className="mx-auto h-6 w-6 mb-1" />
+                                    <div className="text-sm font-medium">Resim Ekle</div>
+                                    <div className="text-xs opacity-75">Ayarlardan resim URL'si ekleyin</div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                )}
 
                 {state.editor.selectedElement.id === id && !state.editor.liveMode && (
                     <DeleteElementButton element={element} />

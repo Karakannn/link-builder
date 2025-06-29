@@ -1,5 +1,5 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { getElementStyles } from "@/lib/utils";
+import { getElementStyles, getElementContent } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
@@ -21,6 +21,9 @@ const TextComponent = ({ element }: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { handleSelectElement } = useElementSelection(element);
+    
+    // Get computed content based on current device
+    const computedContent = getElementContent(element, state.editor.device);
     
     // dnd-kit sortable
     const sortable = useSortable({
@@ -50,6 +53,7 @@ const TextComponent = ({ element }: Props) => {
                     elementDetails: {
                         ...element,
                         content: {
+                            ...computedContent,
                             innerText: spanRef.current.innerText,
                         },
                     },
@@ -59,16 +63,24 @@ const TextComponent = ({ element }: Props) => {
     };
 
     useEffect(() => {
-        if (spanRef.current && !Array.isArray(content)) {
-            spanRef.current.innerText = content.innerText as string;
+        if (spanRef.current && !Array.isArray(computedContent)) {
+            spanRef.current.innerText = computedContent.innerText as string;
         }
-    }, [content]);
+    }, [computedContent]);
 
     useEffect(() => {
         setShowSpacingGuides(
             state.editor.selectedElement.id === id && !state.editor.liveMode
         );
     }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+
+    // Extract text properties from content
+    const textProps = !Array.isArray(computedContent) ? computedContent : {};
+    const innerText = textProps.innerText || "Sponsor Title";
+    const fontSize = textProps.fontSize || "12px";
+    const fontWeight = textProps.fontWeight || "bold";
+    const color = textProps.color || "var(--card-color)";
+    const textAlign = textProps.textAlign || "center";
 
     return (
         <EditorElementWrapper element={element}>
@@ -97,9 +109,18 @@ const TextComponent = ({ element }: Props) => {
                     suppressHydrationWarning={true} 
                     contentEditable={!state.editor.liveMode} 
                     onBlur={handleBlurElement}
-                    className={clsx({
+                    className={clsx("title", {
                         "select-none": state.editor.selectedElement.id !== id,
                     })}
+                    style={{
+                        fontSize,
+                        fontWeight,
+                        color,
+                        textAlign: textAlign as any,
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1",
+                    }}
                     onClick={(e) => {
                         if (!state.editor.liveMode) {
                             e.stopPropagation();

@@ -1,7 +1,7 @@
-import { 
-  defaultStyles, 
-  textDefaultStyles, 
-  linkDefaultStyles, 
+import {
+  defaultStyles,
+  textDefaultStyles,
+  linkDefaultStyles,
   containerDefaultStyles,
   closableContainerDefaultStyles,
   supportsLayout
@@ -30,9 +30,24 @@ export const useEditorUtilities = () => {
         return {
           ...baseElement,
           name: "Text",
-          content: { innerText: "Text Element" },
+          content: {
+            innerText: "Sponsor Title",
+            fontSize: "12px",
+            fontWeight: "bold",
+            color: "var(--card-color)",
+            textAlign: "center",
+          },
           type: "text",
-          styles: { ...textDefaultStyles } as React.CSSProperties,
+          styles: {
+            ...textDefaultStyles,
+            fontSize: "12px",
+            fontWeight: "bold",
+            color: "var(--card-color)",
+            textAlign: "center",
+            margin: "0px",
+            padding: "0px",
+            lineHeight: "1",
+          } as React.CSSProperties,
         } as EditorElement;
 
       case "container":
@@ -159,17 +174,22 @@ export const useEditorUtilities = () => {
           name: "Image",
           content: {
             src: "",
-            alt: "Image",
-            objectFit: "cover",
-            borderRadius: "0",
-            shadow: "none",
-            filter: "none",
-            opacity: "1",
+            alt: "Sponsor Logo",
+            objectFit: "contain",
+            maxWidth: "80%",
+            height: "24px",
           } as any,
-          styles: { 
-            width: "300px", 
-            height: "auto", 
-            ...defaultStyles 
+          styles: {
+            maxWidth: "80%",
+            height: "24px",
+            objectFit: "contain",
+            margin: "0px",
+            padding: "0px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            width: "100%",
+            ...defaultStyles
           } as React.CSSProperties,
           type: "image",
         } as EditorElement;
@@ -189,7 +209,7 @@ export const useEditorUtilities = () => {
         const logoElementId = crypto.randomUUID();
         const sponsorTitleElementId = crypto.randomUUID();
         const sponsorTextElementId = crypto.randomUUID();
-        
+
         return {
           ...baseElement,
           ...layoutElement,
@@ -218,44 +238,36 @@ export const useEditorUtilities = () => {
                 height: "100%",
                 padding: "4px 12px",
                 margin: "0px",
-                ...containerDefaultStyles,
+                fontSize: "16px",
+                minHeight: "100px",
               } as React.CSSProperties,
               content: [
-                // Logo wrapper - exactly matches the example
+                // Logo image - exactly matches the example
+
                 {
-                  id: crypto.randomUUID(),
-                  name: "Logo Wrapper",
-                  type: "container",
-                  layout: "vertical",
+                  id: logoElementId,
+                  name: "Sponsor",
+                  type: "image",
                   styles: {
-                    display: "flex",
-                    alignItems: "center" as const,
-                    justifyContent: "center" as const,
-                    width: "100%",
+                    maxWidth: "80%",
+                    height: "24px",
+                    objectFit: "contain" as const,
                     margin: "0px",
                     padding: "0px",
-                    ...containerDefaultStyles,
+                    backgroundPosition: "center",
+                    backgroundRepeat: "no-repeat",
+                    opacity: "100%",
+                    position: "relative",
+                    width: "100%",
+                    fontSize: "16px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   } as React.CSSProperties,
-                  content: [
-                    // Logo image - exactly matches the example
-                    {
-                      id: logoElementId,
-                      name: "Sponsor Logo",
-                      type: "image",
-                      styles: {
-                        maxWidth: "80%",
-                        height: "24px",
-                        objectFit: "contain" as const,
-                        margin: "0px",
-                        padding: "0px",
-                        ...defaultStyles,
-                      } as React.CSSProperties,
-                      content: {
-                        src: "/file.svg",
-                        alt: "Sponsor Logo",
-                      },
-                    },
-                  ],
+                  content: {
+                    src: "/file.svg",
+                    alt: "Sponsor Logo",
+                  },
                 },
                 // Content wrapper - exactly matches the example
                 {
@@ -272,7 +284,7 @@ export const useEditorUtilities = () => {
                     gap: "0px",
                     margin: "0px",
                     padding: "0px",
-                    ...containerDefaultStyles,
+                    fontSize: "16px",
                   } as React.CSSProperties,
                   content: [
                     // Title - exactly matches the example
@@ -288,7 +300,11 @@ export const useEditorUtilities = () => {
                         margin: "0px",
                         padding: "0px",
                         lineHeight: "1",
-                        ...textDefaultStyles,
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative",
+                        width: "100%",
                       } as React.CSSProperties,
                       content: {
                         innerText: "Sponsor Title",
@@ -306,7 +322,11 @@ export const useEditorUtilities = () => {
                         margin: "0px",
                         padding: "0px",
                         lineHeight: "1",
-                        ...textDefaultStyles,
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative",
+                        width: "100%",
                       } as React.CSSProperties,
                       content: {
                         innerText: "Sponsored content",
