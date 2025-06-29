@@ -18,6 +18,12 @@ export type EditorElement = {
   type: EditorBtns;
   backgroundAnimation?: string;
   layout?: 'vertical' | 'horizontal';
+  customProperties?: {
+    borderSize?: number;
+    borderRadius?: number;
+    neonColor?: string;
+    animationDelay?: number;
+  };
   content:
   | EditorElement[]
   | {
@@ -102,6 +108,10 @@ export type EditorElement = {
     loop?: boolean;
     controls?: boolean;
     loading?: "lazy" | "eager";
+
+    // Sponsor Neon Card properties
+    neonColor?: string;
+    animationDelay?: number;
 
     responsiveContent?: {
       Tablet?: {

@@ -13,7 +13,7 @@ import ImageCustom from "./custom-properties/image-custom";
 
 type CustomElementType =
   | "link"
-  | "neonCard"
+  | "sponsorNeonCard"
   | "marquee"
   | "gridLayout"
   | "column"
@@ -23,7 +23,7 @@ type CustomElementType =
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
   link: LinkCustomProperties,
-  neonCard: NeonCardCustomProperties,
+  sponsorNeonCard: NeonCardCustomProperties,
   marquee: MarqueeCustomProperties,
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,

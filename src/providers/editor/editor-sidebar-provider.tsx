@@ -52,7 +52,17 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
 
   // Function to get the current content based on active device
   const getCurrentContent = () => {
-    return getElementContent(state.editor.selectedElement, activeDevice);
+    const elementContent = getElementContent(state.editor.selectedElement, activeDevice);
+    
+    // If the element has customProperties, merge them with the content
+    if (state.editor.selectedElement.customProperties) {
+      return {
+        ...elementContent,
+        customProperties: state.editor.selectedElement.customProperties,
+      };
+    }
+    
+    return elementContent;
   };
 
   const handleColorChange = (property: string, value: any) => {
@@ -82,6 +92,25 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
   const handleChangeCustomValues: ChangeEventHandler<HTMLInputElement> = (e) => {
     const settingProperty = e.target.id;
     let value = e.target.value;
+
+    // Check if this is a customProperties update
+    if (settingProperty.startsWith('customProperties.')) {
+      const propertyName = settingProperty.replace('customProperties.', '');
+      
+      dispatch({
+        type: "UPDATE_ELEMENT",
+        payload: {
+          elementDetails: {
+            ...state.editor.selectedElement,
+            customProperties: {
+              ...state.editor.selectedElement.customProperties,
+              [propertyName]: value,
+            },
+          },
+        },
+      });
+      return;
+    }
 
     if (activeDevice === "Desktop") {
       // Update base content values for Desktop

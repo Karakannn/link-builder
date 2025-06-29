@@ -1,70 +1,20 @@
-"use client"
-
-import { cn } from "@/lib/utils"
-import type { CSSProperties, ReactElement, ReactNode } from "react"
-import { useEffect, useRef, useState } from "react"
+import React from 'react';
+import { cn } from '@/lib/utils';
 
 interface SponsorNeonCardProps {
-  /**
-   * @default <div />
-   * @type ReactElement
-   * @description
-   * The component to be rendered as the card
-   */
-  as?: ReactElement
-  
-  /**
-   * @default ""
-   * @type string
-   * @description
-   * The className of the card
-   */
-  className?: string
-
-  /**
-   * @default ""
-   * @type ReactNode
-   * @description
-   * The children of the card
-   */
-  children?: ReactNode
-
-  /**
-   * @default 2
-   * @type number
-   * @description
-   * The size of the border in pixels
-   */
-  borderSize?: number
-
-  /**
-   * @default 12
-   * @type number
-   * @description
-   * The size of the radius in pixels
-   */
-  borderRadius?: number
-
-  /**
-   * @default "#ff00aa"
-   * @type string
-   * @description
-   * The color of the neon effect
-   */
-  neonColor?: string
-
-  /**
-   * @default 0
-   * @type number
-   * @description
-   * Animation delay in seconds
-   */
-  animationDelay?: number
-
-  [key: string]: any
+  children?: React.ReactNode;
+  className?: string;
+  borderSize?: number;
+  borderRadius?: number;
+  neonColor?: string;
+  animationDelay?: number;
 }
 
+// Helper function to convert hex to RGB
 const hexToRgb = (hex: string) => {
+  if (typeof hex !== 'string') {
+    return '255, 0, 170'; // Default pink color
+  }
   hex = hex.replace('#', '');
   const r = parseInt(hex.substring(0, 2), 16);
   const g = parseInt(hex.substring(2, 4), 16);
@@ -72,68 +22,67 @@ const hexToRgb = (hex: string) => {
   return `${r}, ${g}, ${b}`;
 };
 
-const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
-  className,
+export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
   children,
+  className = '',
   borderSize = 2,
   borderRadius = 12,
-  neonColor = "#ff00aa",
+  neonColor = '#ff00aa',
   animationDelay = 0,
-  ...props
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [dimensions, setDimensions] = useState({ width: 0, height: 0 })
-
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        const { offsetWidth, offsetHeight } = containerRef.current
-        setDimensions({ width: offsetWidth, height: offsetHeight })
-      }
-    }
-
-    updateDimensions()
-    window.addEventListener("resize", updateDimensions)
-
-    return () => {
-      window.removeEventListener("resize", updateDimensions)
-    }
-  }, [])
-
-  useEffect(() => {
-    if (containerRef.current) {
-      const { offsetWidth, offsetHeight } = containerRef.current
-      setDimensions({ width: offsetWidth, height: offsetHeight })
-    }
-  }, [children])
-
-  const cardColorRgb = hexToRgb(neonColor)
+  const rgbColor = hexToRgb(neonColor);
 
   return (
     <div
-      ref={containerRef}
-      style={
-        {
-          "--card-color": neonColor,
-          "--card-color-rgb": cardColorRgb,
-          "--border-size": `${borderSize}px`,
-          "--border-radius": `${borderRadius}px`,
-          "--animation-delay": `${animationDelay}s`,
-          "--card-width": `${dimensions.width}px`,
-          "--card-height": `${dimensions.height}px`,
-        } as CSSProperties
-      }
       className={cn(
-        "sponsor-neon-card relative overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
-        "flex items-center justify-center text-white border-2",
-        "rounded-xl h-full w-full",
-        className,
+        "relative flex items-center justify-center text-white overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
+        className
       )}
-      {...props}
+      style={{
+        border: `${borderSize}px solid ${neonColor}`,
+        borderRadius: `${borderRadius}px`,
+        boxShadow: `inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45)`,
+        background: 'rgba(28, 28, 28, 0.75)',
+        backdropFilter: 'blur(1px)',
+        height: '100%',
+        animation: `blink 8s infinite alternate, cardShadow 3.5s infinite`,
+        animationDelay: `${animationDelay}s`,
+        // CSS custom properties for animations
+        '--card-color': neonColor,
+        '--card-color-rgb': rgbColor,
+      } as React.CSSProperties}
     >
+      {/* Keyframes styles */}
+      <style jsx>{`
+        @keyframes cardShadow {
+          70% {
+            box-shadow: inset 0px 0px 7px 2px rgba(${rgbColor}, 0.35), 0px 0px 10px 3px rgba(${rgbColor}, 0.45);
+          }
+          71% {
+            box-shadow: inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45);
+          }
+        }
+        
+        @keyframes blink {
+          40% {
+            opacity: 1;
+          }
+          42% {
+            opacity: 0.8;
+          }
+          43% {
+            opacity: 1;
+          }
+          45% {
+            opacity: 0.2;
+          }
+          46% {
+            opacity: 1;
+          }
+        }
+      `}</style>
+      
       {children}
     </div>
-  )
-}
-
-export { SponsorNeonCard } 
+  );
+};

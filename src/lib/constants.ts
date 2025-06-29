@@ -9,7 +9,6 @@ export type EditorBtns =
   | "video"
   | "__body"
   | "image"
-  | "neonCard"
   | "sponsorNeonCard"
   | "marquee"
   | "3Col"
@@ -27,7 +26,6 @@ export const LAYOUT_SUPPORTED_ELEMENTS: EditorBtns[] = [
   "container",
   "closableContainer", 
   "2Col",
-  "neonCard",
   "sponsorNeonCard",
   "marquee"
 ];
@@ -131,8 +129,8 @@ export const closableContainerDefaultStyles: React.CSSProperties = {
   minHeight: "100px",
 };
 
-// Specific default styles for neon card components
-export const neonCardDefaultStyles: React.CSSProperties = {
+// Specific default styles for sponsor neon card components
+export const sponsorNeonCardDefaultStyles: React.CSSProperties = {
   ...defaultStyles,
   margin: "0px",
   padding: "0px",

@@ -50,11 +50,12 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   // Get computed content based on current device
   const computedContent = getElementContent(element, state.editor.device)
 
-  // Extract sponsor neon card properties from content (using defaults if not defined)
-  const borderSize = computedContent.borderSize || 2;
-  const borderRadius = computedContent.borderRadius || 12;
-  const neonColor = computedContent.neonColor || "#ff00aa";
-  const animationDelay = computedContent.animationDelay || 0;
+  // Extract sponsor neon card properties from customProperties (using defaults if not defined)
+  const customProps = element.customProperties || {};
+  const borderSize = customProps.borderSize || 2;
+  const borderRadius = customProps.borderRadius || 12;
+  const neonColor = customProps.neonColor || "#ff00aa";
+  const animationDelay = customProps.animationDelay || 0;
 
   useEffect(() => {
     setShowSpacingGuides(

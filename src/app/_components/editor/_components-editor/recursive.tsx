@@ -9,7 +9,6 @@ const VideoComponent = React.lazy(() => import("./video"));
 const TwoColumns = React.lazy(() => import("./container").then(m => ({ default: m.Container })));
 const Body = React.lazy(() => import("./body").then(m => ({ default: m.BodyContainer })));
 const LinkComponent = React.lazy(() => import("./link"));
-const NeonCardComponent = React.lazy(() => import("./neon-card"));
 const SponsorNeonCardComponent = React.lazy(() => import("./sponsor-neon-card"));
 
 const MarqueeComponent = React.lazy(() => import("./marquee"));
@@ -73,12 +72,6 @@ const Recursive = ({ element, containerId, index = 0, layout }: Props) => {
       return (
         <Suspense fallback={null}>
           <LinkComponent element={element} />
-        </Suspense>
-      );
-    case "neonCard":
-      return (
-        <Suspense fallback={null}>
-          <NeonCardComponent element={element} layout={elementLayout} />
         </Suspense>
       );
     case "sponsorNeonCard":
