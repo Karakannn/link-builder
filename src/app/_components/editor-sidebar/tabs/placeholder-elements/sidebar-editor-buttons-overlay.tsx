@@ -85,66 +85,10 @@ const SidebarEditorButtonOverlay = ({ type }: Props) => {
         </div>
       );
 
-    case "contactForm":
-      return (
-        <div className={baseClasses}>
-          <Contact2Icon size={40} className="text-muted-foreground" />
-        </div>
-      );
-
-    case "shimmerButton":
-      return (
-        <div className={baseClasses}>
-          <SparklesIcon size={40} className="text-muted-foreground" />
-        </div>
-      );
-
     case "link":
       return (
         <div className={baseClasses}>
           <Link2Icon size={40} className="text-muted-foreground" />
-        </div>
-      );
-
-    // New Button Types
-    case "animatedShinyButton":
-      return (
-        <div className={`${baseClasses} bg-gradient-to-r from-gray-800 to-gray-600 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 translate-x-[-100%] animate-pulse" />
-          <Sparkles size={40} className="text-white relative z-10" />
-        </div>
-      );
-
-    case "neonGradientButton":
-      return (
-        <div 
-          className={baseClasses}
-          style={{
-            background: "linear-gradient(45deg, #ff00aa, #00FFF1)",
-            boxShadow: "0 0 20px rgba(255, 0, 170, 0.5)",
-          }}
-        >
-          <div className="absolute inset-[2px] bg-gray-900 rounded-lg" />
-          <Zap size={40} className="text-cyan-400 relative z-10" />
-        </div>
-      );
-
-
-
-    case "animatedBorderButton":
-      return (
-        <div className={`${baseClasses} p-[2px] bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500`}>
-          <div className="bg-gray-900 rounded-lg w-full h-full flex items-center justify-center">
-            <Square size={40} className="text-purple-400" />
-          </div>
-        </div>
-      );
-
-    case "animatedTextButton":
-      return (
-        <div className={`${baseClasses} bg-gray-800 relative overflow-hidden`}>
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gray-300 to-transparent opacity-20 -translate-x-full animate-pulse" />
-          <Type size={40} className="text-gray-300 relative z-10" />
         </div>
       );
 
@@ -164,68 +108,6 @@ const SidebarEditorButtonOverlay = ({ type }: Props) => {
             </div>
           </div>
           <Grid3X3 size={40} className="text-muted-foreground relative z-10" />
-        </div>
-      );
-
-    case "interactiveGridPattern":
-      return (
-        <div className={`${baseClasses} bg-muted relative overflow-hidden`}>
-          <div className="absolute inset-0 p-1">
-            <div className="grid grid-cols-4 grid-rows-4 h-full w-full gap-[1px]">
-              {Array.from({ length: 16 }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className="bg-muted-foreground/20 hover:bg-muted-foreground/60 transition-all duration-200"
-                />
-              ))}
-            </div>
-          </div>
-          <MousePointer size={40} className="text-muted-foreground relative z-10" />
-        </div>
-      );
-
-    case "retroGrid":
-      return (
-        <div 
-          className={`${baseClasses} bg-gradient-to-b from-purple-900 to-pink-900 relative overflow-hidden`}
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(139, 69, 19, 0.3) 1px, transparent 1px),
-              linear-gradient(to bottom, rgba(139, 69, 19, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '8px 8px',
-            transform: 'perspective(100px) rotateX(20deg)',
-          }}
-        >
-          <Layers size={32} className="text-orange-300 relative z-10" />
-        </div>
-      );
-
-    case "dotPattern":
-      return (
-        <div 
-          className={`${baseClasses} bg-muted relative overflow-hidden`}
-          style={{
-            backgroundImage: `radial-gradient(circle, rgba(156, 163, 175, 0.4) 1px, transparent 1px)`,
-            backgroundSize: '6px 6px',
-            backgroundPosition: '0 0, 3px 3px',
-          }}
-        >
-          <MoreHorizontal size={40} className="text-muted-foreground relative z-10" />
-        </div>
-      );
-
-    case "marquee":
-      return (
-        <div className={`${baseClasses} bg-muted relative overflow-hidden`}>
-          <div className="absolute inset-0 flex items-center">
-            <div className="flex space-x-2">
-              <ArrowRight size={16} className="text-muted-foreground opacity-60" />
-              <ArrowRight size={16} className="text-muted-foreground opacity-80" />
-              <ArrowRight size={16} className="text-muted-foreground" />
-            </div>
-          </div>
-          <div className="absolute top-1 right-1 w-2 h-2 bg-green-500 rounded-full animate-pulse" />
         </div>
       );
 

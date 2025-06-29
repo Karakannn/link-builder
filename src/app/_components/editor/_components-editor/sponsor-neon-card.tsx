@@ -5,7 +5,6 @@ import { CSS } from "@dnd-kit/utilities"
 import { useState, useEffect } from "react"
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider"
 import { getElementStyles, getElementContent } from "@/lib/utils"
-import DropZoneWrapper, { Layout } from "./dropzone-wrapper"
 import Recursive from "./recursive"
 import ElementContextMenu from "@/providers/editor/editor-contex-menu"
 import BadgeElementName from "@/components/global/editor-element/badge-element-name"
@@ -14,17 +13,19 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer"
 import { SponsorNeonCard } from "@/components/ui/sponsor-neon-card"
 import clsx from "clsx"
 import { useLayout } from "@/hooks/use-layout"
+import { useElementSelection } from "@/hooks/editor/use-element-selection"
 
 interface Props {
   element: EditorElement
-  layout?: Layout
+  layout?: 'vertical' | 'horizontal'
 }
 
-const SponsorNeonCardComponent = ({ element, layout = Layout.Vertical }: Props) => {
+const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const { state, dispatch } = useEditor()
   const { id, styles, content, type } = element
   const [showSpacingGuides, setShowSpacingGuides] = useState(false)
   const { getLayoutStyles } = useLayout()
+  const { handleSelectElement } = useElementSelection(element)
 
   const sortable = useSortable({
     id: id,
@@ -49,24 +50,11 @@ const SponsorNeonCardComponent = ({ element, layout = Layout.Vertical }: Props) 
   // Get computed content based on current device
   const computedContent = getElementContent(element, state.editor.device)
 
-  const handleOnClickBody = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!state.editor.liveMode && !sortable.isDragging) {
-      dispatch({
-        type: "CHANGE_CLICKED_ELEMENT",
-        payload: {
-          elementDetails: element,
-        },
-      })
-    }
-  }
-
-  // Extract card specific props from content with defaults
-  const cardProps = !Array.isArray(computedContent) ? computedContent : {}
-  const neonColor = cardProps.neonColor || "#ff00aa"
-  const borderSize = cardProps.borderSize || 2
-  const borderRadius = cardProps.borderRadius || 12
-  const animationDelay = cardProps.animationDelay || 0
+  // Extract sponsor neon card properties from content (using defaults if not defined)
+  const borderSize = computedContent.borderSize || 2;
+  const borderRadius = computedContent.borderRadius || 12;
+  const neonColor = computedContent.neonColor || "#ff00aa";
+  const animationDelay = computedContent.animationDelay || 0;
 
   useEffect(() => {
     setShowSpacingGuides(
@@ -93,7 +81,8 @@ const SponsorNeonCardComponent = ({ element, layout = Layout.Vertical }: Props) 
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
-        onClick={handleOnClickBody}
+        onClick={handleSelectElement}
+        data-element-id={id}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
       >
@@ -112,15 +101,13 @@ const SponsorNeonCardComponent = ({ element, layout = Layout.Vertical }: Props) 
           {Array.isArray(content) && content.length > 0 && (
             <div style={getLayoutStyles(layout)}>
               {content.map((childElement, index) => (
-                <DropZoneWrapper
-                  key={childElement.id}
-                  elementId={childElement.id}
+                <Recursive 
+                  key={childElement.id} 
+                  element={childElement} 
                   containerId={id}
                   index={index}
                   layout={layout}
-                >
-                  <Recursive element={childElement} />
-                </DropZoneWrapper>
+                />
               ))}
             </div>
           )}

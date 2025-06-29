@@ -2,9 +2,6 @@ import {
   defaultStyles, 
   textDefaultStyles, 
   linkDefaultStyles, 
-  animatedBorderButtonDefaultStyles,
-  shimmerButtonDefaultStyles,
-
   containerDefaultStyles,
   closableContainerDefaultStyles,
   supportsLayout
@@ -177,16 +174,6 @@ export const useEditorUtilities = () => {
           type: "image",
         } as EditorElement;
 
-      case "contactForm":
-        return {
-          ...baseElement,
-          ...layoutElement,
-          name: "Contact Form",
-          content: [],
-          styles: {} as React.CSSProperties,
-          type: "contactForm",
-        } as EditorElement;
-
       case "link":
         return {
           ...baseElement,
@@ -194,98 +181,6 @@ export const useEditorUtilities = () => {
           content: { href: "#", innerText: "Link Element" },
           type: "link",
           styles: { ...linkDefaultStyles } as React.CSSProperties,
-        } as EditorElement;
-
-      case "shimmerButton":
-        return {
-          ...baseElement,
-          name: "Shimmer Button",
-          content: {
-            innerText: "Tıkla",
-            shimmerColor: "#ffffff",
-            shimmerSize: "0.1em",
-            shimmerDuration: "2s",
-            borderRadius: "10px",
-            background: "rgba(99, 102, 241, 1)",
-          },
-          styles: {
-            width: "200px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            ...shimmerButtonDefaultStyles,
-          } as React.CSSProperties,
-          type: "shimmerButton",
-        } as EditorElement;
-
-      case "animatedShinyButton":
-        return {
-          ...baseElement,
-          name: "Animated Shiny Button",
-          content: {
-            innerText: "Shiny Button",
-            buttonClass: "default",
-          },
-          styles: {
-            width: "200px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            ...defaultStyles,
-          } as React.CSSProperties,
-          type: "animatedShinyButton",
-        } as EditorElement;
-
-      case "neonGradientButton":
-        return {
-          ...baseElement,
-          name: "Neon Gradient Button",
-          content: {
-            innerText: "Neon Button",
-            firstColor: "#ff00aa",
-            secondColor: "#00FFF1",
-            borderSize: 2,
-            borderRadius: "20",
-          },
-          styles: {
-            width: "200px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            ...defaultStyles,
-          } as React.CSSProperties,
-          type: "neonGradientButton",
-        } as EditorElement;
-
-      case "animatedBorderButton":
-        return {
-          ...baseElement,
-          name: "Animated Border Button",
-          content: {
-            innerText: "Border Button",
-            buttonClass: "default",
-          },
-          styles: {
-            width: "200px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            ...animatedBorderButtonDefaultStyles,
-          } as React.CSSProperties,
-          type: "animatedBorderButton",
-        } as EditorElement;
-
-      case "animatedTextButton":
-        return {
-          ...baseElement,
-          name: "Animated Text Button",
-          content: {
-            innerText: "Text Button",
-            buttonClass: "default",
-          },
-          styles: {
-            width: "200px",
-            textAlign: "center" as const,
-            margin: "10px auto",
-            ...defaultStyles,
-          } as React.CSSProperties,
-          type: "animatedTextButton",
         } as EditorElement;
 
       case "neonCard":

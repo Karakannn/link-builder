@@ -94,6 +94,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
           "opacity-50": sortable.isDragging,
         })}
         onClick={handleSelectElement}
+        data-element-id={id}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
       >

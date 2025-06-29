@@ -3,13 +3,15 @@ import { Marquee, MarqueeContent, MarqueeFade, MarqueeItem } from "@/components/
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 import Image from "next/image";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
-import { Layout } from "./dropzone-wrapper";
+import { useLayout, Layout } from "@/hooks/use-layout";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
   element: EditorElement;
@@ -24,10 +26,11 @@ interface MarqueeItemData {
   height?: number;
 }
 
-const MarqueeComponent = ({ element, layout = Layout.Vertical }: Props) => {
-  const { state, dispatch } = useEditor();
+const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
+  const { state } = useEditor();
   const { id, name, type, styles, content } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+  const { handleSelectElement } = useElementSelection(element);
 
   // Get computed styles based on current device
   const computedStyles = getElementStyles(element, state.editor.device);
@@ -35,9 +38,9 @@ const MarqueeComponent = ({ element, layout = Layout.Vertical }: Props) => {
   // Get computed content based on current device
   const computedContent = getElementContent(element, state.editor.device);
 
-  // dnd-kit draggable
-  const draggable = useDraggable({
-    id: `draggable-${id}`,
+  // dnd-kit sortable
+  const sortable = useSortable({
+    id: id,
     data: {
       type: "marquee",
       elementId: id,
@@ -47,18 +50,6 @@ const MarqueeComponent = ({ element, layout = Layout.Vertical }: Props) => {
     },
     disabled: state.editor.liveMode,
   });
-
-  const handleOnClickBody = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!state.editor.liveMode && !draggable.isDragging) {
-      dispatch({
-        type: "CHANGE_CLICKED_ELEMENT",
-        payload: {
-          elementDetails: element,
-        },
-      });
-    }
-  };
 
   useEffect(() => {
     setShowSpacingGuides(
@@ -109,19 +100,24 @@ const MarqueeComponent = ({ element, layout = Layout.Vertical }: Props) => {
   return (
     <ElementContextMenu element={element}>
     <div
-      ref={draggable.setNodeRef}
-      style={computedStyles}
+      ref={sortable.setNodeRef}
+      style={{
+        ...computedStyles,
+        transform: CSS.Transform.toString(sortable.transform),
+        transition: sortable.transition,
+      }}
       className={clsx("relative transition-all", {
         "!border-blue-500": state.editor.selectedElement.id === id,
         "!border-solid": state.editor.selectedElement.id === id,
         "!border-dashed border border-slate-300": !state.editor.liveMode,
         "cursor-grab": !state.editor.liveMode,
-        "cursor-grabbing": draggable.isDragging,
-        "opacity-50": draggable.isDragging,
+        "cursor-grabbing": sortable.isDragging,
+        "opacity-50": sortable.isDragging,
       })}
-      onClick={handleOnClickBody}
-      {...(!state.editor.liveMode ? draggable.listeners : {})}
-      {...(!state.editor.liveMode ? draggable.attributes : {})}
+      onClick={handleSelectElement}
+      data-element-id={id}
+      {...(!state.editor.liveMode ? sortable.listeners : {})}
+      {...(!state.editor.liveMode ? sortable.attributes : {})}
     >
         {showSpacingGuides && (
           <SpacingVisualizer styles={computedStyles} />

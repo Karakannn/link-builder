@@ -3,12 +3,14 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { Image as ImageIcon, Download } from "lucide-react";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -21,12 +23,13 @@ const ImageComponent = ({ element }: Props) => {
     const [hasError, setHasError] = useState(false);
     const [showOverlay, setShowOverlay] = useState(false);
     const imgRef = useRef<HTMLImageElement>(null);
+    const { handleSelectElement } = useElementSelection(element);
     
     const computedStyles = getElementStyles(element, state.editor.device);
     const computedContent = getElementContent(element, state.editor.device);
 
-    const draggable = useDraggable({
-        id: `draggable-${id}`,
+    const sortable = useSortable({
+        id: id,
         data: {
             type: "image",
             elementId: id,
@@ -36,18 +39,6 @@ const ImageComponent = ({ element }: Props) => {
         },
         disabled: state.editor.liveMode,
     });
-
-    const handleOnClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!state.editor.liveMode && !draggable.isDragging) {
-            dispatch({
-                type: "CHANGE_CLICKED_ELEMENT",
-                payload: {
-                    elementDetails: element,
-                },
-            });
-        }
-    };
 
     const imageProps = !Array.isArray(computedContent) ? computedContent : {};
     const src = imageProps.src || '';
@@ -93,19 +84,24 @@ const ImageComponent = ({ element }: Props) => {
     return (
         <EditorElementWrapper element={element}>
             <div
-                ref={draggable.setNodeRef}
-                style={computedStyles}
+                ref={sortable.setNodeRef}
+                style={{
+                    ...computedStyles,
+                    transform: CSS.Transform.toString(sortable.transform),
+                    transition: sortable.transition,
+                }}
                 className={clsx("relative transition-all", {
                     "!border-blue-500": state.editor.selectedElement.id === id,
                     "!border-solid": state.editor.selectedElement.id === id,
                     "!border-dashed border border-slate-300": !state.editor.liveMode,
                     "cursor-grab": !state.editor.liveMode,
-                    "cursor-grabbing": draggable.isDragging,
-                    "opacity-50": draggable.isDragging,
+                    "cursor-grabbing": sortable.isDragging,
+                    "opacity-50": sortable.isDragging,
                 })}
-                onClick={handleOnClick}
-                {...(!state.editor.liveMode ? draggable.listeners : {})}
-                {...(!state.editor.liveMode ? draggable.attributes : {})}
+                onClick={handleSelectElement}
+                data-element-id={id}
+                {...(!state.editor.liveMode ? sortable.listeners : {})}
+                {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
                 {state.editor.selectedElement.id === id && !state.editor.liveMode && (
                     <BadgeElementName element={element} />

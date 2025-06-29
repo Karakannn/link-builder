@@ -3,6 +3,7 @@
 import { createContext, Dispatch, useContext, useReducer } from "react";
 import { EditorBtns } from "@/lib/constants";
 import { EditorAction } from "./editor-actions";
+import { arrayMove } from "@dnd-kit/sortable";
 
 export type DeviceTypes = "Desktop" | "Mobile" | "Tablet";
 
@@ -571,10 +572,13 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
 
   const { elementId, containerId, insertIndex } = action.payload;
 
+  console.log(`🔧 REORDER_ELEMENT Logic Start:`, { elementId, containerId, insertIndex });
+
   // Find the element and its parent
   const { element, parent } = findElementAndParent(elements, elementId);
 
   if (!element || !parent) {
+    console.log(`❌ Element or parent not found`);
     return elements;
   }
 
@@ -585,14 +589,9 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
   const { element: elementCopy, parent: parentCopy } = findElementAndParent(newElements, elementId);
 
   if (!elementCopy || !parentCopy || !Array.isArray(parentCopy.content)) {
+    console.log(`❌ Element copy or parent copy not found`);
     return elements;
   }
-
-  // Find current index of element
-  const currentIndex = parentCopy.content.findIndex((item) => item.id === elementId);
-
-  // Remove the element from its current position
-  parentCopy.content = parentCopy.content.filter((item) => item.id !== elementId);
 
   // Find the target container
   const findTargetContainer = (elements: EditorElement[], id: string): EditorElement | null => {
@@ -611,18 +610,32 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
   const targetContainer = findTargetContainer(newElements, containerId);
 
   if (!targetContainer || !Array.isArray(targetContainer.content)) {
+    console.log(`❌ Target container not found or not array`);
     return elements;
   }
 
-  // If moving within same container, adjust index if needed
-  let finalInsertIndex = insertIndex;
-  if (containerId === parent.id && currentIndex < insertIndex) {
-    finalInsertIndex = insertIndex - 1;
+  // SAME CONTAINER: Use arrayMove for optimal reordering
+  if (containerId === parent.id) {
+    console.log(`🔄 Same container move - using arrayMove`);
+    
+    const currentIndex = parentCopy.content.findIndex((item) => item.id === elementId);
+    console.log(`📐 ArrayMove: ${currentIndex} -> ${insertIndex}`);
+    
+    // Use dnd-kit's arrayMove for safe reordering within same container
+    parentCopy.content = arrayMove(parentCopy.content, currentIndex, insertIndex);
+    
+  } else {
+    // DIFFERENT CONTAINER: Manual move between containers
+    console.log(`↔️ Different container move`);
+    
+    // Remove from source
+    parentCopy.content = parentCopy.content.filter((item) => item.id !== elementId);
+    
+    // Insert to target at specified index
+    targetContainer.content.splice(insertIndex, 0, elementCopy);
   }
 
-  // Insert the element at the specified index
-  targetContainer.content.splice(finalInsertIndex, 0, elementCopy);
-
+  console.log(`✅ REORDER_ELEMENT completed`);
   return newElements;
 };
 

@@ -1,19 +1,20 @@
-import { Layout } from "@/app/_components/editor/_components-editor/dropzone-wrapper";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import { supportsLayout } from "@/lib/constants";
+
+export type Layout = 'vertical' | 'horizontal';
 
 export const useLayout = () => {
   // Get layout styles based on layout type
   const getLayoutStyles = (layout: Layout) => {
     switch (layout) {
-      case Layout.Horizontal:
+      case 'horizontal':
         return {
           display: 'flex',
           flexDirection: 'row' as const,
           gap: '1rem',
           flexWrap: 'wrap' as const,
         };
-      case Layout.Vertical:
+      case 'vertical':
       default:
         return {
           display: 'flex',
@@ -23,13 +24,13 @@ export const useLayout = () => {
     }
   };
 
-  // Convert element layout to Layout enum
+  // Convert element layout to Layout type
   const getElementLayout = (element: EditorElement): Layout => {
     if (!supportsLayout(element.type)) {
-      return Layout.Vertical; // Default for non-layout elements
+      return 'vertical'; // Default for non-layout elements
     }
     
-    return element.layout === 'horizontal' ? Layout.Horizontal : Layout.Vertical;
+    return element.layout === 'horizontal' ? 'horizontal' : 'vertical';
   };
 
   // Check if element supports layout

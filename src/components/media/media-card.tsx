@@ -4,13 +4,28 @@ import React, { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import Image from "next/image";
-import { Copy, MoreHorizontal, Trash } from "lucide-react";
+import { Copy, MoreHorizontal, Trash, FileText, Music, Video } from "lucide-react";
 import { toast } from "sonner";
 import { deleteMedia } from "@/actions/media";
 import { useQueryClient } from "@tanstack/react-query";
+import { MediaType } from "@prisma/client";
+
+type MediaFile = {
+    id: string;
+    name: string;
+    link: string;
+    type: MediaType;
+    alt?: string;
+    size?: number;
+    mimeType?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    userId: string;
+    siteId?: string;
+};
 
 type Props = {
-    file: any;
+    file: MediaFile;
     userId: string;
 };
 
@@ -44,12 +59,38 @@ const MediaCard = ({ file, userId }: Props) => {
         }
     };
 
+    const renderPreview = () => {
+        switch (file.type) {
+            case "IMAGE":
+                return <Image src={file.link} alt="preview image" fill className="object-cover rounded-lg" />;
+            case "VIDEO":
+                return (
+                    <div className="w-full h-full flex items-center justify-center bg-muted rounded-lg">
+                        <Video className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                );
+            case "AUDIO":
+                return (
+                    <div className="w-full h-full flex items-center justify-center bg-muted rounded-lg">
+                        <Music className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                );
+            case "DOCUMENT":
+            default:
+                return (
+                    <div className="w-full h-full flex items-center justify-center bg-muted rounded-lg">
+                        <FileText className="h-12 w-12 text-muted-foreground" />
+                    </div>
+                );
+        }
+    };
+
     return (
         <AlertDialog>
             <DropdownMenu>
                 <article className="w-full border rounded-lg bg-slate-900">
                     <div className="relative w-full h-40">
-                        <Image src={file.link} alt="preview image" fill className="object-cover rounded-lg" />
+                        {renderPreview()}
                     </div>
                     <p className="opacity-0 h-0 w-0">{file.name}</p>
                     <div className="p-4 relative">
@@ -71,7 +112,7 @@ const MediaCard = ({ file, userId }: Props) => {
                                 toast("Panoya Kopyalandı");
                             }}
                         >
-                            <Copy size={15} /> Resim Bağlantısını Kopyala
+                            <Copy size={15} /> Dosya Bağlantısını Kopyala
                         </DropdownMenuItem>
                         <AlertDialogTrigger asChild>
                             <DropdownMenuItem className="flex gap-2">

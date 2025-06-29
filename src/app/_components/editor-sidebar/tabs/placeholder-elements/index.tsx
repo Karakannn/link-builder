@@ -8,14 +8,6 @@ import TextPlaceholder from "./text-placeholder";
 import VideoPlaceholder from "./video-placeholder";
 import TwoColumnsPlaceholder from "./two-columns-placeholder";
 import LinkPlaceholder from "./link-placeholder";
-import ContactFormComponentPlaceholder from "./contact-form-component-placeholder";
-import ShimmerButtonPlaceholder from "./shimmer-button-placeholder";
-
-// New button components
-import AnimatedShinyButtonPlaceholder from "./animated-shiny-button-placeholder";
-import NeonGradientButtonPlaceholder from "./neon-gradient-button-placeholder";
-import AnimatedBorderButtonPlaceholder from "./animated-border-button-placeholder";
-import AnimatedTextButtonPlaceholder from "./animated-text-button-placeholder";
 
 // New layout and media components
 import GridLayoutPlaceholder from "./grid-layout-placeholder";
@@ -37,7 +29,7 @@ const ComponentsTab = () => {
         Component: React.ReactNode;
         label: string;
         id: EditorBtns;
-        category: "layout" | "buttons" | "marquee" | "text" | "media" | "cards";
+        category: "layout" | "marquee" | "text" | "media" | "cards";
     }[] = [
         // Layout Elements
         {
@@ -99,39 +91,6 @@ const ComponentsTab = () => {
             category: "media",
         },
         
-        // Button Elements
-        {
-            Component: <ShimmerButtonPlaceholder />,
-            label: "Shimmer Button",
-            id: "shimmerButton",
-            category: "buttons",
-        },
-        {
-            Component: <AnimatedShinyButtonPlaceholder />,
-            label: "Shiny Button",
-            id: "animatedShinyButton",
-            category: "buttons",
-        },
-        {
-            Component: <NeonGradientButtonPlaceholder />,
-            label: "Neon Button",
-            id: "neonGradientButton",
-            category: "buttons",
-        },
-        {
-            Component: <AnimatedBorderButtonPlaceholder />,
-            label: "Border Button",
-            id: "animatedBorderButton",
-            category: "buttons",
-        },
-        {
-            Component: <AnimatedTextButtonPlaceholder />,
-            label: "Text Shiny Button",
-            id: "animatedTextButton",
-            category: "buttons",
-        },
-
-        
          // Card Elements
          {
             Component: <NeonCardPlaceholder />,
@@ -155,12 +114,7 @@ const ComponentsTab = () => {
         },
         
         // Other Elements
-        {
-            Component: <ContactFormComponentPlaceholder />,
-            label: "Contact",
-            id: "contactForm",
-            category: "layout",
-        },
+        // ContactFormComponentPlaceholder kaldırıldı
     ];
 
     const categories = [
@@ -168,7 +122,6 @@ const ComponentsTab = () => {
         { id: "text", name: "Text", defaultOpen: true },
         { id: "media", name: "Media", defaultOpen: true },
         { id: "cards", name: "Cards", defaultOpen: true },
-        { id: "buttons", name: "Buttons", defaultOpen: false },
         { id: "marquee", name: "Marquee", defaultOpen: false },
     ];
 

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import Recursive from "./recursive";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 interface BodyContainerProps {
   element: EditorElement;
@@ -14,25 +15,15 @@ interface BodyContainerProps {
 export const BodyContainer = ({ element }: BodyContainerProps) => {
     const { dispatch, state } = useEditor();
   const { id, name, type, content, styles } = element;
+  const { handleSelectElement } = useElementSelection(element);
 
     const droppable = useDroppable({
-        id: `droppable-${id}`,
+        id: id,
         data: {
             type: "__body",
             containerId: id,
         },
     });
-
-  const handleClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-    
-            dispatch({
-                type: "CHANGE_CLICKED_ELEMENT",
-                payload: {
-                    elementDetails: element,
-                },
-            });
-    };
 
   const isSelected = state.editor.selectedElement.id === id;
   const isPreviewMode = state.editor.previewMode || state.editor.liveMode;
@@ -49,8 +40,8 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
             <div
                 ref={droppable.setNodeRef}
       className={finalClassName}
-      onClick={handleClick}
-                data-body-container="true"
+      onClick={handleSelectElement}
+                data-element-id={id}
       style={{
         ...styles,
         pointerEvents: "auto",

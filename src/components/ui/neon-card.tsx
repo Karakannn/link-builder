@@ -119,7 +119,7 @@ const NeonCard: React.FC<NeonCardProps> = ({
                 } as CSSProperties
             }
             className={cn(
-                "relative z-10 size-full rounded-[var(--border-radius)]",
+                "relative z-1 size-full rounded-[var(--border-radius)]",
                 className,
             )}
             {...props}

@@ -3,12 +3,13 @@ import { getUserMedia } from "@/actions/media";
 import MediaComponent from "@/components/media";
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { MediaType } from "@prisma/client";
 
 type MediaFile = {
     id: string;
     name: string;
     link: string;
-    type: "IMAGE" | "VIDEO";
+    type: MediaType;
     alt?: string;
     size?: number;
     mimeType?: string;

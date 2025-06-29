@@ -3,20 +3,14 @@ export type EditorBtns =
   | "container"
   | "closableContainer"
   | "section"
-  | "contactForm"
   | "paymentForm"
   | "link"
   | "2Col"
   | "video"
   | "__body"
   | "image"
-  | "shimmerButton"
-  | "animatedShinyButton"
-  | "neonGradientButton"
   | "neonCard"
   | "sponsorNeonCard"
-  | "animatedBorderButton"
-  | "animatedTextButton"
   | "marquee"
   | "3Col"
   | "gridLayout"
@@ -35,8 +29,7 @@ export const LAYOUT_SUPPORTED_ELEMENTS: EditorBtns[] = [
   "2Col",
   "neonCard",
   "sponsorNeonCard",
-  "marquee",
-  "contactForm"
+  "marquee"
 ];
 
 // Helper function to check if an element supports layout
@@ -103,40 +96,6 @@ export const linkDefaultStyles: React.CSSProperties = {
   color: "#0066cc",
   textDecoration: "underline",
 };
-
-// Specific default styles for animated border button components
-export const animatedBorderButtonDefaultStyles: React.CSSProperties = {
-  ...defaultStyles,
-  margin: "0px",
-  padding: "1.3px",
-  marginTop: "0px",
-  marginRight: "0px",
-  marginBottom: "0px",
-  marginLeft: "0px",
-  paddingTop: "1.3px",
-  paddingRight: "1.3px",
-  paddingBottom: "1.3px",
-  paddingLeft: "1.3px",
-  fontSize: "16px",
-};
-
-// Specific default styles for shimmer button components
-export const shimmerButtonDefaultStyles: React.CSSProperties = {
-  ...defaultStyles,
-  margin: "0px",
-  padding: "12px 24px",
-  marginTop: "0px",
-  marginRight: "0px",
-  marginBottom: "0px",
-  marginLeft: "0px",
-  paddingTop: "12px",
-  paddingRight: "24px",
-  paddingBottom: "12px",
-  paddingLeft: "24px",
-  fontSize: "16px",
-};
-
-
 
 // Specific default styles for container components
 export const containerDefaultStyles: React.CSSProperties = {

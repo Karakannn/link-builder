@@ -4,11 +4,13 @@ import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import { Play, Pause, Image as ImageIcon, Download } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -17,21 +19,17 @@ type Props = {
 const GifComponent = ({ element }: Props) => {
     const { state, dispatch } = useEditor();
     const { id, name, type, styles, content } = element;
-    const [isPlaying, setIsPlaying] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
     const [showOverlay, setShowOverlay] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
+    const { handleSelectElement } = useElementSelection(element);
 
-    // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
-
-    // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
 
-    // dnd-kit draggable
-    const draggable = useDraggable({
-        id: `draggable-${id}`,
+    const sortable = useSortable({
+        id: id,
         data: {
             type: "gif",
             elementId: id,
@@ -42,50 +40,11 @@ const GifComponent = ({ element }: Props) => {
         disabled: state.editor.liveMode,
     });
 
-    const handleOnClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        console.log("GIF clicked:", id, "isDragging:", draggable.isDragging, "liveMode:", state.editor.liveMode);
-        if (!state.editor.liveMode && !draggable.isDragging) {
-            console.log("Selecting GIF:", id);
-            dispatch({
-                type: "CHANGE_CLICKED_ELEMENT",
-                payload: {
-                    elementDetails: element,
-                },
-            });
-        }
-    };
-
-    const toggleGif = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (imgRef.current) {
-            const gif = imgRef.current;
-            if (isPlaying) {
-                // Pause GIF by setting to a static frame (first frame)
-                const staticSrc = gif.src.split('?')[0] + '?t=' + Date.now();
-                gif.src = staticSrc;
-                setIsPlaying(false);
-            } else {
-                // Resume GIF by reloading
-                const originalSrc = (!Array.isArray(computedContent) ? computedContent.src : '') || '';
-                gif.src = originalSrc + '?t=' + Date.now();
-                setIsPlaying(true);
-            }
-        }
-    };
-
     const gifProps = !Array.isArray(computedContent) ? computedContent : {};
     const src = gifProps.src || '';
     const alt = gifProps.alt || 'GIF';
-    const autoplay = gifProps.autoplay !== false; // Default true
-    const loop = gifProps.loop !== false; // Default true
-    const controls = gifProps.controls || false;
 
     const handleImageLoad = () => {
-        if (!autoplay && imgRef.current) {
-            // If autoplay is false, pause immediately
-            setIsPlaying(false);
-        }
         setIsLoading(false);
         setHasError(false);
     };
@@ -95,16 +54,6 @@ const GifComponent = ({ element }: Props) => {
         setHasError(true);
     };
 
-    const getShadowClass = () => {
-        // Implement the logic to determine the shadow class based on the element's styles
-        return "";
-    };
-
-    const getFilterClass = () => {
-        // Implement the logic to determine the filter class based on the element's styles
-        return "";
-    };
-
     const objectFit = styles?.objectFit || "cover";
     const borderRadius = styles?.borderRadius || 0;
     const opacity = styles?.opacity || 1;
@@ -112,39 +61,38 @@ const GifComponent = ({ element }: Props) => {
     return (
         <EditorElementWrapper element={element}>
             <div
-                ref={draggable.setNodeRef}
+                ref={sortable.setNodeRef}
                 style={computedStyles}
                 className={clsx("relative transition-all", {
                     "!border-blue-500": state.editor.selectedElement.id === id,
                     "!border-solid": state.editor.selectedElement.id === id,
                     "!border-dashed border border-slate-300": !state.editor.liveMode,
                     "cursor-grab": !state.editor.liveMode,
-                    "cursor-grabbing": draggable.isDragging,
-                    "opacity-50": draggable.isDragging,
+                    "cursor-grabbing": sortable.isDragging,
+                    "opacity-50": sortable.isDragging,
                 })}
-                onClick={handleOnClick}
-                {...(!state.editor.liveMode ? draggable.listeners : {})}
-                {...(!state.editor.liveMode ? draggable.attributes : {})}
+                onClick={handleSelectElement}
+                data-element-id={id}
+                {...(!state.editor.liveMode ? sortable.listeners : {})}
+                {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
                 {state.editor.selectedElement.id === id && !state.editor.liveMode && (
                     <BadgeElementName element={element} />
                 )}
 
-                <div 
+                <div
                     className="relative inline-block"
                     onMouseEnter={() => setShowOverlay(true)}
                     onMouseLeave={() => setShowOverlay(false)}
                 >
                     {src ? (
                         <div className="relative">
-                            <img 
+                            <img
                                 ref={imgRef}
                                 src={src}
                                 alt={alt}
                                 className={clsx(
                                     "max-w-full h-auto transition-all duration-300",
-                                    getShadowClass(),
-                                    getFilterClass(),
                                     {
                                         "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
                                     }

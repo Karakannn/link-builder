@@ -1,61 +1,59 @@
 "use client";
 
-import { 
-  closestCorners, 
-  DndContext, 
-  DragEndEvent, 
-  DragOverEvent, 
-  DragStartEvent, 
-  PointerSensor, 
-  pointerWithin, 
-  rectIntersection, 
-  useSensor, 
-  useSensors 
+import {
+  DndContext,
+  DragEndEvent,
+  DragMoveEvent,
+  DragOverEvent,
+  DragStartEvent,
+  PointerSensor,
+  pointerWithin,
+  useSensor,
+  useSensors
 } from "@dnd-kit/core";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { getContainerIds, useEditorUtilities } from "@/hooks/use-editor-utilities";
+import { useEditorUtilities } from "@/hooks/use-editor-utilities";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
 import { useDrops } from "@/hooks/use-drops";
+import { useDropIndicator } from "@/hooks/use-drop-indicator";
+import { useDropHere } from "@/hooks/use-drop-here";
+import { DropHere } from "@/components/global/drop-here";
+import { DropIndicator } from "@/components/global/drop-indicator";
 
 type DndContextProviderProps = {
   children: React.ReactNode;
 };
 
 export const DndContextProvider = ({ children }: DndContextProviderProps) => {
-
   const { state, dispatch } = useEditor();
-  const { createElement } = useEditorUtilities()
-  const { handleContainerDrop } = useDrops()
+  const { createElement } = useEditorUtilities();
+  const { handleContainerDrop } = useDrops();
+
+  const {
+    indicatorState,
+    updateIndicatorFromDragOver,
+    updateIndicatorFromDragMove,
+    handleDragEndInsert,
+    clearIndicator
+  } = useDropIndicator();
+
+  const {
+    dropHereState,
+    updateDropHereFromDragOver,
+    updateDropHereFromDragMove,
+    clearDropHere
+  } = useDropHere();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 5,
-      },
+      activationConstraint: { distance: 5 }
     })
   );
 
-  const collisionDetection = (args: any) => {
-    const { active, over } = args;
-    const draggedType = active?.data?.current?.type;
-    
-    // Use pointerWithin for precise drop detection - only when mouse pointer is within drop zone
-    const result = pointerWithin(args);
-    
-    return result;
-  };
-
-
-  const childItems = state.editor.elements.map(child => child.id);
-
-  // Grid layout'u bul ve column'larını döndür
   const findGridLayoutAndColumns = (elements: EditorElement[]): { gridLayout: EditorElement; columns: EditorElement[] } | null => {
     for (const element of elements) {
       if (element.type === 'gridLayout' && Array.isArray(element.content)) {
-        return {
-          gridLayout: element,
-          columns: element.content
-        };
+        return { gridLayout: element, columns: element.content };
       }
       if (Array.isArray(element.content)) {
         const result = findGridLayoutAndColumns(element.content);
@@ -65,51 +63,55 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     return null;
   };
 
-  // Column reordering - onDragOver ile live
+  const handleColumnReordering = (active: any, over: any) => {
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    if (activeId === overId) return;
+
+    const gridInfo = findGridLayoutAndColumns(state.editor.elements);
+    if (!gridInfo) return;
+
+    const { gridLayout, columns } = gridInfo;
+    const oldIndex = columns.findIndex(col => col.id === activeId);
+    const newIndex = columns.findIndex(col => col.id === overId);
+
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      const reorderedColumns = arrayMove(columns, oldIndex, newIndex);
+      dispatch({
+        type: "UPDATE_ELEMENT",
+        payload: {
+          elementDetails: { ...gridLayout, content: reorderedColumns }
+        }
+      });
+    }
+  };
+
+  const handleDragMove = (event: DragMoveEvent) => {
+    updateIndicatorFromDragMove(event, state.editor.elements);
+    updateDropHereFromDragMove(event, state.editor.elements);
+  };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-
     if (!over || !active) return;
 
     const draggedType = active.data?.current?.type;
-    
+
     // Column reordering
-    if (draggedType === "column") {
-      const overType = over.data?.current?.type;
-      
-      if (overType === "column") {
-        const activeId = active.id as string;
-        const overId = over.id as string;
-        
-        if (activeId === overId) return;
-        
-        const gridInfo = findGridLayoutAndColumns(state.editor.elements);
-        if (!gridInfo) return;
-        
-        const { gridLayout, columns } = gridInfo;
-        
-        const oldIndex = columns.findIndex(col => col.id === activeId);
-        const newIndex = columns.findIndex(col => col.id === overId);
-        
-        if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-          const reorderedColumns = arrayMove(columns, oldIndex, newIndex);
-          
-          dispatch({
-            type: "UPDATE_ELEMENT",
-            payload: {
-              elementDetails: {
-                ...gridLayout,
-                content: reorderedColumns,
-              },
-            },
-          });
-        }
-      }
+    if (draggedType === "column" && over.data?.current?.type === "column") {
+      handleColumnReordering(active, over);
     }
+
+    updateIndicatorFromDragOver(event, state.editor.elements);
+    updateDropHereFromDragOver(event, state.editor.elements);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+
+    clearIndicator();
+    clearDropHere();
 
     if (!over || !active) return
 
@@ -117,127 +119,122 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     const isFromSidebar = active.data?.current?.isSidebarElement;
     const isFromEditor = active.data?.current?.isEditorElement;
     const elementId = active.data?.current?.elementId;
+    const overType = over.data?.current?.type;
+    const overId = over.id as string;
 
-    // Sidebar element -> Column drop
-    if (isFromSidebar && over.data?.current?.type === "column") {
-      const columnId = over.id as string;
-      const containerId = over.data?.current?.containerId || columnId;
-      
-      const newElement = createElement(draggedType);
-      if (newElement) {
-        dispatch({
-          type: "ADD_ELEMENT",
-          payload: {
-            containerId: containerId,
-            elementDetails: newElement,
-          },
-        });
-      }
-      return;
-    }
 
-    // Column reordering already handled in onDragOver
-    if (draggedType === "column" && isFromEditor) {
-      return;
-    }
+    // Önce mathematical positioning'i kontrol et
+    const insertInfo = handleDragEndInsert(event, state.editor.elements);
 
-    // Normal container/body drops
-    if (over.data?.current?.type === "container" || over.data?.current?.type === "__body") {
-      handleContainerDrop(active, over)
-      return;
-    }
+    if (insertInfo) {
+      const { containerId, insertIndex } = insertInfo;
 
-    // Closable container drops
-    if (over.data?.current?.type === "closableContainer") {
-      const containerId = over.data?.current?.containerId || over.id as string;
-      
-      if (isFromSidebar) {
-        const newElement = createElement(draggedType);
-        if (newElement) {
-          dispatch({
-            type: "ADD_ELEMENT",
-            payload: {
-              containerId: containerId,
-              elementDetails: newElement,
-            },
-          });
-        }
-      } else if (isFromEditor && elementId) {
-        dispatch({
-          type: "MOVE_ELEMENT",
-          payload: {
-            elementId: elementId as string,
-            targetContainerId: containerId,
-          },
-        });
-      }
-      return;
-    }
 
-    // INSERT operations (element positioning)
-    if (over.data?.current?.type === "insert") {
-      const { containerId, insertIndex } = over.data.current;
 
       if (isFromSidebar) {
         const newElement = createElement(draggedType);
         if (newElement) {
           dispatch({
             type: "INSERT_ELEMENT",
-            payload: {
-              containerId,
-              insertIndex,
-              elementDetails: newElement,
-            },
+            payload: { containerId, insertIndex, elementDetails: newElement }
           });
         }
       } else if (isFromEditor && elementId) {
         dispatch({
           type: "REORDER_ELEMENT",
-          payload: {
-            elementId,
-            containerId,
-            insertIndex,
-          },
+          payload: { elementId, containerId, insertIndex }
         });
       }
       return;
     }
+
+    // Drop handlers (fallback)
+    const dropHandlers = {
+      column: () => {
+        if (isFromSidebar) {
+          const containerId = over.data?.current?.containerId || overId;
+          const newElement = createElement(draggedType);
+          if (newElement) {
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: { containerId, elementDetails: newElement }
+            });
+          }
+        }
+      },
+
+      container: () => {
+        handleContainerDrop(active, over);
+      },
+
+      __body: () => {
+        handleContainerDrop(active, over);
+      },
+
+      closableContainer: () => {
+        const containerId = over.data?.current?.containerId || overId;
+        if (isFromSidebar) {
+          const newElement = createElement(draggedType);
+          if (newElement) {
+            dispatch({
+              type: "ADD_ELEMENT",
+              payload: { containerId, elementDetails: newElement }
+            });
+          }
+        } else if (isFromEditor && elementId) {
+          dispatch({
+            type: "MOVE_ELEMENT",
+            payload: { elementId: elementId as string, targetContainerId: containerId }
+          });
+        }
+      }
+    };
+
+    // Execute drop handler
+    if (dropHandlers[overType as keyof typeof dropHandlers]) {
+      dropHandlers[overType as keyof typeof dropHandlers]();
+    } else {
+    }
   };
 
-  function handleDragStart({ active }: DragStartEvent) {
-    if (!active.data.current) return
+  const handleDragStart = ({ active }: DragStartEvent) => {
+    if (!active.data.current) return;
 
-    const isFromEditor = active.data.current.isEditorElement
-
-    if (!state.editor.liveMode && isFromEditor) {
+    if (!state.editor.liveMode && active.data.current.isEditorElement) {
       dispatch({
         type: "CHANGE_CLICKED_ELEMENT",
-        payload: {
-          elementDetails: active.data.current.element,
-        },
+        payload: { elementDetails: active.data.current.element }
       });
     }
-  }
+  };
 
-  function handleDragCancel() {
+  const handleDragCancel = () => {
+    clearIndicator();
+    clearDropHere();
     dispatch({
       type: "CHANGE_CLICKED_ELEMENT",
-      payload: {},
+      payload: {}
     });
-  }
+  };
 
   return (
-    <DndContext 
-      collisionDetection={collisionDetection} 
-      onDragCancel={handleDragCancel} 
-      onDragStart={handleDragStart} 
-      onDragOver={handleDragOver} 
-      onDragEnd={handleDragEnd} 
+    <DndContext
+      collisionDetection={pointerWithin}
+      onDragCancel={handleDragCancel}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragMove={handleDragMove}
+      onDragEnd={handleDragEnd}
       sensors={sensors}
     >
-      <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
+      <SortableContext
+        items={state.editor.elements.map(child => child.id)}
+        strategy={verticalListSortingStrategy}
+      >
         {children}
       </SortableContext>
+      <DropIndicator state={indicatorState} />
+      <DropHere state={dropHereState} />
     </DndContext>
   );
 };

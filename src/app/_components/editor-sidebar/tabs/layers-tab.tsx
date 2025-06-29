@@ -16,9 +16,6 @@ const elementTypeInfo: Record<string, { name: string; color: string }> = {
     text: { name: "Text", color: "bg-green-600" },
     link: { name: "Link", color: "bg-amber-600" },
     video: { name: "Video", color: "bg-red-600" },
-    contactForm: { name: "Contact Form", color: "bg-pink-600" },
-    paymentForm: { name: "Payment Form", color: "bg-pink-600" },
-    shimmerButton: { name: "Button", color: "bg-indigo-600" },
     image: { name: "Image", color: "bg-orange-600" },
 };
 

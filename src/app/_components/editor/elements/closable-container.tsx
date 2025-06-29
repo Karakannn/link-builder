@@ -11,15 +11,14 @@ import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { Layout } from "@/app/_components/editor/_components-editor/dropzone-wrapper";
-import { useLayout } from "@/hooks/use-layout";
+import { useLayout, Layout } from "@/hooks/use-layout";
 
 interface ClosableContainerProps {
   element: EditorElement;
   layout?: Layout;
 }
 
-export const ClosableContainer = ({ element, layout = Layout.Vertical }: ClosableContainerProps) => {
+export const ClosableContainer = ({ element, layout = 'vertical' }: ClosableContainerProps) => {
   const { dispatch, state } = useEditor();
   const [mounted, setMounted] = useState(false);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);

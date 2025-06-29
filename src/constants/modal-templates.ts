@@ -73,7 +73,7 @@ export const MODAL_TEMPLATES = [
         {
           id: "modal-button",
           name: "Modal Button",
-          type: "shimmerButton",
+          type: "link",
           styles: {
             padding: "12px 24px",
             fontSize: "16px",
@@ -86,8 +86,8 @@ export const MODAL_TEMPLATES = [
             textAlign: "center",
           },
           content: {
+            href: "#",
             innerText: "Keşfet",
-            shimmerColor: theme.secondaryColor,
           },
         },
       ];
@@ -245,7 +245,7 @@ export const MODAL_TEMPLATES = [
         {
           id: "modal-button",
           name: "Modal Button",
-          type: "shimmerButton",
+          type: "link",
           styles: {
             width: "100%",
             padding: "12px 24px",
@@ -259,8 +259,8 @@ export const MODAL_TEMPLATES = [
             textAlign: "center",
           },
           content: {
+            href: "#",
             innerText: "Kayıt Ol",
-            shimmerColor: theme.secondaryColor,
           },
         },
       ];
@@ -401,7 +401,7 @@ export const MODAL_TEMPLATES = [
         {
           id: "modal-button",
           name: "Modal Button",
-          type: "shimmerButton",
+          type: "link",
           styles: {
             width: "100%",
             padding: "12px 24px",
@@ -415,8 +415,8 @@ export const MODAL_TEMPLATES = [
             textAlign: "center",
           },
           content: {
+            href: "#",
             innerText: "Teklifi Kullan",
-            shimmerColor: theme.secondaryColor,
           },
         },
       ];

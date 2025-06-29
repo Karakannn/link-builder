@@ -4,11 +4,13 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -18,6 +20,7 @@ const VideoComponent = ({ element }: Props) => {
     const { state, dispatch } = useEditor();
     const { id, name, type, styles, content } = element;
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+    const { handleSelectElement } = useElementSelection(element);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -25,9 +28,12 @@ const VideoComponent = ({ element }: Props) => {
     // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
 
-    // dnd-kit draggable
-    const draggable = useDraggable({
-        id: `draggable-${id}`,
+    // Extract video source from content
+    const videoSrc = !Array.isArray(computedContent) ? computedContent.src || '' : '';
+
+    // dnd-kit sortable
+    const sortable = useSortable({
+        id: id,
         data: {
             type: "video",
             elementId: id,
@@ -38,22 +44,6 @@ const VideoComponent = ({ element }: Props) => {
         disabled: state.editor.liveMode,
     });
 
-    const handleOnClickBody = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!state.editor.liveMode && !draggable.isDragging) {
-            dispatch({
-                type: "CHANGE_CLICKED_ELEMENT",
-                payload: {
-                    elementDetails: element,
-                },
-            });
-        }
-    };
-
-    // Extract video specific props from content with defaults
-    const videoProps = !Array.isArray(computedContent) ? computedContent : {};
-    const videoSrc = videoProps.src || "https://www.youtube.com/embed/A3l6YYkXzzg?si=zbcCeWcpq7Cwf8W1";
-
     useEffect(() => {
         setShowSpacingGuides(
             state.editor.selectedElement.id === id && !state.editor.liveMode
@@ -63,19 +53,24 @@ const VideoComponent = ({ element }: Props) => {
     return (
         <ElementContextMenu element={element}>
             <div
-                ref={draggable.setNodeRef}
-                style={computedStyles}
+                ref={sortable.setNodeRef}
+                style={{
+                    ...computedStyles,
+                    transform: CSS.Transform.toString(sortable.transform),
+                    transition: sortable.transition,
+                }}
                 className={clsx("relative transition-all", {
                     "!border-blue-500": state.editor.selectedElement.id === id,
                     "!border-solid": state.editor.selectedElement.id === id,
                     "!border-dashed border border-slate-300": !state.editor.liveMode,
                     "cursor-grab": !state.editor.liveMode,
-                    "cursor-grabbing": draggable.isDragging,
-                    "opacity-50": draggable.isDragging,
+                    "cursor-grabbing": sortable.isDragging,
+                    "opacity-50": sortable.isDragging,
                 })}
-                onClick={handleOnClickBody}
-                {...(!state.editor.liveMode ? draggable.listeners : {})}
-                {...(!state.editor.liveMode ? draggable.attributes : {})}
+                onClick={handleSelectElement}
+                data-element-id={id}
+                {...(!state.editor.liveMode ? sortable.listeners : {})}
+                {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
                 {showSpacingGuides && (
                     <SpacingVisualizer styles={computedStyles} />

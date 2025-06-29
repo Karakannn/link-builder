@@ -7,17 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Image, Video, Search, Trash, Download, Copy, Calendar } from "lucide-react";
+import { Plus, Image, Video, Search, Trash, Download, Copy, Calendar, FileText, Music } from "lucide-react";
 import { toast } from "sonner";
 import { deleteMedia } from "@/actions/media";
 import { useQueryClient } from "@tanstack/react-query";
 import UploadMediaForm from "@/components/forms/upload-media";
+import { MediaType } from "@prisma/client";
 
-type MediaFile = {
+export type MediaFile = {
     id: string;
     name: string;
     link: string;
-    type: "IMAGE" | "VIDEO";
+    type: MediaType;
     alt?: string;
     size?: number;
     mimeType?: string;
@@ -88,11 +89,18 @@ export function MediaList({ media, userId }: Props) {
         });
     };
 
-    const getTypeBadge = (type: "IMAGE" | "VIDEO") => {
-        if (type === "IMAGE") {
-            return <Badge variant="default" className="bg-blue-100 text-blue-800"><Image className="h-3 w-3 mr-1" />Görsel</Badge>;
-        } else {
-            return <Badge variant="default" className="bg-purple-100 text-purple-800"><Video className="h-3 w-3 mr-1" />Video</Badge>;
+    const getTypeBadge = (type: MediaType) => {
+        switch (type) {
+            case "IMAGE":
+                return <Badge variant="default" className="bg-blue-100 text-blue-800"><Image className="h-3 w-3 mr-1" />Görsel</Badge>;
+            case "VIDEO":
+                return <Badge variant="default" className="bg-purple-100 text-purple-800"><Video className="h-3 w-3 mr-1" />Video</Badge>;
+            case "DOCUMENT":
+                return <Badge variant="default" className="bg-green-100 text-green-800"><FileText className="h-3 w-3 mr-1" />Doküman</Badge>;
+            case "AUDIO":
+                return <Badge variant="default" className="bg-orange-100 text-orange-800"><Music className="h-3 w-3 mr-1" />Ses</Badge>;
+            default:
+                return <Badge variant="default" className="bg-gray-100 text-gray-800"><FileText className="h-3 w-3 mr-1" />Dosya</Badge>;
         }
     };
 
@@ -177,12 +185,20 @@ export function MediaList({ media, userId }: Props) {
                                                 alt={file.name}
                                                 className="w-full h-full object-cover"
                                             />
-                                        ) : (
+                                        ) : file.type === "VIDEO" ? (
                                             <video
                                                 src={file.link}
                                                 className="w-full h-full object-cover"
                                                 controls
                                             />
+                                        ) : file.type === "AUDIO" ? (
+                                            <div className="flex items-center justify-center h-full">
+                                                <Music className="h-12 w-12 text-muted-foreground" />
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center justify-center h-full">
+                                                <FileText className="h-12 w-12 text-muted-foreground" />
+                                            </div>
                                         )}
                                     </div>
                                     <div className="flex flex-col gap-1 pt-2">

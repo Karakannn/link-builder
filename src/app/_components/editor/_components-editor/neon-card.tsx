@@ -10,19 +10,20 @@ import BadgeElementName from "@/components/global/editor-element/badge-element-n
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import Recursive from "./recursive";
-import DropZoneWrapper, { Layout } from "./dropzone-wrapper";
 import { useLayout } from "@/hooks/use-layout";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
   element: EditorElement;
-  layout?: Layout;
+  layout?: 'vertical' | 'horizontal';
 };
 
-const NeonCardComponent = ({ element, layout = Layout.Vertical }: Props) => {
+const NeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const { state, dispatch } = useEditor();
   const { id, styles, content, type } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { getLayoutStyles } = useLayout();
+  const { handleSelectElement } = useElementSelection(element);
 
   const sortable = useSortable({
     id: id,
@@ -47,24 +48,11 @@ const NeonCardComponent = ({ element, layout = Layout.Vertical }: Props) => {
   // Get computed content based on current device
   const computedContent = getElementContent(element, state.editor.device);
 
-  const handleOnClickBody = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!state.editor.liveMode && !sortable.isDragging) {
-      dispatch({
-        type: "CHANGE_CLICKED_ELEMENT",
-        payload: {
-          elementDetails: element,
-        },
-      });
-    }
-  };
-
-  // Extract card specific props from content with defaults
-  const cardProps = !Array.isArray(computedContent) ? computedContent : {};
-  const firstColor = cardProps.firstColor || "#ff00aa";
-  const secondColor = cardProps.secondColor || "#00FFF1";
-  const borderSize = cardProps.borderSize || 2;
-  const borderRadius = cardProps.borderRadius || 20;
+  // Extract neon card properties from content
+  const borderSize = computedContent.borderSize || 2;
+  const borderRadius = computedContent.borderRadius || 20;
+  const firstColor = computedContent.firstColor || "#ff00aa";
+  const secondColor = computedContent.secondColor || "#00FFF1";
 
   useEffect(() => {
     setShowSpacingGuides(
@@ -91,7 +79,8 @@ const NeonCardComponent = ({ element, layout = Layout.Vertical }: Props) => {
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
-        onClick={handleOnClickBody}
+        onClick={handleSelectElement}
+        data-element-id={id}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
       >
@@ -109,15 +98,13 @@ const NeonCardComponent = ({ element, layout = Layout.Vertical }: Props) => {
           {Array.isArray(content) && content.length > 0 && (
             <div style={getLayoutStyles(layout)}>
               {content.map((childElement, index) => (
-                <DropZoneWrapper
-                  key={childElement.id}
-                  elementId={childElement.id}
+                <Recursive 
+                  key={childElement.id} 
+                  element={childElement} 
                   containerId={id}
                   index={index}
                   layout={layout}
-                >
-                  <Recursive element={childElement} />
-                </DropZoneWrapper>
+                />
               ))}
             </div>
           )}

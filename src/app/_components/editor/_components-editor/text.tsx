@@ -2,11 +2,13 @@ import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
-import { useDraggable } from "@dnd-kit/core";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -18,13 +20,11 @@ const TextComponent = ({ element }: Props) => {
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+    const { handleSelectElement } = useElementSelection(element);
     
-    // Get computed styles based on current device
-    const computedStyles = getElementStyles(element, state.editor.device);
-
-    // dnd-kit draggable
-    const draggable = useDraggable({
-        id: `draggable-${id}`,
+    // dnd-kit sortable
+    const sortable = useSortable({
+        id: id,
         data: {
             type: type,
             elementId: id,
@@ -35,14 +35,11 @@ const TextComponent = ({ element }: Props) => {
         disabled: state.editor.liveMode,
     });
 
-    const handleOnClickBody = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        dispatch({
-            type: "CHANGE_CLICKED_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
+    // Get computed styles based on current device
+    const computedStyles = {
+        ...getElementStyles(element, state.editor.device),
+        transform: CSS.Transform.toString(sortable.transform),
+        transition: sortable.transition,
     };
 
     const handleBlurElement = () => {
@@ -76,20 +73,20 @@ const TextComponent = ({ element }: Props) => {
     return (
         <EditorElementWrapper element={element}>
             <div
-                ref={draggable.setNodeRef}
+                ref={sortable.setNodeRef}
                 style={computedStyles}
                 className={clsx("relative transition-all", {
                     "!border-blue-500": state.editor.selectedElement.id === id,
                     "!border-solid": state.editor.selectedElement.id === id,
                     "!border-dashed border border-slate-300": !state.editor.liveMode,
                     "cursor-grab": !state.editor.liveMode,
-                    "cursor-grabbing": draggable.isDragging,
-                    "opacity-50": draggable.isDragging,
+                    "cursor-grabbing": sortable.isDragging,
+                    "opacity-50": sortable.isDragging,
                 })}
-                onClick={handleOnClickBody}
-                // Sadece edit mode'da drag listeners ekle
-                {...(!state.editor.liveMode ? draggable.listeners : {})}
-                {...(!state.editor.liveMode ? draggable.attributes : {})}
+                onClick={handleSelectElement}
+                data-element-id={id}
+                {...(!state.editor.liveMode ? sortable.listeners : {})}
+                {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
                 {showSpacingGuides && (
                     <SpacingVisualizer styles={computedStyles} />
@@ -101,17 +98,15 @@ const TextComponent = ({ element }: Props) => {
                     contentEditable={!state.editor.liveMode} 
                     onBlur={handleBlurElement}
                     className={clsx({
-                        "select-none": state.editor.selectedElement.id !== id, // Seçili değilse text seçimi kapalı
+                        "select-none": state.editor.selectedElement.id !== id,
                     })}
                     onClick={(e) => {
-                        // Span içindeki tıklamayı da parent'a ilet
                         if (!state.editor.liveMode) {
                             e.stopPropagation();
-                            handleOnClickBody(e as any);
+                            handleSelectElement(e as any);
                         }
                     }}
                 />
-
                 <BadgeElementName element={element} />
                 <DeleteElementButton element={element} />
             </div>

@@ -14,7 +14,6 @@ type Props = {
 
 const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => {
   const { dispatch, state } = useEditor();
-  console.log("pageContent", state.editor.elements);
 
   useEffect(() => {
     if (liveMode) {

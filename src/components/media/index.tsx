@@ -3,12 +3,13 @@ import UploadButton from "./upload-button";
 import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from "../ui/command";
 import MediaCard from "./media-card";
 import { FolderSearch } from "lucide-react";
+import { MediaType } from "@prisma/client";
 
 type MediaFile = {
     id: string;
     name: string;
     link: string;
-    type: "IMAGE" | "VIDEO";
+    type: MediaType;
     alt?: string;
     size?: number;
     mimeType?: string;
