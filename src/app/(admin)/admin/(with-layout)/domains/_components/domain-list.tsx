@@ -39,27 +39,45 @@ export function DomainList({ domains, sites }: Props) {
 
     const handleAddDomain = async () => {
         if (!domainName || !selectedSiteId) {
-            toast.error("Please fill all fields");
+            toast.error("Lütfen tüm alanları doldurun");
+            return;
+        }
+
+        // Domain adını temizle ve kontrol et
+        const cleanDomainName = domainName.toLowerCase().trim();
+        
+        // Basit domain format kontrolü
+        if (!cleanDomainName.includes('.') || cleanDomainName.length < 3) {
+            toast.error("Geçerli bir domain adı girin (örn: example.com)");
+            return;
+        }
+
+        // Aynı domain adının zaten var olup olmadığını kontrol et
+        const existingDomain = domains.find(d => d.name.toLowerCase() === cleanDomainName);
+        if (existingDomain) {
+            toast.error("Bu domain adı zaten kullanılıyor");
             return;
         }
 
         setIsLoading(true);
         try {
             const result = await addDomain({
-                name: domainName.toLowerCase().trim(),
+                name: cleanDomainName,
                 siteId: selectedSiteId,
             });
 
             if (result.status === 200) {
-                toast.success("Domain added successfully!");
+                toast.success("Domain başarıyla eklendi!");
                 setIsAddingDomain(false);
                 setDomainName("");
                 setSelectedSiteId("");
+                // Sayfayı yenile
+                window.location.reload();
             } else {
-                toast.error(result.message || "Failed to add domain");
+                toast.error(result.message || "Domain eklenirken bir hata oluştu");
             }
         } catch (error) {
-            toast.error("An error occurred");
+            toast.error("Beklenmeyen bir hata oluştu");
         } finally {
             setIsLoading(false);
         }

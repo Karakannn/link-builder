@@ -1,63 +1,82 @@
-"use client"
-
 import React from 'react'
 import { NavDocuments } from './nav-documents'
 import { NavMain } from './nav-main'
 import { NavSecondary } from './nav-secondary'
-import {
-    IconDashboard,
-    IconDatabase,
-    IconSettings,
-    IconWorld,
-} from "@tabler/icons-react"
-import { Building2, File } from 'lucide-react'
+import { NavAdmin } from './nav-admin'
+import { getAuthUserDetails } from '@/actions/auth'
 
 type Props = {}
 
-const data = {
-    navMain: [
+const SidebarContentWrapper = async (props: Props) => {
+    const user = await getAuthUserDetails();
+
+    const baseNavMain = [
         {
             title: "Dashboard",
             url: "/admin/dashboard",
-            icon: IconDashboard,
+            icon: "dashboard",
         },
         {
             title: "Pages",
             url: "/admin/sites",
-            icon: File,
+            icon: "file",
         },
         {
             title: "Domains",
             url: "/admin/domains",
-            icon: IconWorld,
+            icon: "world",
         },
         {
             title: "Landing Modal",
             url: "/admin/landing-modal",
-            icon: IconDatabase,
+            icon: "database",
         },
-    ],
+    ];
 
-    navSecondary: [
+    const adminNavMain = [
         {
-            title: "Settings",
-            url: "/admin/settings",
-            icon: IconSettings,
+            title: "All Users Pages",
+            url: "/admin/all-pages",
+            icon: "users",
         },
-    ],
-    documents: [
         {
-            name: "Medya",
-            url: "/admin/media",
-            icon: IconDatabase,
+            title: "All Modals",
+            url: "/admin/all-modals",
+            icon: "database",
         },
-    ],
-}
+        {
+            title: "All Domains",
+            url: "/admin/all-domains",
+            icon: "world",
+        },
+    ];
 
-const SidebarContentWrapper = (props: Props) => {
-    return (
+    const data = {
+        navMain: baseNavMain,
+        navSecondary: [
+            {
+                title: "Settings",
+                url: "/admin/settings",
+                icon: "settings",
+            },
+        ],
+        documents: [
+            {
+                name: "Medya",
+                url: "/admin/media",
+                icon: "database",
+            },
+        ],
+    }
+
+        return (
         <>
             <NavMain items={data.navMain} />
+            
+            {user && user.role === "ADMIN" && (
+                <NavAdmin items={adminNavMain} />
+            )}
+            
             <NavDocuments items={data.documents} />
             <NavSecondary items={data.navSecondary} className="mt-auto" />
         </>

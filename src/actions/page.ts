@@ -2,7 +2,7 @@
 
 import { client } from "@/lib/prisma";
 import { Page, User } from "@prisma/client";
-import { onAuthenticatedUser } from "./auth";
+import { onAuthenticatedUser, onAdminUser } from "./auth";
 import { revalidatePath } from "next/cache";
 
 export const createInitialPage = async (user: User) => {
@@ -515,6 +515,32 @@ export const createPageFromTemplate = async (
       return { status: 400, message: "A page with this slug already exists" };
     }
 
+    // Aynı title kontrolü
+    const existingPageWithTitle = await client.page.findFirst({
+      where: {
+        title: title,
+        site: {
+          userId: user.id
+        }
+      },
+    });
+
+    if (existingPageWithTitle) {
+      return { status: 400, message: `"${title}" isimli bir sayfa zaten mevcut` };
+    }
+
+    // Modal ile aynı isim kontrolü
+    const existingModal = await client.landingModal.findFirst({
+      where: {
+        name: title,
+        userId: user.id
+      },
+    });
+
+    if (existingModal) {
+      return { status: 400, message: `"${title}" isimli bir modal zaten mevcut` };
+    }
+
     // Sayfa oluştur
     const response = await client.page.create({
       data: {
@@ -783,5 +809,471 @@ export const upsertPage = async (page: Page) => {
   } catch (error) {
     console.error("Page upsert error:", error);
     return { status: 500, message: "An error occurred", error };
+  }
+};
+
+// Admin fonksiyonları
+export const getAllUsersPages = async () => {
+  try {
+    const admin = await onAdminUser();
+
+    if (admin.status !== 200) {
+      return { status: admin.status, message: admin.message };
+    }
+
+    // Tüm kullanıcıları ve sayfalarını getir
+    const usersWithPages = await client.user.findMany({
+      where: {
+        role: "USER", // Sadece normal kullanıcıları getir
+      },
+      include: {
+        sites: {
+          include: {
+            pages: {
+              orderBy: [
+                { isHome: 'desc' },
+                { createdAt: 'asc' }
+              ],
+            },
+            user: {
+              select: {
+                id: true,
+                firstname: true,
+                lastname: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Her sayfanın content'ini parse et
+    const processedUsers = usersWithPages.map(user => ({
+      ...user,
+      sites: user.sites.map(site => ({
+        ...site,
+        pages: site.pages.map(page => {
+          let parsedContent = page.content;
+          if (typeof page.content === 'string') {
+            try {
+              parsedContent = JSON.parse(page.content);
+            } catch (error) {
+              console.error("Error parsing page content:", error);
+              parsedContent = [
+                {
+                  id: "__body",
+                  name: "Body",
+                  type: "__body",
+                  styles: {
+                    backgroundColor: "white",
+                    height: "100%",
+                  },
+                  content: [],
+                },
+              ];
+            }
+          }
+
+          return {
+            ...page,
+            content: parsedContent,
+          };
+        }),
+      })),
+    }));
+
+    return {
+      status: 200,
+      users: processedUsers,
+      totalUsers: processedUsers.length,
+      totalSites: processedUsers.reduce((acc, user) => acc + user.sites.length, 0),
+      totalPages: processedUsers.reduce((acc, user) => 
+        acc + user.sites.reduce((siteAcc, site) => siteAcc + site.pages.length, 0), 0
+      ),
+    };
+  } catch (error) {
+    console.error("Error fetching all users pages:", error);
+    return { status: 500, message: "Failed to fetch all users pages" };
+  }
+};
+
+export const getUsersWithoutPages = async () => {
+  try {
+    const admin = await onAdminUser();
+
+    if (admin.status !== 200) {
+      return { status: admin.status, message: admin.message };
+    }
+
+    // Tüm kullanıcıları ve sitelerini getir
+    const usersWithSites = await client.user.findMany({
+      where: {
+        role: "USER", // Sadece normal kullanıcıları getir
+      },
+      include: {
+        sites: {
+          include: {
+            pages: true,
+            user: {
+              select: {
+                id: true,
+                firstname: true,
+                lastname: true,
+                email: true,
+              },
+            },
+          }
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    // Sadece sayfası olmayan kullanıcıları filtrele
+    const usersWithoutPages = usersWithSites.filter(user => {
+      return user.sites.some(site => site.pages.length === 0);
+    });
+
+    return {
+      status: 200,
+      users: usersWithoutPages
+    };
+  } catch (error) {
+    console.error("Error fetching users without pages:", error);
+    return { status: 500, message: "Failed to fetch users without pages" };
+  }
+};
+
+export const adminDeletePage = async (pageId: string) => {
+  try {
+    const admin = await onAdminUser();
+
+    if (admin.status !== 200) {
+      return { status: admin.status, message: admin.message };
+    }
+
+    // Sayfayı bul
+    const page = await client.page.findUnique({
+      where: {
+        id: pageId,
+      },
+      include: {
+        site: {
+          select: {
+            id: true,
+            name: true,
+            user: {
+              select: {
+                id: true,
+                firstname: true,
+                lastname: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!page) {
+      return { status: 404, message: "Page not found" };
+    }
+
+    // Sayfayı sil
+    await client.page.delete({
+      where: {
+        id: pageId,
+      },
+    });
+
+    revalidatePath(`/admin/all-pages`);
+
+    return {
+      status: 200,
+      message: "Page deleted successfully by admin",
+      deletedPage: {
+        id: page.id,
+        title: page.title,
+        siteName: page.site.name,
+        userName: `${page.site.user.firstname} ${page.site.user.lastname}`,
+        userEmail: page.site.user.email,
+      },
+    };
+  } catch (error) {
+    console.error("Admin delete page error:", error);
+    return { status: 500, message: "An error occurred", error };
+  }
+};
+
+export const adminUpdatePage = async (pageId: string, updates: Partial<Page>) => {
+  try {
+    const admin = await onAdminUser();
+
+    if (admin.status !== 200) {
+      return { status: admin.status, message: admin.message };
+    }
+
+    // Sayfayı bul
+    const page = await client.page.findUnique({
+      where: {
+        id: pageId,
+      },
+    });
+
+    if (!page) {
+      return { status: 404, message: "Page not found" };
+    }
+
+    // Sayfayı güncelle
+    const updatedPage = await client.page.update({
+      where: {
+        id: pageId,
+      },
+      data: {
+        title: updates.title,
+        slug: updates.slug,
+        isHome: updates.isHome,
+        content: updates.content ? (typeof updates.content === 'string' ? updates.content : JSON.stringify(updates.content)) : undefined,
+        seo: updates.seo as any,
+        updatedAt: new Date(),
+      },
+    });
+
+    revalidatePath(`/admin/all-pages`);
+
+    return {
+      status: 200,
+      message: "Page updated successfully by admin",
+      page: updatedPage,
+    };
+  } catch (error) {
+    console.error("Admin update page error:", error);
+    return { status: 500, message: "An error occurred", error };
+  }
+};
+
+export const adminSetPageAsHome = async (pageId: string) => {
+  try {
+    const admin = await onAdminUser();
+    if (!admin) {
+      return { status: 403, message: "Admin yetkisi gerekli" };
+    }
+
+    // Sayfayı bul
+    const page = await client.page.findUnique({
+      where: { id: pageId },
+      include: { site: true }
+    });
+
+    if (!page) {
+      return { status: 404, message: "Sayfa bulunamadı" };
+    }
+
+    // Aynı sitedeki diğer sayfaların ana sayfa özelliğini kaldır
+    await client.page.updateMany({
+      where: {
+        siteId: page.siteId,
+        isHome: true
+      },
+      data: {
+        isHome: false
+      }
+    });
+
+    // Bu sayfayı ana sayfa yap
+    await client.page.update({
+      where: { id: pageId },
+      data: { isHome: true }
+    });
+
+    revalidatePath("/admin/all-pages");
+    revalidatePath(`/admin/sites`);
+
+    return {
+      status: 200,
+      message: "Sayfa başarıyla ana sayfa olarak ayarlandı"
+    };
+  } catch (error) {
+    console.error("Error setting page as home:", error);
+    return { status: 400, message: "Ana sayfa ayarlanırken bir hata oluştu" };
+  }
+};
+
+export const adminCreatePageFromTemplate = async (
+  title: string, 
+  slug: string, 
+  templateContent: any[], 
+  siteId: string
+) => {
+  try {
+    const admin = await onAdminUser();
+
+    if (admin.status !== 200) {
+      return { status: admin.status, message: admin.message };
+    }
+
+    // Site'in var olduğunu kontrol et
+    const site = await client.site.findUnique({
+      where: {
+        id: siteId,
+      },
+      include: {
+        user: {
+          select: {
+            firstname: true,
+            lastname: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!site) {
+      return { status: 404, message: "Site not found" };
+    }
+
+    // Aynı slug kontrolü
+    const existingPage = await client.page.findFirst({
+      where: {
+        siteId: siteId,
+        slug: slug,
+      },
+    });
+
+    if (existingPage) {
+      return { status: 400, message: "Bu site için aynı slug'a sahip bir sayfa zaten mevcut" };
+    }
+
+    // Aynı title kontrolü
+    const existingPageWithTitle = await client.page.findFirst({
+      where: {
+        title: title,
+        site: {
+          userId: site.userId
+        }
+      },
+    });
+
+    if (existingPageWithTitle) {
+      return { status: 400, message: `"${title}" isimli bir sayfa zaten mevcut` };
+    }
+
+    // Modal ile aynı isim kontrolü
+    const existingModal = await client.landingModal.findFirst({
+      where: {
+        name: title,
+        userId: site.userId
+      },
+    });
+
+    if (existingModal) {
+      return { status: 400, message: `"${title}" isimli bir modal zaten mevcut` };
+    }
+
+    // Sayfa oluştur
+    const response = await client.page.create({
+      data: {
+        title,
+        slug,
+        isHome: false,
+        content: JSON.stringify(templateContent),
+        siteId: siteId,
+      },
+    });
+
+    revalidatePath(`/admin/all-pages`);
+
+    return {
+      status: 200,
+      message: "Sayfa başarıyla oluşturuldu",
+      page: response,
+      siteInfo: {
+        name: site.name,
+        userName: `${site.user.firstname} ${site.user.lastname}`,
+        userEmail: site.user.email,
+      },
+    };
+  } catch (error) {
+    console.error("Admin create page error:", error);
+    return { status: 500, message: "An error occurred", error };
+  }
+};
+
+export const adminGetPageById = async (pageId: string) => {
+  try {
+    const admin = await onAdminUser();
+
+    if (admin.status !== 200) {
+      return { status: admin.status, message: admin.message };
+    }
+
+    if (!pageId) {
+      return { status: 400, message: "Page ID is required" };
+    }
+
+    const page = await client.page.findUnique({
+      where: {
+        id: pageId,
+      },
+      include: {
+        site: {
+          select: {
+            name: true,
+            id: true,
+            userId: true,
+            user: {
+              select: {
+                firstname: true,
+                lastname: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!page) {
+      return { status: 404, message: "Page not found" };
+    }
+
+    // Content'i JSON string'den parse et
+    let parsedContent = page.content;
+    if (typeof page.content === 'string') {
+      try {
+        parsedContent = JSON.parse(page.content);
+      } catch (error) {
+        console.error("Error parsing page content:", error);
+        // Parse edilemezse varsayılan içerik kullan
+        parsedContent = [
+          {
+            id: "__body",
+            name: "Body",
+            type: "__body",
+            styles: {
+              backgroundColor: "white",
+              height: "100%",
+            },
+            content: [],
+          },
+        ];
+      }
+    }
+
+    return {
+      status: 200,
+      page: {
+        ...page,
+        content: parsedContent,
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching page by ID (admin):", error);
+    return { status: 400, message: "Failed to fetch page" };
   }
 };

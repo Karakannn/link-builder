@@ -14,13 +14,11 @@ import {
 
 import { getIcon } from "@/lib/utils"
 
-
-
-export function NavDocuments({
+export function NavAdmin({
   items,
 }: {
   items: {
-    name: string
+    title: string
     url: string
     icon: Icon | string
   }[]
@@ -28,16 +26,16 @@ export function NavDocuments({
 
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
-      <SidebarGroupLabel>Documents</SidebarGroupLabel>
+      <SidebarGroupLabel>Admin Yönetimi</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           const IconComponent: any = typeof item.icon === 'string' ? getIcon(item.icon) : item.icon
           return (
-            <SidebarMenuItem key={item.name}>
+            <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
                 <a href={item.url}>
                   <IconComponent />
-                  <span>{item.name}</span>
+                  <span>{item.title}</span>
                 </a>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -46,4 +44,4 @@ export function NavDocuments({
       </SidebarMenu>
     </SidebarGroup>
   )
-}
+} 

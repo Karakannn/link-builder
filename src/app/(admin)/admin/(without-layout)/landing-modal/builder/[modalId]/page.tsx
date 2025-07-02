@@ -1,11 +1,11 @@
-import { getLandingModalContent } from "@/actions/landing-modal";
+import { getLandingModalContent, adminGetLandingModalContent } from "@/actions/landing-modal";
 import FunnelEditor from "@/app/_components/editor";
 import FunnelEditorNavigation from "@/app/_components/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
 import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeholder-elements/drag-overlay-wrapper";
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
-import { getAuthUserDetails } from "@/actions/auth";
+import { getAuthUserDetails, onAdminUser } from "@/actions/auth";
 import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { ModalEditorWrapper } from "./_components/modal-editor-wrapper";
 
@@ -52,9 +52,22 @@ export default async function ModalBuilderPage({ params }: Props) {
 
     if (!user) return <>loading...</>;
 
+    // Admin kontrolü yap
+    const adminCheck = await onAdminUser();
     let modalContent;
+
     try {
-        modalContent = await getLandingModalContent(resolvedParams.modalId);
+        if (adminCheck.status === 200) {
+            const result = await adminGetLandingModalContent(resolvedParams.modalId);
+            if (result.status === 200) {
+                modalContent = result.modal;
+            } else {
+                console.error("Admin modal content error:", result);
+                modalContent = null;
+            }
+        } else {
+            modalContent = await getLandingModalContent(resolvedParams.modalId);
+        }
     } catch (error) {
         console.error("Error fetching modal content:", error);
         modalContent = null;

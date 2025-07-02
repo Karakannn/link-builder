@@ -1,5 +1,5 @@
-import { getAuthUserDetails } from "@/actions/auth";
-import { getPageById } from "@/actions/page";
+import { getAuthUserDetails, onAdminUser } from "@/actions/auth";
+import { getPageById, adminGetPageById } from "@/actions/page";
 import FunnelEditor from "@/app/_components/editor";
 import FunnelEditorNavigation from "@/app/_components/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
@@ -7,7 +7,7 @@ import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeh
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
-import { getSiteLandingModalSettings } from "@/actions/landing-modal";
+import { getSiteLandingModalSettings, adminGetSiteLandingModalSettings } from "@/actions/landing-modal";
 
 type Props = {
     params: Promise<{ pageId: string }>;
@@ -21,18 +21,49 @@ export default async function page({ params, searchParams }: Props) {
     const isLiveMode = resolvedSearchParams.live === 'true';
 
     const user = await getAuthUserDetails();
-    const { page }: any = await getPageById(pageId);
 
-    if (!page || !user) return <>loading...</>;
+    // Admin kontrolü yap
+    const adminCheck = await onAdminUser();
+    let pageData;
 
-    const pageContent = page.content as EditorElement[];
+    if (adminCheck.status === 200) {
+        pageData = await adminGetPageById(pageId);
+    } else {
+        pageData = await getPageById(pageId);
+    }
 
-    // Live mode ise sadece preview göster
+    console.log("User:", user);
+    console.log("Page data:", pageData);
+
+    if (!pageData || pageData.status !== 200 || !pageData.page || !user) {
+        return (
+            <div className="flex items-center justify-center h-screen">
+                <div className="text-center">
+                    <h2 className="text-xl font-semibold mb-2">Sayfa Yüklenemedi</h2>
+                    <p className="text-muted-foreground">
+                        {pageData?.message || "Sayfa bulunamadı veya erişim izniniz yok."}
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    const page = pageData.page;
+
+    const pageContent = page.content as any as EditorElement[];
+
     if (isLiveMode) {
-        // Server-side'da modal ayarlarını al
         let initialModalSettings = null;
         try {
-            const modalSettingsResult = await getSiteLandingModalSettings(page.siteId);
+            let modalSettingsResult;
+            
+            // Admin kontrolü yap
+            if (adminCheck.status === 200) {
+                modalSettingsResult = await adminGetSiteLandingModalSettings(page.siteId);
+            } else {
+                modalSettingsResult = await getSiteLandingModalSettings(page.siteId);
+            }
+            
             if (modalSettingsResult.status === 200 && modalSettingsResult.settings) {
                 initialModalSettings = {
                     enableLandingModal: modalSettingsResult.settings.enableLandingModal,
@@ -45,8 +76,8 @@ export default async function page({ params, searchParams }: Props) {
 
         return (
             <EditorProvider siteId={page.siteId} pageDetails={pageContent}>
-                <LivePreviewWrapper 
-                    pageContent={pageContent} 
+                <LivePreviewWrapper
+                    pageContent={pageContent}
                     siteId={page.siteId}
                     initialModalSettings={initialModalSettings}
                 />

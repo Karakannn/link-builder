@@ -116,3 +116,41 @@ export const getAuthUserDetails = async () => {
 
   return userData;
 };
+
+export const onAdminUser = async () => {
+  try {
+    const clerk = await currentUser();
+    if (!clerk) return { status: 404, message: "User not authenticated" };
+
+    const user = await client.user.findUnique({
+      where: {
+        clerkId: clerk.id,
+      },
+      select: {
+        id: true,
+        firstname: true,
+        lastname: true,
+        role: true,
+      },
+    });
+
+    if (!user) {
+      return { status: 404, message: "User not found" };
+    }
+
+    if (user.role !== "ADMIN") {
+      return { status: 403, message: "Access denied. Admin role required." };
+    }
+
+    return {
+      status: 200,
+      id: user.id,
+      firstname: user.firstname,
+      lastname: user.lastname,
+      role: user.role,
+    };
+  } catch (error) {
+    console.error("Admin auth error:", error);
+    return { status: 400, message: "Authentication error" };
+  }
+};

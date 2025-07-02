@@ -1,6 +1,8 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 import { DeviceTypes, EditorElement } from "@/providers/editor/editor-provider"
+import { Building2, Users, File } from "lucide-react";
+import { IconDashboard, IconSettings, IconDatabase, IconWorld } from "@tabler/icons-react";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -17,19 +19,19 @@ function parseCustomCSS(customCSS: string): any {
   }
 
   const cssProperties: any = {};
-  
+
   // CSS string'ini parse et - tüm property'leri kabul et
   const cssRules = customCSS
     .split(';')
     .map(rule => rule.trim())
     .filter(rule => rule && !rule.startsWith('/*') && !rule.startsWith('//')); // Sadece yorumları filtrele
-  
+
   cssRules.forEach(rule => {
     const colonIndex = rule.indexOf(':');
     if (colonIndex > 0) {
       const property = rule.substring(0, colonIndex).trim();
       const value = rule.substring(colonIndex + 1).trim();
-      
+
       if (property && value) {
         // CSS property name'ini camelCase'e çevir
         const camelCaseProperty = property.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
@@ -50,7 +52,7 @@ function parseCustomCSS(customCSS: string): any {
 export function getElementStyles(element: EditorElement, device: DeviceTypes): React.CSSProperties {
   // Base styles are always from the desktop version
   const baseStyles = { ...element.styles };
-  
+
   // If we're on desktop or no responsive styles exist, return base styles
   if (device === "Desktop" || !element.responsiveStyles) {
     // Apply custom CSS if it exists
@@ -63,10 +65,10 @@ export function getElementStyles(element: EditorElement, device: DeviceTypes): R
     }
     return baseStyles;
   }
-  
+
   // Get responsive override styles for current device
   const responsiveOverrides = element.responsiveStyles[device];
-  
+
   // Merge base styles with responsive overrides
   const mergedStyles = {
     ...baseStyles,
@@ -97,28 +99,28 @@ export function getElementContent(element: EditorElement, device: DeviceTypes): 
   if (Array.isArray(element.content)) {
     return element.content;
   }
-  
+
   // Handle object content (components)
   const baseContent = element.content;
-  
+
   // If we're on desktop or no responsiveContent exists, return base content
   if (
-    device === "Desktop" || 
-    !baseContent || 
-    typeof baseContent !== 'object' || 
-    !('responsiveContent' in baseContent) || 
+    device === "Desktop" ||
+    !baseContent ||
+    typeof baseContent !== 'object' ||
+    !('responsiveContent' in baseContent) ||
     !baseContent.responsiveContent
   ) {
     return baseContent;
   }
-  
+
   // Get responsive content override for current device
   const responsiveContentOverrides = baseContent.responsiveContent[device];
-  
+
   if (!responsiveContentOverrides) {
     return baseContent;
   }
-  
+
   // Return merged content
   return {
     ...baseContent,
@@ -139,7 +141,7 @@ function parseSpacingShorthand(value: string | number | undefined): [string, str
 
 export function expandSpacingShorthand(styles: React.CSSProperties): React.CSSProperties {
   const expanded = { ...styles };
-  
+
   // Handle padding - expand shorthand if it exists and individual values don't
   if (expanded.padding && (!expanded.paddingTop && !expanded.paddingRight && !expanded.paddingBottom && !expanded.paddingLeft)) {
     const [top, right, bottom, left] = parseSpacingShorthand(expanded.padding);
@@ -148,13 +150,13 @@ export function expandSpacingShorthand(styles: React.CSSProperties): React.CSSPr
     expanded.paddingBottom = bottom;
     expanded.paddingLeft = left;
   }
-  
+
   // Ensure individual padding values exist (use existing or default to 0px)
   if (!expanded.paddingTop) expanded.paddingTop = "0px";
   if (!expanded.paddingRight) expanded.paddingRight = "0px";
   if (!expanded.paddingBottom) expanded.paddingBottom = "0px";
   if (!expanded.paddingLeft) expanded.paddingLeft = "0px";
-  
+
   // Handle margin - expand shorthand if it exists and individual values don't
   if (expanded.margin && (!expanded.marginTop && !expanded.marginRight && !expanded.marginBottom && !expanded.marginLeft)) {
     const [top, right, bottom, left] = parseSpacingShorthand(expanded.margin);
@@ -163,12 +165,27 @@ export function expandSpacingShorthand(styles: React.CSSProperties): React.CSSPr
     expanded.marginBottom = bottom;
     expanded.marginLeft = left;
   }
-  
+
   // Ensure individual margin values exist (use existing or default to 0px)
   if (!expanded.marginTop) expanded.marginTop = "0px";
   if (!expanded.marginRight) expanded.marginRight = "0px";
   if (!expanded.marginBottom) expanded.marginBottom = "0px";
   if (!expanded.marginLeft) expanded.marginLeft = "0px";
-  
+
   return expanded;
+}
+
+
+
+export const getIcon = (iconName: string) => {
+  const icons = {
+    dashboard: IconDashboard,
+    file: File,
+    world: IconWorld,
+    database: IconDatabase,
+    users: Users,
+    settings: IconSettings,
+    building: Building2,
+  }
+  return icons[iconName as keyof typeof icons]
 }
