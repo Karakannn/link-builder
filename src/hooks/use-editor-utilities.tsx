@@ -215,17 +215,8 @@ export const useEditorUtilities = () => {
           ...layoutElement,
           id: sponsorNeonCardId,
           name: "Sponsor Neon Card",
-          customProperties: {
-            borderSize: 2,
-            borderRadius: 12,
-            neonColor: "#ff00aa",
-            animationDelay: 0,
-            imageUrl: "/file.svg",
-            title: "Sponsor Title",
-            description: "Sponsored content",
-          },
+          
           content: [
-            // Main container - exactly matches the example
             {
               id: sponsorContainerElementId,
               name: "Main Container",
@@ -239,15 +230,13 @@ export const useEditorUtilities = () => {
                 gap: "8px",
                 width: "100%",
                 height: "100%",
-                padding: "12px",
-                margin: "0px",
+                margin: "12px",
                 fontSize: "16px",
               } as React.CSSProperties,
               content: [
-
                 {
                   id: logoElementId,
-                  name: "Sponsor",
+                  name: "Sponsor Logo", 
                   type: "image",
                   styles: {
                     maxWidth: "80%",
@@ -281,6 +270,7 @@ export const useEditorUtilities = () => {
                     flexDirection: "column" as const,
                     alignItems: "center" as const,
                     padding: "0",
+                    width: "auto",
                   } as React.CSSProperties,
                   content: [
                     {
@@ -290,20 +280,19 @@ export const useEditorUtilities = () => {
                       styles: {
                         fontSize: "14px",
                         fontWeight: "700",
-                        color: "var(--card-color)",
+                        color: "#ff00aa",
                         textAlign: "center" as const,
                         margin: "0px",
                         padding: "0px",
                         lineHeight: "1.25rem",
-                        width: "100%",
                       } as React.CSSProperties,
                       content: {
-                        innerText: "Sponsor Title",
+                        innerText: "V.I.P",
                       },
                     },
                     {
                       id: sponsorTextElementId,
-                      name: "Sponsor Text",
+                      name: "Sponsor Description",
                       type: "text",
                       styles: {
                         fontSize: "12px",
@@ -313,10 +302,9 @@ export const useEditorUtilities = () => {
                         margin: "0px",
                         padding: "0px",
                         lineHeight: "1rem",
-                        width: "100%",
                       } as React.CSSProperties,
                       content: {
-                        innerText: "Sponsored content",
+                        innerText: "Description",
                       },
                     },
                   ],
@@ -327,6 +315,10 @@ export const useEditorUtilities = () => {
           styles: {
             width: "200px",
             height: "auto",
+            borderSize: 2,
+            zIndex: 10,
+            neonColor: "#ff00aa",
+            animationDelay: 0,
             ...defaultStyles,
           } as React.CSSProperties,
           type: "sponsorNeonCard",

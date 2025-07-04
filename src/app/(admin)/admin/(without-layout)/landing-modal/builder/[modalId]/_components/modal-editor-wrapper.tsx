@@ -45,7 +45,7 @@ export const ModalEditorWrapper = ({ pageDetails }: Props) => {
       className={clsx(
         "use-automation-zoom-in h-[calc(100vh_-_97px)] overflow-auto bg-background transition-all rounded-md",
         {
-          "!p-0 !mr-0": state.editor.previewMode === true || state.editor.liveMode === true,
+          "!p-0 !mr-0 !ml-0": state.editor.previewMode === true || state.editor.liveMode === true,
           "!w-[850px]": state.editor.device === "Tablet",
           "!w-[420px]": state.editor.device === "Mobile",
           "w-full": state.editor.device === "Desktop",

@@ -10,7 +10,7 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { Image as ImageIcon, Upload } from "lucide-react";
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -23,6 +23,7 @@ const ImageComponent = ({ element }: Props) => {
     const [hasError, setHasError] = useState(false);
     const imgRef = useRef<HTMLImageElement>(null);
     const { handleSelectElement } = useElementSelection(element);
+    const { getBorderClasses } = useElementBorderHighlight(element);
 
     const computedStyles = getElementStyles(element, state.editor.device);
     const computedContent = getElementContent(element, state.editor.device);
@@ -94,10 +95,7 @@ const ImageComponent = ({ element }: Props) => {
                     transform: CSS.Transform.toString(sortable.transform),
                     transition: sortable.transition,
                 }}
-                className={clsx("relative transition-all", {
-                    "!border-blue-500": state.editor.selectedElement.id === id,
-                    "!border-solid": state.editor.selectedElement.id === id,
-                    "!border-dashed border border-slate-300": !state.editor.liveMode,
+                className={clsx("relative", getBorderClasses(), {
                     "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,

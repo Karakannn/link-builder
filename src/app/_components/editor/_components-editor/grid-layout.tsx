@@ -7,7 +7,7 @@ import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dn
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
@@ -21,6 +21,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
   const { id, name, type, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
+  const { getBorderClasses } = useElementBorderHighlight(element);
   const [measureRef, containerHeight] = useElementHeight(false);
 
   const sortable = useSortable({
@@ -83,12 +84,9 @@ export const GridLayoutComponent = ({ element }: Props) => {
       <div
         ref={setNodeRef}
         style={finalGridStyles}
-        className={clsx("relative transition-all group", {
+        className={clsx("relative group", getBorderClasses(), {
           "max-w-full w-full": true,
           "h-fit": true,
-          "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
-          "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
-          "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
           "cursor-grab": !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,

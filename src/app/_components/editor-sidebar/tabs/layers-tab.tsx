@@ -17,6 +17,10 @@ const elementTypeInfo: Record<string, { name: string; color: string }> = {
     link: { name: "Link", color: "bg-amber-600" },
     video: { name: "Video", color: "bg-red-600" },
     image: { name: "Image", color: "bg-orange-600" },
+    gif: { name: "GIF", color: "bg-pink-600" },
+    sponsorNeonCard: { name: "Sponsor Card", color: "bg-indigo-600" },
+    gridLayout: { name: "Grid", color: "bg-teal-600" },
+    column: { name: "Column", color: "bg-cyan-600" },
 };
 
 // This is a complete implementation of the layers tab that shows elements in a hierarchical tree view
@@ -91,47 +95,47 @@ const LayersTab = () => {
             <div key={element.id} className="relative">
                 <div 
                     className={clsx(
-                        "flex items-center py-1.5 px-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer rounded-md transition-colors my-1 group",
+                        "flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer rounded-md transition-colors my-0.5 group",
                         {
                             "bg-blue-100 dark:bg-blue-900/50": isSelected,
                         }
                     )}
-                    style={{ paddingLeft: `${(depth + 1) * 12}px` }}
+                    style={{ paddingLeft: `${(depth + 1) * 10}px` }}
                     onClick={() => handleElementClick(element)}
                 >
                     {/* Element type indicator bar */}
                     <div 
-                        className={clsx("absolute left-1 h-5 w-1 rounded-full opacity-70", typeInfo.color)}
-                        style={{ left: `${depth * 12 + 4}px` }}
+                        className={clsx("absolute left-1 h-4 w-1 rounded-full opacity-70", typeInfo.color)}
+                        style={{ left: `${depth * 10 + 3}px` }}
                     />
                     
                     {/* Expand/collapse button */}
                     {hasChildren && (
                         <button 
-                            className="mr-1 p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500"
+                            className="mr-1 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500"
                             onClick={(e) => {
                                 e.stopPropagation();
                                 toggleLayer(element.id);
                             }}
                         >
-                            {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                            {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                         </button>
                     )}
-                    {!hasChildren && <div className="w-5 h-5" />}
+                    {!hasChildren && <div className="w-4 h-4" />}
                     
                     {/* Element type icon and name */}
                     <TooltipProvider delayDuration={600}>
                         <Tooltip>
                             <TooltipTrigger asChild>
                                 <span 
-                                    className={clsx("truncate text-sm flex-1", {
+                                    className={clsx("truncate text-xs flex-1", {
                                         "font-medium": isSelected
                                     })}
                                 >
                                     {element.name}
                                 </span>
                             </TooltipTrigger>
-                            <TooltipContent side="bottom">
+                            <TooltipContent side="right">
                                 <p>ID: {element.id}</p>
                                 <p>Type: {typeInfo.name}</p>
                             </TooltipContent>
@@ -140,7 +144,7 @@ const LayersTab = () => {
                     
                     {/* Element type badge */}
                     <span className={clsx(
-                        "text-xs text-white rounded px-1.5 py-0.5 ml-1 opacity-80 whitespace-nowrap", 
+                        "text-xs text-white rounded px-1 py-0.5 ml-1 opacity-80 whitespace-nowrap", 
                         typeInfo.color
                     )}>
                         {typeInfo.name}
@@ -154,7 +158,7 @@ const LayersTab = () => {
                         <div 
                             className="absolute w-px bg-gray-300 dark:bg-gray-700"
                             style={{ 
-                                left: `${depth * 12 + 18}px`,
+                                left: `${depth * 10 + 15}px`,
                                 top: '0px',
                                 height: '100%'
                             }}
@@ -169,16 +173,16 @@ const LayersTab = () => {
     };
 
     return (
-        <div className="p-4">
-            <div className="mb-4 flex items-center gap-2">
-                <Layers size={18} />
-                <h2 className="text-sm font-medium">Element Hierarchy</h2>
-                <Badge variant="outline" className="ml-auto">
-                    {countElements(state.editor.elements)} elements
+        <div className="p-3">
+            <div className="mb-3 flex items-center gap-2">
+                <Layers size={16} />
+                <h2 className="text-sm font-medium">Layers</h2>
+                <Badge variant="outline" className="ml-auto text-xs">
+                    {countElements(state.editor.elements)}
                 </Badge>
             </div>
             
-            <div className="h-[calc(100vh-300px)] overflow-auto pr-4">
+            <div className="h-[calc(100vh-200px)] overflow-auto pr-2">
                 {state.editor.elements.map((element) => renderElement(element))}
             </div>
         </div>

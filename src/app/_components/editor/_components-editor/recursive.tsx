@@ -10,9 +10,8 @@ const TwoColumns = React.lazy(() => import("./container").then(m => ({ default: 
 const Body = React.lazy(() => import("./body").then(m => ({ default: m.BodyContainer })));
 const LinkComponent = React.lazy(() => import("./link"));
 const SponsorNeonCardComponent = React.lazy(() => import("./sponsor-neon-card"));
-
-const MarqueeComponent = React.lazy(() => import("./marquee"));
 const GridLayout = React.lazy(() => import("./grid-layout").then(m => ({ default: m.GridLayoutComponent })));
+const MarqueeComponent = React.lazy(() => import("./marquee"));
 const Column = React.lazy(() => import("./column").then(m => ({ default: m.ColumnComponent })));
 const GifComponent = React.lazy(() => import("./gif"));
 const ImageComponent = React.lazy(() => import("./image"));

@@ -8,7 +8,7 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -21,6 +21,7 @@ const TextComponent = ({ element }: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { handleSelectElement } = useElementSelection(element);
+    const { getBorderClasses } = useElementBorderHighlight(element);
     
     // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
@@ -77,7 +78,6 @@ const TextComponent = ({ element }: Props) => {
     // Extract text properties from content
     const textProps = !Array.isArray(computedContent) ? computedContent : {};
 
-    console.log("textProps", textProps);
     
     const innerText = textProps.innerText || "Sponsor Title";
     const fontSize = textProps.fontSize || "12px";
@@ -90,10 +90,7 @@ const TextComponent = ({ element }: Props) => {
             <div
                 ref={sortable.setNodeRef}
                 style={computedStyles}
-                className={clsx("relative transition-all", {
-                    "!border-blue-500": state.editor.selectedElement.id === id,
-                    "!border-solid": state.editor.selectedElement.id === id,
-                    "!border-dashed border border-slate-300": !state.editor.liveMode,
+                className={clsx("relative", getBorderClasses(), {
                     "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,

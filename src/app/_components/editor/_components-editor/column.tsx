@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
 import { getElementStyles } from "@/lib/utils";
 import { CSS } from '@dnd-kit/utilities';
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { GripVertical } from "lucide-react";
@@ -28,6 +28,7 @@ export const ColumnComponent = ({
   const { id, name, type, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
+  const { getBorderClasses } = useElementBorderHighlight(element);
 
   const sortable = useSortable({
     id: id,
@@ -56,6 +57,7 @@ export const ColumnComponent = ({
     gridColumn: `span ${gridSpan}`,
     minHeight: "120px",
     opacity: sortable.isDragging ? 0.3 : 1,
+    zIndex: state.editor.selectedElement.id === id ? 10 : 1,
   };
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
@@ -65,12 +67,9 @@ export const ColumnComponent = ({
       <div
         ref={sortable.setNodeRef}
         style={columnStyles}
-        className={clsx("relative transition-all group", {
+        className={clsx("relative group", getBorderClasses(), {
           "max-w-full w-full": true,
           "h-fit": true,
-          "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode,
-          "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
-          "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
           "cursor-grab": !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,

@@ -4,7 +4,7 @@ import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { useState, useEffect } from "react"
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider"
-import { getElementStyles, getElementContent } from "@/lib/utils"
+import { getElementStyles } from "@/lib/utils"
 import Recursive from "./recursive"
 import ElementContextMenu from "@/providers/editor/editor-contex-menu"
 import BadgeElementName from "@/components/global/editor-element/badge-element-name"
@@ -12,8 +12,8 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer"
 import { SponsorNeonCard } from "@/components/ui/sponsor-neon-card"
 import clsx from "clsx"
-import { useLayout } from "@/hooks/use-layout"
-import { useElementSelection } from "@/hooks/editor/use-element-selection"
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection"
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 
 interface Props {
   element: EditorElement
@@ -21,11 +21,13 @@ interface Props {
 }
 
 const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
-  const { state, dispatch } = useEditor()
+  const { state } = useEditor()
   const { id, styles, content, type } = element
   const [showSpacingGuides, setShowSpacingGuides] = useState(false)
-  const { getLayoutStyles } = useLayout()
   const { handleSelectElement } = useElementSelection(element)
+  const { getBorderClasses, isSelected, isChildOfSelected } = useElementBorderHighlight(element)
+
+
 
   const sortable = useSortable({
     id: id,
@@ -40,27 +42,27 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
     disabled: state.editor.liveMode,
   })
 
-  // Get computed styles based on current device
   const computedStyles = {
     ...getElementStyles(element, state.editor.device),
     transform: CSS.Transform.toString(sortable.transform),
     transition: sortable.transition,
+  } as any;
+
+  // Styles'dan neon card property'lerini al - ✅ Düzeltildi
+  const borderSize = computedStyles.borderSize || 2;
+  const borderRadius = computedStyles.borderRadius;
+  const neonColor = computedStyles.neonColor || "#ff00aa";
+  const animationDelay = computedStyles.animationDelay || 0;
+
+  // BorderRadius'u parse et (px string'i varsa kaldır)
+  let parsedBorderRadius = 12;
+  if (typeof borderRadius === 'string') {
+    parsedBorderRadius = parseInt(borderRadius.replace('px', '')) || 12;
+  } else if (typeof borderRadius === 'number') {
+    parsedBorderRadius = borderRadius;
   }
 
-  // Get computed content based on current device
-  const computedContent = getElementContent(element, state.editor.device)
 
-  // Extract sponsor neon card properties from customProperties (using defaults if not defined)
-  const customProps = element.customProperties || {};
-  const borderSize = customProps.borderSize || 2;
-  const borderRadius = customProps.borderRadius || 12;
-  const neonColor = customProps.neonColor || "#ff00aa";
-  const animationDelay = customProps.animationDelay || 0;
-  
-  // Content properties from custom properties
-  const imageUrl = customProps.imageUrl || "/file.svg";
-  const title = customProps.title || "Sponsor Title";
-  const description = customProps.description || "Sponsored content";
 
   useEffect(() => {
     setShowSpacingGuides(
@@ -68,26 +70,16 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
     )
   }, [state.editor.selectedElement.id, id, state.editor.liveMode])
 
-  // Force re-render when custom properties change
-  useEffect(() => {
-    // This effect will trigger re-render when customProperties change
-  }, [element.customProperties])
-
   if (sortable.isDragging) return null
 
-  const setNodeRef = (node: HTMLDivElement | null) => {
-    sortable.setNodeRef(node)
-  }
+  const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
   return (
     <ElementContextMenu element={element}>
       <div
-        ref={setNodeRef}
+        ref={sortable.setNodeRef}
         style={computedStyles}
-        className={clsx("relative transition-all", {
-          "!border-blue-500": state.editor.selectedElement.id === id,
-          "!border-solid": state.editor.selectedElement.id === id,
-          "!border-dashed border border-slate-300": !state.editor.liveMode,
+        className={clsx("relative z-10", getBorderClasses(), {
           "cursor-grab": !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
@@ -103,64 +95,27 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
 
         <SponsorNeonCard
           borderSize={borderSize}
-          borderRadius={borderRadius}
+          borderRadius={parsedBorderRadius}
           neonColor={neonColor}
-          animationDelay={animationDelay}
+          animationDelay={animationDelay as number}
           className="w-full min-h-[100px]"
         >
-          {/* Custom content from custom properties - always show */}
-          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
-            {/* Image */}
-            {imageUrl && (
-              <div className="relative w-16 h-16 mb-2">
-                <img
-                  src={imageUrl}
-                  alt={title}
-                  className="w-full h-full object-contain"
-                  onError={(e) => {
-                    e.currentTarget.src = "/file.svg";
-                  }}
-                />
-              </div>
-            )}
-            
-            {/* Title */}
-            {title && (
-              <h3 
-                className="text-lg font-bold"
-                style={{ color: neonColor }}
-              >
-                {title}
-              </h3>
-            )}
-            
-            {/* Description */}
-            {description && (
-              <p className="text-sm text-white opacity-90">
-                {description}
-              </p>
-            )}
-          </div>
-
-          {/* Render child elements with layout styles - overlay on top */}
+          {/* Sadece child elementler */}
           {Array.isArray(content) && content.length > 0 && (
-            <div 
-              style={getLayoutStyles(layout)}
-              className="absolute inset-0 pointer-events-none"
-            >
+            <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
               {content.map((childElement, index) => (
-                <Recursive 
-                  key={childElement.id} 
-                  element={childElement} 
+                <Recursive
+                  key={childElement.id}
+                  element={childElement}
                   containerId={id}
                   index={index}
                   layout={layout}
                 />
               ))}
-            </div>
+            </SortableContext>
           )}
         </SponsorNeonCard>
-        
+
         <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
       </div>
@@ -168,4 +123,4 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   )
 }
 
-export default SponsorNeonCardComponent 
+export default SponsorNeonCardComponent

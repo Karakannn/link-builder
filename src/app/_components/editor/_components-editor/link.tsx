@@ -9,7 +9,7 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -21,6 +21,7 @@ const LinkComponent = ({ element }: Props) => {
     const linkRef = useRef<HTMLAnchorElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { handleSelectElement } = useElementSelection(element);
+    const { getBorderClasses } = useElementBorderHighlight(element);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -77,10 +78,7 @@ const LinkComponent = ({ element }: Props) => {
                     transform: CSS.Transform.toString(sortable.transform),
                     transition: sortable.transition,
                 }}
-                className={clsx("relative transition-all", {
-                    "!border-blue-500": state.editor.selectedElement.id === id,
-                    "!border-solid": state.editor.selectedElement.id === id,
-                    "!border-dashed border border-slate-300": !state.editor.liveMode,
+                className={clsx("relative", getBorderClasses(), {
                     "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,

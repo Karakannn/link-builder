@@ -13,12 +13,10 @@ interface EditorElementWrapperProps {
 export function EditorElementWrapper({ element, children }: EditorElementWrapperProps) {
     const { state } = useEditor();
 
-    // Live mode'da context menü olmadan sadece children'ı render et
     if (state.editor.liveMode) {
         return <>{children}</>;
     }
 
-    // Edit mode'da context menü ile sar
     return (
         <ElementContextMenu element={element}>
             {children}

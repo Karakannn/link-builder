@@ -7,7 +7,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
@@ -23,6 +23,7 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
   const { id, name, type, styles, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
+  const { getBorderClasses } = useElementBorderHighlight(element);
   const [measureRef, containerHeight] = useElementHeight(false);
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { getLayoutStyles } = useLayout();
@@ -80,15 +81,11 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
           ...computedStyles,
           ...getLayoutStyles(layout),
         }}
-        className={clsx("relative transition-all group", {
+        className={clsx("relative group", getBorderClasses(), {
           "max-w-full w-full": type === "container" || type === "2Col",
           "h-fit": type === "container",
           "h-full": type === "__body",
           "overflow-y-auto": type === "__body",
-          "!border-blue-500": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type !== "__body",
-          "!border-yellow-400 !border-4": state.editor.selectedElement.id === id && !state.editor.liveMode && state.editor.selectedElement.type === "__body",
-          "!border-solid": state.editor.selectedElement.id === id && !state.editor.liveMode,
-          "border-dashed border-[1px] border-slate-300": !state.editor.liveMode,
           "cursor-grab": type !== "__body" && !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,

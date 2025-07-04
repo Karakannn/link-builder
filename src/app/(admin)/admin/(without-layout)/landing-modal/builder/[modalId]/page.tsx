@@ -109,7 +109,7 @@ export default async function ModalBuilderPage({ params }: Props) {
                             }}
                             user={user}
                         />
-                        <div className="mr-[385px]">
+                        <div className="mr-[385px] ml-80">
                             <ModalEditorWrapper pageDetails={content} />
                         </div>
                         <FunnelEditorSidebar userId={user.id} />

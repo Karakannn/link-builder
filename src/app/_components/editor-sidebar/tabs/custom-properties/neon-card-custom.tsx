@@ -7,97 +7,156 @@ import { Slider } from "@/components/ui/slider";
 import { ColorPicker, ColorPickerSelection, ColorPickerHue, ColorPickerAlpha, ColorPickerOutput, ColorPickerFormat } from "@/components/ui/color-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Palette, Settings, Clock, Image, Type, FileText } from "lucide-react";
+import { Palette, Settings, Clock, Image, Type, FileText, Link2 } from "lucide-react";
 import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
+import { useEditor } from "@/providers/editor/editor-provider";
 import Color from "color";
 
 const presetColors = [
-  "#ff00aa", // Pink
-  "#00FFF1", // Cyan
-  "#FF6B6B", // Red
-  "#4ECDC4", // Teal
-  "#45B7D1", // Blue
-  "#96CEB4", // Green
-  "#FECA57", // Yellow
-  "#FF9FF3", // Light Pink
-  "#54A0FF", // Light Blue
-  "#5F27CD", // Purple
+  "#eb0a82", "#00FFF1", "#bcc388", "#4ECDC4", "#45B7D1", 
+  "#0d92bf", "#0aa947", "#f1db4b", "#db0000", "#960aa9",
 ];
 
 const SponsorNeonCardCustomProperties = () => {
-  const { handleChangeCustomValues, getCurrentContent, handleColorChange } = useEditorSidebar();
+  const { handleOnChanges, getCurrentStyles } = useEditorSidebar();
+  const { state, dispatch } = useEditor();
 
-  // Get current content and extract custom properties
-  const currentContent = getCurrentContent();
-  const customProps = currentContent?.customProperties || {};
+  // Parent element (neon card) styles
+  const currentStyles = getCurrentStyles();
+  const borderSize = currentStyles.borderSize || 2;
+  const borderRadius = parseInt(currentStyles.borderRadius?.toString().replace('px', '')) || 12;
+  const neonColor = currentStyles.neonColor || "#ff00aa";
+  const animationDelay = currentStyles.animationDelay || 0;
 
-  // Default values with fallbacks
-  const borderSize = customProps.borderSize || 2;
-  const borderRadius = customProps.borderRadius || 12;
-  const neonColor = customProps.neonColor || "#ff00aa";
-  const animationDelay = customProps.animationDelay || 0;
+  // Child elementleri bul
+  const element = state.editor.selectedElement;
+  const childElements = Array.isArray(element.content) ? element.content : [];
   
-  // Content properties
-  const imageUrl = customProps.imageUrl || "/file.svg";
-  const title = customProps.title || "Sponsor Title";
-  const description = customProps.description || "Sponsored content";
+  const findInContent = (content: any[], type: string, nameContains?: string): any => {
+    for (const child of content) {
+      if (child.type === type && 
+          (nameContains ? child.name.toLowerCase().includes(nameContains.toLowerCase()) : true)) {
+        return child;
+      }
+      if (Array.isArray(child.content)) {
+        const found = findInContent(child.content, type, nameContains);
+        if (found) return found;
+      }
+    }
+    return null;
+  };
 
+  const logoElement = findInContent(childElements, "image");
+  const titleElement = findInContent(childElements, "text", "title") || findInContent(childElements, "text", "sponsor");
+  const descriptionElement = findInContent(childElements, "text", "description") || findInContent(childElements, "text", "text");
+
+  // Title'ın current color'ını al
+  const titleCurrentColor = titleElement?.styles?.color || neonColor;
+
+  // Child element güncelleme fonksiyonu
+  const updateChildElement = (elementId: string, updates: any) => {
+    const updatedContent = updateChildInContent(element.content as any[], elementId, updates);
+    
+    dispatch({
+      type: "UPDATE_ELEMENT",
+      payload: {
+        elementDetails: {
+          ...element,
+          content: updatedContent,
+        },
+      },
+    });
+  };
+
+  const updateChildInContent = (content: any[], elementId: string, updates: any): any[] => {
+    return content.map(child => {
+      if (child.id === elementId) {
+        return { ...child, ...updates };
+      }
+      if (Array.isArray(child.content)) {
+        return {
+          ...child,
+          content: updateChildInContent(child.content, elementId, updates)
+        };
+      }
+      return child;
+    });
+  };
+
+  // Parent element (neon card) ayarları için
   const handleSliderChange = (property: string, value: number[]) => {
-    handleChangeCustomValues({
+    console.log("🔧 Neon Card Property Update:", property, "=", value[0]);
+    
+    handleOnChanges({
       target: {
-        id: `customProperties.${property}`,
-        value: value[0],
+        id: property,
+        value: property === "borderRadius" ? `${value[0]}px` : value[0],
       },
     } as any);
   };
 
   const handleColorPickerChange = (color: any) => {
-    let hexColor = "#ff00aa"; // Default color
+    let hexColor = "#ff00aa";
     
     try {
       if (Array.isArray(color) && color.length >= 3) {
-        // Convert RGBA array to hex using Color library
         const colorObj = Color.rgb(color[0], color[1], color[2]);
         hexColor = colorObj.hex();
       } else if (typeof color === 'string') {
-        // Validate and use the string color
         const colorObj = Color(color);
         hexColor = colorObj.hex();
       }
     } catch (error) {
       console.warn('Invalid color value:', color);
-      hexColor = "#ff00aa"; // Fallback to default
+      hexColor = "#ff00aa";
     }
     
-    handleChangeCustomValues({
+    // Neon card color'ını güncelle
+    handleOnChanges({
       target: {
-        id: "customProperties.neonColor",
+        id: "neonColor",
         value: hexColor,
       },
     } as any);
   };
 
-  // Handle direct hex input changes
-  const handleHexInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  // Title color için ayrı fonksiyon
+  const handleTitleColorChange = (color: any) => {
+    let hexColor = "#ff00aa";
     
     try {
-      // Ensure the value starts with # and is a valid hex color
-      const hexValue = value.startsWith('#') ? value : `#${value}`;
-      
-      // Validate using Color library
-      const colorObj = Color(hexValue);
-      const validHex = colorObj.hex();
-      
-      handleChangeCustomValues({
-        target: {
-          id: "customProperties.neonColor",
-          value: validHex,
-        },
-      } as any);
+      if (Array.isArray(color) && color.length >= 3) {
+        const colorObj = Color.rgb(color[0], color[1], color[2]);
+        hexColor = colorObj.hex();
+      } else if (typeof color === 'string') {
+        const colorObj = Color(color);
+        hexColor = colorObj.hex();
+      }
     } catch (error) {
-      // If invalid, just update the input value but don't save
-      console.warn('Invalid hex color:', value);
+      console.warn('Invalid color value:', color);
+      hexColor = "#ff00aa";
+    }
+    
+    // Title elementinin rengini güncelle
+    if (titleElement) {
+      updateChildElement(titleElement.id, {
+        styles: {
+          ...titleElement.styles,
+          color: hexColor,
+        }
+      });
+    }
+  };
+
+  const handleSync = () => {
+    // Title color'ı neon color ile senkronize et
+    if (titleElement) {
+      updateChildElement(titleElement.id, {
+        styles: {
+          ...titleElement.styles,
+          color: neonColor,
+        }
+      });
     }
   };
 
@@ -112,7 +171,7 @@ const SponsorNeonCardCustomProperties = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="neonColor">Neon Color</Label>
+          <Label htmlFor="neonColor">Neon Border Color</Label>
           <div className="flex items-center gap-2">
             <Popover>
               <PopoverTrigger asChild>
@@ -126,8 +185,8 @@ const SponsorNeonCardCustomProperties = () => {
               <PopoverContent className="w-80">
                 <ColorPicker
                   value={neonColor}
-                  onChange={(value) => handleColorPickerChange(value)}
-                  onChangeComplete={(value) => handleColorPickerChange(value)}
+                  onChange={handleColorPickerChange}
+                  onChangeComplete={handleColorPickerChange}
                 >
                   <ColorPickerSelection className="h-32" />
                   <div className="flex flex-col gap-2 mt-4">
@@ -142,10 +201,9 @@ const SponsorNeonCardCustomProperties = () => {
               </PopoverContent>
             </Popover>
             <Input
-              id="customProperties.neonColor"
               placeholder="#ff00aa"
               className="flex-1"
-              onChange={handleHexInputChange}
+              onChange={(e) => handleColorPickerChange(e.target.value)}
               value={neonColor}
             />
           </div>
@@ -159,8 +217,7 @@ const SponsorNeonCardCustomProperties = () => {
                   key={index}
                   variant="outline"
                   size="sm"
-                  className={`h-8 w-8 p-0 rounded-full border-2 ${neonColor === color ? 'border-primary border-2' : 'border-gray-300'
-                    }`}
+                  className={`h-8 w-8 p-0 rounded-full border-2 ${neonColor === color ? 'border-primary border-2' : 'border-gray-300'}`}
                   onClick={() => handleColorPickerChange(color)}
                   style={{ backgroundColor: color }}
                   title={color}
@@ -178,42 +235,106 @@ const SponsorNeonCardCustomProperties = () => {
       {/* Content Settings Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b">
-          <Image size={16} />
+          <Type size={16} />
           <span className="font-medium">Content Settings</span>
         </div>
 
-        {/* Image URL */}
-        <div className="space-y-2">
-          <Label htmlFor="customProperties.imageUrl">Image URL</Label>
-          <Input
-            id="customProperties.imageUrl"
-            placeholder="https://example.com/logo.png"
-            value={imageUrl}
-            onChange={handleChangeCustomValues}
-          />
-        </div>
+        {/* Title Text & Color */}
+        {titleElement && (
+          <div className="space-y-3">
+            <div className="space-y-2">
+              <Label htmlFor="title">Title Text</Label>
+              <Input
+                id="title"
+                placeholder="Sponsor Title"
+                value={(titleElement.content as any)?.innerText || ""}
+                onChange={(e) => updateChildElement(titleElement.id, {
+                  content: { ...(titleElement.content as any), innerText: e.target.value }
+                })}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Title Color</Label>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleSync}
+                  className="flex items-center gap-1 text-xs"
+                >
+                  <Link2 size={12} />
+                  Sync with Neon
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                      <div
+                        className="w-4 h-4 rounded"
+                        style={{ backgroundColor: titleCurrentColor }}
+                      />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80">
+                    <ColorPicker
+                      value={titleCurrentColor}
+                      onChange={handleTitleColorChange}
+                      onChangeComplete={handleTitleColorChange}
+                    >
+                      <ColorPickerSelection className="h-32" />
+                      <div className="flex flex-col gap-2 mt-4">
+                        <ColorPickerHue />
+                        <ColorPickerAlpha />
+                        <div className="flex items-center gap-2">
+                          <ColorPickerOutput />
+                          <ColorPickerFormat />
+                        </div>
+                      </div>
+                    </ColorPicker>
+                  </PopoverContent>
+                </Popover>
+                <Input
+                  placeholder="#ff00aa"
+                  className="flex-1"
+                  onChange={(e) => handleTitleColorChange(e.target.value)}
+                  value={titleCurrentColor}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
-        {/* Title */}
-        <div className="space-y-2">
-          <Label htmlFor="customProperties.title">Title</Label>
-          <Input
-            id="customProperties.title"
-            placeholder="Sponsor Title"
-            value={title}
-            onChange={handleChangeCustomValues}
-          />
-        </div>
+        {/* Image URL */}
+        {logoElement && (
+          <div className="space-y-2">
+            <Label htmlFor="imageUrl">Image URL</Label>
+            <Input
+              id="imageUrl"
+              placeholder="https://example.com/logo.png"
+              value={(logoElement.content as any)?.src || ""}
+              onChange={(e) => updateChildElement(logoElement.id, {
+                content: { ...(logoElement.content as any), src: e.target.value }
+              })}
+            />
+          </div>
+        )}
 
         {/* Description */}
-        <div className="space-y-2">
-          <Label htmlFor="customProperties.description">Description</Label>
-          <Input
-            id="customProperties.description"
-            placeholder="Sponsored content"
-            value={description}
-            onChange={handleChangeCustomValues}
-          />
-        </div>
+        {descriptionElement && (
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Input
+              id="description"
+              placeholder="Sponsored content"
+              value={(descriptionElement.content as any)?.innerText || ""}
+              onChange={(e) => updateChildElement(descriptionElement.id, {
+                content: { ...(descriptionElement.content as any), innerText: e.target.value }
+              })}
+            />
+          </div>
+        )}
       </div>
 
       {/* Border Settings Section */}
@@ -236,16 +357,6 @@ const SponsorNeonCardCustomProperties = () => {
             step={1}
             className="w-full"
           />
-          <Input
-            id="customProperties.borderSize"
-            type="number"
-            min="1"
-            max="10"
-            value={borderSize}
-            onChange={handleChangeCustomValues}
-            placeholder="2"
-            className="text-xs"
-          />
         </div>
 
         {/* Border Radius with Slider */}
@@ -261,16 +372,6 @@ const SponsorNeonCardCustomProperties = () => {
             step={1}
             className="w-full"
           />
-          <Input
-            id="customProperties.borderRadius"
-            type="number"
-            min="0"
-            max="50"
-            value={borderRadius}
-            onChange={handleChangeCustomValues}
-            placeholder="12"
-            className="text-xs"
-          />
         </div>
       </div>
 
@@ -281,7 +382,6 @@ const SponsorNeonCardCustomProperties = () => {
           <span className="font-medium">Animation Settings</span>
         </div>
 
-        {/* Animation Delay with Slider */}
         <div className="space-y-2">
           <Label className="text-muted-foreground">
             Animation Delay: {animationDelay}s
@@ -294,57 +394,11 @@ const SponsorNeonCardCustomProperties = () => {
             step={0.1}
             className="w-full"
           />
-          <Input
-            id="customProperties.animationDelay"
-            type="number"
-            min="0"
-            max="5"
-            step="0.1"
-            value={animationDelay}
-            onChange={handleChangeCustomValues}
-            placeholder="0"
-            className="text-xs"
-          />
-        </div>
-      </div>
-
-      {/* Quick Settings Grid */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2 pb-2 border-b">
-          <Settings size={16} />
-          <span className="font-medium">Quick Settings</span>
-        </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label className="text-xs text-muted-foreground">Border Size</Label>
-            <Input
-              id="customProperties.borderSize"
-              value={borderSize}
-              onChange={handleChangeCustomValues}
-              type="number"
-              min="1"
-              max="10"
-              className="text-xs"
-            />
-          </div>
-          <div>
-            <Label className="text-xs text-muted-foreground">Border Radius</Label>
-            <Input
-              id="customProperties.borderRadius"
-              value={borderRadius}
-              onChange={handleChangeCustomValues}
-              type="number"
-              min="0"
-              max="50"
-              className="text-xs"
-            />
-          </div>
         </div>
       </div>
 
       <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded-lg dark:bg-gray-800">
-        💡 <strong>Tip:</strong> Drag logo, text, and other elements into the sponsor card to create your sponsor content. Perfect for displaying sponsor logos with animated neon borders.
+        💡 <strong>Tip:</strong> Title color varsayılan olarak neon color ile aynıdır. "Sync with Neon" butonu ile tekrar senkronize edebilirsiniz.
       </div>
     </div>
   );

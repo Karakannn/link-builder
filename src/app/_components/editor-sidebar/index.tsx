@@ -21,68 +21,85 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
     const { state } = useEditor();
 
     return (
-        <Sheet open={true} modal={false}>
-            <Tabs className="w-full" defaultValue="Settings">
+        <>
+            {/* Sol Sidebar - Layers Panel */}
+            <Sheet open={true} modal={false}>
                 <SheetContent
-                    side={"right"}
-                    className={clsx("mt-[97px] w-16 z-[80] shadow-none p-0 focus:border-none transition-all overflow-hidden", {
-                        hidden: state.editor.previewMode,
-                    })}
-                >
-                    <TabList />
-                </SheetContent>
-                <SheetContent
-                    side={"right"}
-                    className={clsx("mt-[97px] w-80 z-[40] shadow-none p-0 mr-16 focus:border-none transition-all overflow-hidden", {
+                    side={"left"}
+                    className={clsx("mt-[97px] w-80 z-[40] shadow-none p-0 focus:border-none transition-all overflow-hidden", {
                         hidden: state.editor.previewMode,
                     })}
                     onClick={(e) => {
                         e.stopPropagation();
                     }}
                 >
-                    <EditorSidebarProvider>
-                        <div className="grid gap-4 h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar">
-                            <TabsContent value="Custom">
-                                <SheetHeader className="text-left p-6">
-                                    <SheetTitle>Custom</SheetTitle>
-                                    <SheetDescription>Custom Stiller burada. Tüm komponenta istediğin custom stili ekleyeyebilirsin</SheetDescription>
-                                </SheetHeader>
-                                <CustomTab />
-                            </TabsContent>
-
-                            <TabsContent value="CustomCSS">
-                                <CustomCSSTab />
-                            </TabsContent>
-
-                            <TabsContent value="Settings">
-                                <SheetHeader className="text-left p-6">
-                                    <SheetTitle>Stiller</SheetTitle>
-                                    <SheetDescription>Stiller burada. Tüm komponentlara istediğin stili ekleyeyebilirsin</SheetDescription>
-                                </SheetHeader>
-                                <SettingsTab />
-                            </TabsContent>
-                            <TabsContent value="Media">
-                                <MediaBucketTab userId={userId} />
-                            </TabsContent>
-                            <TabsContent value="Components">
-                                <SheetHeader className="text-left p-6 ">
-                                    <SheetTitle>Components</SheetTitle>
-                                    <SheetDescription>Burdan komponentları alıp sayfaya sürükleyebilirsin</SheetDescription>
-                                </SheetHeader>
-                                <ComponentsTab />
-                            </TabsContent>
-                            <TabsContent value="Layers">
-                                <SheetHeader className="text-left p-6 ">
-                                    <SheetTitle>Layers</SheetTitle>
-                                    <SheetDescription>Sayfadaki tüm elemanları gözden geçir ve düzenle</SheetDescription>
-                                </SheetHeader>
-                                <LayersTab />
-                            </TabsContent>
-                        </div>
-                    </EditorSidebarProvider>
+                    <div className="h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar">
+                        <SheetHeader className="text-left p-6">
+                            <SheetTitle>Layers</SheetTitle>
+                            <SheetDescription>Sayfadaki tüm elemanları gözden geçir ve düzenle</SheetDescription>
+                        </SheetHeader>
+                        <LayersTab />
+                    </div>
                 </SheetContent>
-            </Tabs>
-        </Sheet>
+            </Sheet>
+
+            {/* Sağ Sidebar - Ana Panel */}
+            <Sheet open={true} modal={false}>
+                <Tabs className="w-full" defaultValue="Settings">
+                    <SheetContent
+                        side={"right"}
+                        className={clsx("mt-[97px] w-16 z-[80] shadow-none p-0 focus:border-none transition-all overflow-hidden", {
+                            hidden: state.editor.previewMode,
+                        })}
+                    >
+                        <TabList />
+                    </SheetContent>
+                    <SheetContent
+                        side={"right"}
+                        className={clsx("mt-[97px] w-80 z-[40] shadow-none p-0 mr-16 focus:border-none transition-all overflow-hidden", {
+                            hidden: state.editor.previewMode,
+                        })}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <EditorSidebarProvider>
+                            <div className="grid gap-4 h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar">
+                                <TabsContent value="Custom">
+                                    <SheetHeader className="text-left p-6">
+                                        <SheetTitle>Custom</SheetTitle>
+                                        <SheetDescription>Custom Stiller burada. Tüm komponenta istediğin custom stili ekleyeyebilirsin</SheetDescription>
+                                    </SheetHeader>
+                                    <CustomTab />
+                                </TabsContent>
+
+                                <TabsContent value="CustomCSS">
+                                    <CustomCSSTab />
+                                </TabsContent>
+
+                                <TabsContent value="Settings">
+                                    <SheetHeader className="text-left p-6">
+                                        <SheetTitle>Stiller</SheetTitle>
+                                        <SheetDescription>Stiller burada. Tüm komponentlara istediğin stili ekleyeyebilirsin</SheetDescription>
+                                    </SheetHeader>
+                                    <SettingsTab />
+                                </TabsContent>
+                                <TabsContent value="Media">
+                                    <MediaBucketTab userId={userId} />
+                                </TabsContent>
+                                <TabsContent value="Components">
+                                    <SheetHeader className="text-left p-6 ">
+                                        <SheetTitle>Components</SheetTitle>
+                                        <SheetDescription>Burdan komponentları alıp sayfaya sürükleyebilirsin</SheetDescription>
+                                    </SheetHeader>
+                                    <ComponentsTab />
+                                </TabsContent>
+                            </div>
+                        </EditorSidebarProvider>
+                    </SheetContent>
+                </Tabs>
+            </Sheet>
+        </>
     );
 };
 
