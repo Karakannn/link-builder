@@ -55,13 +55,14 @@ export const ColumnComponent = ({
   const columnStyles = {
     ...computedStyles,
     gridColumn: `span ${gridSpan}`,
-    minHeight: "120px",
     opacity: sortable.isDragging ? 0.3 : 1,
     zIndex: state.editor.selectedElement.id === id ? 10 : 1,
   };
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
 
+  console.log(columnStyles);
+  
   return (
     <EditorElementWrapper element={element}>
       <div

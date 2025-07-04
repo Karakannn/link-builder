@@ -60,7 +60,7 @@ const GridLayoutCustomProperties = () => {
             id: v4(), 
             name: `Sütun ${content.length + 1}`, 
             content: [], 
-            styles: { ...defaultStyles, minHeight: "120px" }, 
+            styles: { ...defaultStyles }, 
             type: "column" as const 
         };
         updateElement([...content, newColumn], [...spans, defaultSpan]);

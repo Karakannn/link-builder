@@ -103,12 +103,10 @@ export const useEditorUtilities = () => {
           type: "column",
           styles: {
             ...containerDefaultStyles,
-            minHeight: "120px",
           } as React.CSSProperties,
         } as EditorElement;
 
       case "gridLayout":
-        // Başlangıçta 3 column oluştur
         const initialColumns = 3;
         const defaultGridColumns = 12;
         const defaultSpanPerColumn = Math.floor(defaultGridColumns / initialColumns); // 4
@@ -121,7 +119,7 @@ export const useEditorUtilities = () => {
             content: [],
             styles: {
               ...containerDefaultStyles,
-              minHeight: "120px",
+              padding: "0px",
             } as React.CSSProperties,
             type: "column",
           });
@@ -132,14 +130,14 @@ export const useEditorUtilities = () => {
           name: "Grid Layout",
           content: initialColumnElements, // Sadece column array'i
           styles: {
+            ...containerDefaultStyles,
             display: "grid",
             gridTemplateColumns: `repeat(${defaultGridColumns}, 1fr)`,
             gap: "1rem",
-            // Grid ayarlarını styles'a ekle
             gridColumns: defaultGridColumns,
             columnSpans: Array(initialColumns).fill(defaultSpanPerColumn), // [4, 4, 4]
             gridGap: "1rem",
-            ...containerDefaultStyles,
+           
           } as React.CSSProperties,
           type: "gridLayout",
         } as EditorElement;
