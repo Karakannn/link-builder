@@ -197,9 +197,6 @@
     border-radius: 12px;
   }
 
-  .sponsor-neon-card .title {
-    color: var(--card-color);
-  }
 
   /* Background Animations */
   .bg-animated-grid {

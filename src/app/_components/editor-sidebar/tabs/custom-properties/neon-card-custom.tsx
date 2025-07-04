@@ -7,8 +7,9 @@ import { Slider } from "@/components/ui/slider";
 import { ColorPicker, ColorPickerSelection, ColorPickerHue, ColorPickerAlpha, ColorPickerOutput, ColorPickerFormat } from "@/components/ui/color-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Palette, Settings, Clock } from "lucide-react";
+import { Palette, Settings, Clock, Image, Type, FileText } from "lucide-react";
 import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
+import Color from "color";
 
 const presetColors = [
   "#ff00aa", // Pink
@@ -35,6 +36,11 @@ const SponsorNeonCardCustomProperties = () => {
   const borderRadius = customProps.borderRadius || 12;
   const neonColor = customProps.neonColor || "#ff00aa";
   const animationDelay = customProps.animationDelay || 0;
+  
+  // Content properties
+  const imageUrl = customProps.imageUrl || "/file.svg";
+  const title = customProps.title || "Sponsor Title";
+  const description = customProps.description || "Sponsored content";
 
   const handleSliderChange = (property: string, value: number[]) => {
     handleChangeCustomValues({
@@ -48,14 +54,19 @@ const SponsorNeonCardCustomProperties = () => {
   const handleColorPickerChange = (color: any) => {
     let hexColor = "#ff00aa"; // Default color
     
-    if (Array.isArray(color) && color.length >= 3) {
-      // Convert RGBA array to hex
-      const r = Math.round(color[0]);
-      const g = Math.round(color[1]);
-      const b = Math.round(color[2]);
-      hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-    } else if (typeof color === 'string') {
-      hexColor = color;
+    try {
+      if (Array.isArray(color) && color.length >= 3) {
+        // Convert RGBA array to hex using Color library
+        const colorObj = Color.rgb(color[0], color[1], color[2]);
+        hexColor = colorObj.hex();
+      } else if (typeof color === 'string') {
+        // Validate and use the string color
+        const colorObj = Color(color);
+        hexColor = colorObj.hex();
+      }
+    } catch (error) {
+      console.warn('Invalid color value:', color);
+      hexColor = "#ff00aa"; // Fallback to default
     }
     
     handleChangeCustomValues({
@@ -64,6 +75,30 @@ const SponsorNeonCardCustomProperties = () => {
         value: hexColor,
       },
     } as any);
+  };
+
+  // Handle direct hex input changes
+  const handleHexInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    
+    try {
+      // Ensure the value starts with # and is a valid hex color
+      const hexValue = value.startsWith('#') ? value : `#${value}`;
+      
+      // Validate using Color library
+      const colorObj = Color(hexValue);
+      const validHex = colorObj.hex();
+      
+      handleChangeCustomValues({
+        target: {
+          id: "customProperties.neonColor",
+          value: validHex,
+        },
+      } as any);
+    } catch (error) {
+      // If invalid, just update the input value but don't save
+      console.warn('Invalid hex color:', value);
+    }
   };
 
   return (
@@ -91,6 +126,7 @@ const SponsorNeonCardCustomProperties = () => {
               <PopoverContent className="w-80">
                 <ColorPicker
                   value={neonColor}
+                  onChange={(value) => handleColorPickerChange(value)}
                   onChangeComplete={(value) => handleColorPickerChange(value)}
                 >
                   <ColorPickerSelection className="h-32" />
@@ -106,10 +142,10 @@ const SponsorNeonCardCustomProperties = () => {
               </PopoverContent>
             </Popover>
             <Input
-              id="neonColor"
+              id="customProperties.neonColor"
               placeholder="#ff00aa"
               className="flex-1"
-              onChange={handleChangeCustomValues}
+              onChange={handleHexInputChange}
               value={neonColor}
             />
           </div>
@@ -139,6 +175,47 @@ const SponsorNeonCardCustomProperties = () => {
         </div>
       </div>
 
+      {/* Content Settings Section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b">
+          <Image size={16} />
+          <span className="font-medium">Content Settings</span>
+        </div>
+
+        {/* Image URL */}
+        <div className="space-y-2">
+          <Label htmlFor="customProperties.imageUrl">Image URL</Label>
+          <Input
+            id="customProperties.imageUrl"
+            placeholder="https://example.com/logo.png"
+            value={imageUrl}
+            onChange={handleChangeCustomValues}
+          />
+        </div>
+
+        {/* Title */}
+        <div className="space-y-2">
+          <Label htmlFor="customProperties.title">Title</Label>
+          <Input
+            id="customProperties.title"
+            placeholder="Sponsor Title"
+            value={title}
+            onChange={handleChangeCustomValues}
+          />
+        </div>
+
+        {/* Description */}
+        <div className="space-y-2">
+          <Label htmlFor="customProperties.description">Description</Label>
+          <Input
+            id="customProperties.description"
+            placeholder="Sponsored content"
+            value={description}
+            onChange={handleChangeCustomValues}
+          />
+        </div>
+      </div>
+
       {/* Border Settings Section */}
       <div className="space-y-4">
         <div className="flex items-center gap-2 pb-2 border-b">
@@ -160,7 +237,7 @@ const SponsorNeonCardCustomProperties = () => {
             className="w-full"
           />
           <Input
-            id="borderSize"
+            id="customProperties.borderSize"
             type="number"
             min="1"
             max="10"
@@ -185,7 +262,7 @@ const SponsorNeonCardCustomProperties = () => {
             className="w-full"
           />
           <Input
-            id="borderRadius"
+            id="customProperties.borderRadius"
             type="number"
             min="0"
             max="50"
@@ -218,7 +295,7 @@ const SponsorNeonCardCustomProperties = () => {
             className="w-full"
           />
           <Input
-            id="animationDelay"
+            id="customProperties.animationDelay"
             type="number"
             min="0"
             max="5"
@@ -242,7 +319,7 @@ const SponsorNeonCardCustomProperties = () => {
           <div>
             <Label className="text-xs text-muted-foreground">Border Size</Label>
             <Input
-              id="borderSize"
+              id="customProperties.borderSize"
               value={borderSize}
               onChange={handleChangeCustomValues}
               type="number"
@@ -254,7 +331,7 @@ const SponsorNeonCardCustomProperties = () => {
           <div>
             <Label className="text-xs text-muted-foreground">Border Radius</Label>
             <Input
-              id="borderRadius"
+              id="customProperties.borderRadius"
               value={borderRadius}
               onChange={handleChangeCustomValues}
               type="number"

@@ -220,6 +220,9 @@ export const useEditorUtilities = () => {
             borderRadius: 12,
             neonColor: "#ff00aa",
             animationDelay: 0,
+            imageUrl: "/file.svg",
+            title: "Sponsor Title",
+            description: "Sponsored content",
           },
           content: [
             // Main container - exactly matches the example
@@ -236,13 +239,11 @@ export const useEditorUtilities = () => {
                 gap: "8px",
                 width: "100%",
                 height: "100%",
-                padding: "4px 12px",
+                padding: "12px",
                 margin: "0px",
                 fontSize: "16px",
-                minHeight: "100px",
               } as React.CSSProperties,
               content: [
-                // Logo image - exactly matches the example
 
                 {
                   id: logoElementId,
@@ -269,7 +270,6 @@ export const useEditorUtilities = () => {
                     alt: "Sponsor Logo",
                   },
                 },
-                // Content wrapper - exactly matches the example
                 {
                   id: crypto.randomUUID(),
                   name: "Content Wrapper",
@@ -277,55 +277,42 @@ export const useEditorUtilities = () => {
                   layout: "vertical",
                   styles: {
                     position: "relative" as const,
-                    zIndex: "20",
                     display: "flex",
                     flexDirection: "column" as const,
                     alignItems: "center" as const,
-                    gap: "0px",
-                    margin: "0px",
-                    padding: "0px",
-                    fontSize: "16px",
+                    padding: "0",
                   } as React.CSSProperties,
                   content: [
-                    // Title - exactly matches the example
                     {
                       id: sponsorTitleElementId,
                       name: "Sponsor Title",
                       type: "text",
                       styles: {
-                        fontSize: "12px",
-                        fontWeight: "bold",
+                        fontSize: "14px",
+                        fontWeight: "700",
                         color: "var(--card-color)",
                         textAlign: "center" as const,
                         margin: "0px",
                         padding: "0px",
-                        lineHeight: "1",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        opacity: "100%",
-                        position: "relative",
+                        lineHeight: "1.25rem",
                         width: "100%",
                       } as React.CSSProperties,
                       content: {
                         innerText: "Sponsor Title",
                       },
                     },
-                    // Text - exactly matches the example
                     {
                       id: sponsorTextElementId,
                       name: "Sponsor Text",
                       type: "text",
                       styles: {
-                        fontSize: "10px",
-                        color: "var(--card-color)",
+                        fontSize: "12px",
+                        fontWeight: "700",
+                        color: "white",
                         textAlign: "center" as const,
                         margin: "0px",
                         padding: "0px",
-                        lineHeight: "1",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                        opacity: "100%",
-                        position: "relative",
+                        lineHeight: "1rem",
                         width: "100%",
                       } as React.CSSProperties,
                       content: {

@@ -56,12 +56,22 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const borderRadius = customProps.borderRadius || 12;
   const neonColor = customProps.neonColor || "#ff00aa";
   const animationDelay = customProps.animationDelay || 0;
+  
+  // Content properties from custom properties
+  const imageUrl = customProps.imageUrl || "/file.svg";
+  const title = customProps.title || "Sponsor Title";
+  const description = customProps.description || "Sponsored content";
 
   useEffect(() => {
     setShowSpacingGuides(
       state.editor.selectedElement.id === id && !state.editor.liveMode
     )
   }, [state.editor.selectedElement.id, id, state.editor.liveMode])
+
+  // Force re-render when custom properties change
+  useEffect(() => {
+    // This effect will trigger re-render when customProperties change
+  }, [element.customProperties])
 
   if (sortable.isDragging) return null
 
@@ -98,9 +108,46 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
           animationDelay={animationDelay}
           className="w-full min-h-[100px]"
         >
-          {/* Render child elements with layout styles */}
+          {/* Custom content from custom properties - always show */}
+          <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
+            {/* Image */}
+            {imageUrl && (
+              <div className="relative w-16 h-16 mb-2">
+                <img
+                  src={imageUrl}
+                  alt={title}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    e.currentTarget.src = "/file.svg";
+                  }}
+                />
+              </div>
+            )}
+            
+            {/* Title */}
+            {title && (
+              <h3 
+                className="text-lg font-bold"
+                style={{ color: neonColor }}
+              >
+                {title}
+              </h3>
+            )}
+            
+            {/* Description */}
+            {description && (
+              <p className="text-sm text-white opacity-90">
+                {description}
+              </p>
+            )}
+          </div>
+
+          {/* Render child elements with layout styles - overlay on top */}
           {Array.isArray(content) && content.length > 0 && (
-            <div style={getLayoutStyles(layout)}>
+            <div 
+              style={getLayoutStyles(layout)}
+              className="absolute inset-0 pointer-events-none"
+            >
               {content.map((childElement, index) => (
                 <Recursive 
                   key={childElement.id} 
@@ -110,13 +157,6 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
                   layout={layout}
                 />
               ))}
-            </div>
-          )}
-
-          {/* Empty state */}
-          {Array.isArray(content) && content.length === 0 && (
-            <div className="min-h-[80px] text-gray-400 text-center py-4 flex items-center justify-center">
-              Drop logo and text elements here
             </div>
           )}
         </SponsorNeonCard>

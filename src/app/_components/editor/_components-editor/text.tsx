@@ -76,6 +76,9 @@ const TextComponent = ({ element }: Props) => {
 
     // Extract text properties from content
     const textProps = !Array.isArray(computedContent) ? computedContent : {};
+
+    console.log("textProps", textProps);
+    
     const innerText = textProps.innerText || "Sponsor Title";
     const fontSize = textProps.fontSize || "12px";
     const fontWeight = textProps.fontWeight || "bold";
@@ -112,15 +115,7 @@ const TextComponent = ({ element }: Props) => {
                     className={clsx("title", {
                         "select-none": state.editor.selectedElement.id !== id,
                     })}
-                    style={{
-                        fontSize,
-                        fontWeight,
-                        color,
-                        textAlign: textAlign as any,
-                        margin: "0px",
-                        padding: "0px",
-                        lineHeight: "1",
-                    }}
+                  
                     onClick={(e) => {
                         if (!state.editor.liveMode) {
                             e.stopPropagation();

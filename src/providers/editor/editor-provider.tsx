@@ -23,6 +23,9 @@ export type EditorElement = {
     borderRadius?: number;
     neonColor?: string;
     animationDelay?: number;
+    imageUrl?: string;
+    title?: string;
+    description?: string;
   };
   content:
   | EditorElement[]
