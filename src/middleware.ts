@@ -4,25 +4,22 @@ import type { NextRequest } from "next/server";
 
 const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/builder(.*)"]);
 
-// Function to check if hostname is a custom domain
 const isCustomDomain = (hostname: string): boolean => {
 
 
-    const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-one.vercel.app";
+    const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "prensmedya.com";
 
-    // List of known hosting domains
     const hostingDomains = [
         appDomain,
         "localhost",
         "localhost:3000",
         "127.0.0.1",
-        "linkbuilder.com",
+        "prensmedya.com",
     ];
 
-    // Separate check for hosting providers (these should NOT be treated as custom domains)
     const hostingProviders = [
         "vercel.app",
-        "vercel.com", 
+        "vercel.com",
         "netlify.app"
     ];
 
@@ -30,9 +27,9 @@ const isCustomDomain = (hostname: string): boolean => {
 
     // Exact match check first (most important)
     const isExactHostingDomain = hostingDomains.includes(hostname);
-    
+
     // Subdomain check for hosting providers
-    const isSubdomainOfHosting = hostingProviders.some(provider => 
+    const isSubdomainOfHosting = hostingProviders.some(provider =>
         hostname.endsWith(`.${provider}`)
     );
 
@@ -52,11 +49,11 @@ const normalizeDomain = (hostname: string): string => {
 export default clerkMiddleware(async (auth, req: NextRequest) => {
     try {
         const { hostname, pathname } = req.nextUrl;
-        
+
         // Get real hostname from X-Forwarded-Host or Host header (for ngrok)
-        const realHostname = req.headers.get('x-forwarded-host') || 
-                           req.headers.get('host') || 
-                           hostname;
+        const realHostname = req.headers.get('x-forwarded-host') ||
+            req.headers.get('host') ||
+            hostname;
 
 
 
@@ -76,17 +73,17 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
             // Normalize domain (remove www for consistent routing)
             const normalizedDomain = normalizeDomain(realHostname);
-            
-         
+
+
 
             // Her zaman normalize edilmiş domain ile rewrite yap
             // Custom domain page'de hem www'li hem www'siz kontrolü yapılacak
             const url = req.nextUrl.clone();
             url.pathname = `/custom-domain/${normalizedDomain}${pathname === "/" ? "" : pathname}`;
-            
+
             // Orijinal hostname'i header olarak geç
             url.searchParams.set('original_host', realHostname);
-            
+
 
             return NextResponse.rewrite(url);
         }
@@ -110,11 +107,11 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
 
         return NextResponse.next();
     } catch (err) {
-        console.error("❌ Middleware error:", err); 
+        console.error("❌ Middleware error:", err);
 
         // Safe fallback for custom domains
         const hostname = req.nextUrl.hostname;
-        
+
         if (isCustomDomain(hostname)) {
             const url = req.nextUrl.clone();
             const normalizedDomain = normalizeDomain(hostname);

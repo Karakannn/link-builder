@@ -132,12 +132,7 @@ const GifComponent = ({ element }: Props) => {
                                     </div>
                                 </div>
                             )}
-
-                            {src && !hasError && (
-                                <div className="absolute bottom-2 left-2 bg-black/60 text-white px-2 py-1 rounded text-xs font-medium">
-                                    GIF
-                                </div>
-                            )}
+                          
                         </div>
                     ) : (
                         <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
