@@ -13,8 +13,8 @@ const isCustomDomain = (hostname: string): boolean => {
         "localhost",
         "localhost:3000",
         "127.0.0.1",
-        appDomain, // prensmedya.com
-        `www.${appDomain}` // www.prensmedya.com
+        appDomain,
+        `www.${appDomain}` 
     ];
 
     const hostingProviders = [
