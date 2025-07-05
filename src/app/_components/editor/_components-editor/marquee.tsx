@@ -8,10 +8,10 @@ import { CSS } from '@dnd-kit/utilities';
 import Image from "next/image";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
-import { useLayout, Layout } from "@/hooks/use-layout";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useLayout, Layout } from "@/hooks/use-layout";
+import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 
 type Props = {
   element: EditorElement;
@@ -108,7 +108,6 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
         transition: sortable.transition,
       }}
       className={clsx("relative", getBorderClasses(), {
-        "cursor-grab": !state.editor.liveMode,
         "cursor-grabbing": sortable.isDragging,
         "opacity-50": sortable.isDragging,
       })}
@@ -146,7 +145,6 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
           </div>
         </div>
 
-        <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
     </div>
     </ElementContextMenu>

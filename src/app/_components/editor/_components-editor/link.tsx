@@ -7,7 +7,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
@@ -79,7 +78,6 @@ const LinkComponent = ({ element }: Props) => {
                     transition: sortable.transition,
                 }}
                 className={clsx("relative", getBorderClasses(), {
-                    "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
@@ -107,7 +105,6 @@ const LinkComponent = ({ element }: Props) => {
                         }
                     }}
                 />
-                <BadgeElementName element={element} />
                 <DeleteElementButton element={element} />
             </div>
         </EditorElementWrapper>

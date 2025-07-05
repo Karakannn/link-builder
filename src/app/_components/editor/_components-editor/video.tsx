@@ -1,15 +1,14 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import clsx from "clsx";
-import React, { useEffect, useState } from "react";
 import { getElementContent, getElementStyles } from "@/lib/utils";
+import clsx from "clsx";
+import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
-import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
+import { Play, Pause, Video as VideoIcon } from "lucide-react";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
 type Props = {
@@ -52,42 +51,38 @@ const VideoComponent = ({ element }: Props) => {
     }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
     return (
-        <ElementContextMenu element={element}>
-            <div
-                ref={sortable.setNodeRef}
-                style={{
-                    ...computedStyles,
-                    transform: CSS.Transform.toString(sortable.transform),
-                    transition: sortable.transition,
-                }}
-                className={clsx("relative", getBorderClasses(), {
-                    "cursor-grab": !state.editor.liveMode,
-                    "cursor-grabbing": sortable.isDragging,
-                    "opacity-50": sortable.isDragging,
+        <div
+            ref={sortable.setNodeRef}
+            style={{
+                ...computedStyles,
+                transform: CSS.Transform.toString(sortable.transform),
+                transition: sortable.transition,
+            }}
+            className={clsx("relative", getBorderClasses(), {
+                "cursor-grabbing": sortable.isDragging,
+                "opacity-50": sortable.isDragging,
+            })}
+            onClick={handleSelectElement}
+            data-element-id={id}
+            {...(!state.editor.liveMode ? sortable.listeners : {})}
+            {...(!state.editor.liveMode ? sortable.attributes : {})}
+        >
+            {showSpacingGuides && (
+                <SpacingVisualizer styles={computedStyles} />
+            )}
+
+            <iframe
+                src={videoSrc}
+                title="Video"
+                className={clsx("w-full h-full border-0", {
+                    "pointer-events-none": !state.editor.liveMode, // disabled edit mode
                 })}
-                onClick={handleSelectElement}
-                data-element-id={id}
-                {...(!state.editor.liveMode ? sortable.listeners : {})}
-                {...(!state.editor.liveMode ? sortable.attributes : {})}
-            >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+            />
 
-                <iframe
-                    src={videoSrc}
-                    title="Video"
-                    className={clsx("w-full h-full border-0", {
-                        "pointer-events-none": !state.editor.liveMode, // disabled edit mode
-                    })}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    allowFullScreen
-                />
-
-                <BadgeElementName element={element} />
-                <DeleteElementButton element={element} />
-            </div>
-        </ElementContextMenu>
+            <DeleteElementButton element={element} />
+        </div>
     );
 };
 

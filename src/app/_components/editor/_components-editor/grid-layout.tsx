@@ -1,15 +1,14 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useState, useEffect } from "react";
 import { ColumnComponent } from "./column";
-import { getElementStyles } from "@/lib/utils";
 import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 
@@ -84,10 +83,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
       <div
         ref={setNodeRef}
         style={finalGridStyles}
-        className={clsx("relative group", getBorderClasses(), {
-          "max-w-full w-full": true,
-          "h-fit": true,
-          "cursor-grab": !state.editor.liveMode,
+        className={clsx("relative", getBorderClasses(), {
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
@@ -114,7 +110,6 @@ export const GridLayoutComponent = ({ element }: Props) => {
           </SortableContext>
         )}
 
-        <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
         
         {/* Spacing Visualizer - only in edit mode and when selected */}
