@@ -419,6 +419,44 @@ const SponsorNeonCardCustomProperties = () => {
           <span className="font-medium">Animation Settings</span>
         </div>
 
+        {/* Animation Type Selection */}
+        <div className="space-y-2">
+          <Label htmlFor="animationType">Animation Type</Label>
+          <div className="grid grid-cols-2 gap-2">
+            {[
+              { value: 'none', label: 'None' },
+              { value: 'blink', label: 'Blink' },
+              { value: 'pulse-glow', label: 'Pulse Glow' },
+              { value: 'shake', label: 'Shake' },
+              { value: 'bounce-subtle', label: 'Bounce' },
+              { value: 'scale-pulse', label: 'Scale Pulse' },
+              { value: 'slide-in-left', label: 'Slide Left' },
+              { value: 'slide-in-right', label: 'Slide Right' },
+              { value: 'fade-in', label: 'Fade In' },
+              { value: 'zoom-in', label: 'Zoom In' },
+              { value: 'flip-in-y', label: 'Flip In Y' },
+            ].map((animation) => (
+              <Button
+                key={animation.value}
+                variant={currentStyles.animationType === animation.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => handleOnChanges({
+                  target: {
+                    id: "animationType",
+                    value: animation.value,
+                  },
+                } as any)}
+                className="text-xs"
+              >
+                {animation.label}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Select an animation effect for the neon card
+          </p>
+        </div>
+
         <div className="space-y-2">
           <Label className="text-muted-foreground">
             Animation Delay: {animationDelay}s

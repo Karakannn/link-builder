@@ -9,6 +9,7 @@ interface SponsorNeonCardProps {
   borderRadius?: number;
   neonColor?: string;
   animationDelay?: number;
+  animationType?: string;
   href?: string;
 }
 
@@ -31,14 +32,46 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
   borderRadius = 12,
   neonColor = '#ff00aa',
   animationDelay = 0,
+  animationType = 'blink',
   href,
 }) => {
   const rgbColor = hexToRgb(neonColor);
   const { state } = useEditor();
 
+  // Map animation types to CSS classes
+  const getAnimationClass = (type: string) => {
+    switch (type) {
+      case 'none':
+        return 'animate-none';
+      case 'blink':
+        return 'animate-blink';
+      case 'pulse-glow':
+        return 'animate-pulse-glow';
+      case 'shake':
+        return 'animate-shake';
+      case 'bounce-subtle':
+        return 'animate-bounce-subtle';
+      case 'scale-pulse':
+        return 'animate-scale-pulse';
+      case 'slide-in-left':
+        return 'animate-slide-in-left';
+      case 'slide-in-right':
+        return 'animate-slide-in-right';
+      case 'fade-in':
+        return 'animate-fade-in';
+      case 'zoom-in':
+        return 'animate-zoom-in';
+      case 'flip-in-y':
+        return 'animate-flip-in-y';
+      default:
+        return 'animate-blink';
+    }
+  };
+
   const commonProps = {
     className: cn(
       "relative flex items-center justify-center text-white overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
+      getAnimationClass(animationType),
       className
     ),
     style: {
@@ -48,46 +81,16 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
       background: 'rgba(28, 28, 28, 0.75)',
       backdropFilter: 'blur(1px)',
       height: '100%',
-      animation: `blink 8s infinite alternate, cardShadow 3.5s infinite`,
       animationDelay: `${animationDelay}s`,
       // CSS custom properties for animations
       '--card-color': neonColor,
       '--card-color-rgb': rgbColor,
+      '--animation-delay': `${animationDelay}s`,
     } as React.CSSProperties,
   };
 
   const content = (
     <>
-      {/* Keyframes styles */}
-      <style jsx>{`
-        @keyframes cardShadow {
-          70% {
-            box-shadow: inset 0px 0px 7px 2px rgba(${rgbColor}, 0.35), 0px 0px 10px 3px rgba(${rgbColor}, 0.45);
-          }
-          71% {
-            box-shadow: inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45);
-          }
-        }
-        
-        @keyframes blink {
-          40% {
-            opacity: 1;
-          }
-          42% {
-            opacity: 0.8;
-          }
-          43% {
-            opacity: 1;
-          }
-          45% {
-            opacity: 0.2;
-          }
-          46% {
-            opacity: 1;
-          }
-        }
-      `}</style>
-      
       {children}
     </>
   );

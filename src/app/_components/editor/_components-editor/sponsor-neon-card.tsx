@@ -52,6 +52,7 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const borderRadius = computedStyles.borderRadius;
   const neonColor = computedStyles.neonColor || "#ff00aa";
   const animationDelay = computedStyles.animationDelay || 0;
+  const animationType = computedStyles.animationType || "blink";
   const href = computedStyles.href || "";
 
   let parsedBorderRadius = 12;
@@ -98,6 +99,7 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
           borderRadius={parsedBorderRadius}
           neonColor={neonColor}
           animationDelay={animationDelay as number}
+          animationType={animationType}
           href={href}
           className="w-full min-h-[100px]"
         >
