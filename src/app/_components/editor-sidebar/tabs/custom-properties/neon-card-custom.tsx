@@ -14,7 +14,7 @@ import { LogoSelectionModal } from "@/components/global/logo-selection-modal";
 import Color from "color";
 
 const presetColors = [
-  "#eb0a82", "#00FFF1", "#bcc388", "#4ECDC4", "#45B7D1", 
+  "#eb0a82", "#00FFF1", "#bcc388", "#fb7c28", "#45B7D1", 
   "#0d92bf", "#0aa947", "#f1db4b", "#db0000", "#960aa9",
 ];
 
