@@ -19,34 +19,55 @@ const AVAILABLE_LOGOS = [
   "bankobet.png",
   "betewin.png",
   "betjuve.jpg",
+  "betkanyon.png",
   "betkom.png",
+  "betplay.png",
+  "betpublic.png",
   "betturkey.png",
+  "betzula.png",
+  "bycasino.png",
   "casibom.jpeg",
+  "casinomilyon.png",
   "dahibet-dark.png",
   "dahibet.png",
   "dumanbet.png",
   "elcortez.png",
   "fixbet.png",
+  "grandpasha2.png",
   "grandpashabet.png",
   "ilbet.png",
   "kralbet.png",
+  "ligobet.png",
+  "lostbahis.webp",
   "maltcasino.png",
   "mariobet.png",
   "matadorbet.png",
+  "maxwin.png",
+  "mersobahis.gif",
+  "meybet.png",
+  "mistycasino.svg",
   "olabahis.png",
   "onwin.svg",
   "otobet.png",
+  "paribahis.png",
   "pinbahis.png",
   "pusulabet.png",
+  "ramadabet.png",
   "rokubet.svg",
   "sahabet.jpg",
+  "sahabet.png",
   "samosbet.png",
   "sekabet.png",
   "spinco.png",
+  "sportsbet.png",
   "stake.svg",
   "starzbet.png",
+  "supertoto.png",
   "tarafbet.png",
+  "tipobet.png",
   "vegasslot.png",
+  "vipslot.png",
+  "xslot.png",
   "zbahis.png"
 ];
 
@@ -78,7 +99,7 @@ export const LogoSelectionModal = ({ isOpen, onClose, onSelect }: LogoSelectionM
         </DialogHeader>
         
         <div className="h-[60vh] w-full overflow-y-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4">
             {AVAILABLE_LOGOS.map((logoName) => (
               <div
                 key={logoName}
