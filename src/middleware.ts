@@ -6,7 +6,7 @@ const isProtectedRoute = createRouteMatcher(["/admin(.*)", "/builder(.*)"]);
 
 // Function to check if hostname is a custom domain
 const isCustomDomain = (hostname: string): boolean => {
-    console.log("🔍 Checking hostname:", hostname);
+
 
     const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "link-builder-one.vercel.app";
 
@@ -26,8 +26,7 @@ const isCustomDomain = (hostname: string): boolean => {
         "netlify.app"
     ];
 
-    console.log("🏠 App domain:", appDomain);
-    console.log("🏠 Hosting domains:", hostingDomains);
+
 
     // Exact match check first (most important)
     const isExactHostingDomain = hostingDomains.includes(hostname);
@@ -39,13 +38,7 @@ const isCustomDomain = (hostname: string): boolean => {
 
     const isHostingDomain = isExactHostingDomain || isSubdomainOfHosting;
 
-    console.log("✅ Domain analysis:", {
-        hostname,
-        isExactHostingDomain,
-        isSubdomainOfHosting,
-        isHostingDomain,
-        isCustomDomain: !isHostingDomain
-    });
+
 
     // If it's a hosting domain, it's NOT a custom domain
     return !isHostingDomain;
@@ -65,16 +58,7 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
                            req.headers.get('host') || 
                            hostname;
 
-        console.log("🚀 Processing request:", { 
-            hostname, 
-            realHostname, 
-            pathname,
-            appDomain: process.env.NEXT_PUBLIC_APP_DOMAIN,
-            headers: {
-                'x-forwarded-host': req.headers.get('x-forwarded-host'),
-                'host': req.headers.get('host')
-            }
-        });
+
 
         // Skip static files and API routes early
         if (
@@ -82,22 +66,18 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
             !pathname.includes("/api/") &&
             (pathname.includes("/_next/") || pathname.includes("/favicon.ico") || pathname.includes("/robots.txt") || pathname.includes("/sitemap.xml"))
         ) {
-            console.log("⏭️  Skipping static file:", pathname);
+
             return NextResponse.next();
         }
 
         // Handle custom domains using real hostname
         if (isCustomDomain(realHostname)) {
-            console.log("🌐 Custom domain detected:", realHostname);
+
 
             // Normalize domain (remove www for consistent routing)
             const normalizedDomain = normalizeDomain(realHostname);
             
-            console.log("🔄 Domain normalization:", {
-                original: realHostname,
-                normalized: normalizedDomain,
-                hasWww: realHostname.startsWith('www.')
-            });
+         
 
             // Her zaman normalize edilmiş domain ile rewrite yap
             // Custom domain page'de hem www'li hem www'siz kontrolü yapılacak
@@ -107,40 +87,30 @@ export default clerkMiddleware(async (auth, req: NextRequest) => {
             // Orijinal hostname'i header olarak geç
             url.searchParams.set('original_host', realHostname);
             
-            console.log("🔄 Rewriting to:", url.pathname);
+
             return NextResponse.rewrite(url);
         }
 
-        console.log("🏠 Main app domain request - proceeding with auth");
 
         // For main app domain, handle auth
         const { userId } = await auth();
 
-        console.log("👤 Auth check:", { userId, pathname, isProtected: isProtectedRoute(req) });
 
         // Redirect unauthenticated users from protected routes
         if (isProtectedRoute(req) && !userId) {
             const signInUrl = new URL("/sign-in", req.url);
-            console.log("🔐 Redirecting to sign-in from protected route");
             return NextResponse.redirect(signInUrl);
         }
 
         // Handle root redirect for authenticated users
         if (pathname === "/" && userId) {
             const dashboardUrl = new URL("/admin/dashboard", req.url);
-            console.log("📊 Redirecting authenticated user to dashboard");
             return NextResponse.redirect(dashboardUrl);
         }
 
-        console.log("✅ Proceeding normally");
         return NextResponse.next();
     } catch (err) {
-        console.error("❌ Middleware error:", err);
-        console.error("Request details:", {
-            url: req.nextUrl.href,
-            hostname: req.nextUrl.hostname,
-            pathname: req.nextUrl.pathname,
-        });
+        console.error("❌ Middleware error:", err); 
 
         // Safe fallback for custom domains
         const hostname = req.nextUrl.hostname;

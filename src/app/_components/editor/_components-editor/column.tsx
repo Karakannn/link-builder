@@ -57,8 +57,11 @@ export const ColumnComponent = ({
   const columnStyles = {
     ...computedStyles,
     gridColumn: `span ${gridSpan}`,
+    minHeight: "30px",
     opacity: sortable.isDragging ? 0.3 : 1,
     zIndex: state.editor.selectedElement.id === id ? 10 : 1,
+    padding: "0px",
+    margin: "0px",
   };
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];

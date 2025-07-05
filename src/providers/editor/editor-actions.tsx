@@ -93,4 +93,7 @@ export type EditorAction =
       payload: {
         pageId: string;
       };
+    }
+  | {
+      type: "TOGGLE_LAYER_SIDEBAR";
     };

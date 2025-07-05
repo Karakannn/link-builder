@@ -9,7 +9,7 @@ import { v4 } from "uuid";
 import { defaultStyles } from "@/lib/constants";
 
 const GridLayoutCustomProperties = () => {
-    const { handleOnChanges, getCurrentStyles } = useEditorSidebar();
+    const {  getCurrentStyles } = useEditorSidebar();
     const { state, dispatch } = useEditor();
 
     const element = state.editor.selectedElement;
@@ -61,7 +61,7 @@ const GridLayoutCustomProperties = () => {
             name: `Sütun ${content.length + 1}`, 
             content: [], 
             styles: { ...defaultStyles }, 
-            type: "column" as const 
+            type: "column" as const,
         };
         updateElement([...content, newColumn], [...spans, defaultSpan]);
     };

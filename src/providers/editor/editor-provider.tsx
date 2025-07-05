@@ -248,6 +248,7 @@ export type Editor = {
   device: DeviceTypes;
   previewMode: boolean;
   funnelPageId: string;
+  layerSidebarCollapsed: boolean;
 };
 
 export type HistoryState = {
@@ -281,6 +282,7 @@ const initialEditorState: EditorState["editor"] = {
   device: "Desktop",
   previewMode: false,
   funnelPageId: "",
+  layerSidebarCollapsed: false,
 };
 
 const initialHistoryState: EditorState["history"] = {
@@ -543,6 +545,24 @@ const handleSetPageIdState = (state: EditorState, action: EditorAction): EditorS
       currentIndex: updateHistoryWithPageId.length - 1,
     },
   };
+};
+
+const handleToggleLayerSidebar = (state: EditorState, action: EditorAction): EditorState => {
+  if (action.type !== "TOGGLE_LAYER_SIDEBAR") throw Error("You sent the wrong action type on the TOGGLE_LAYER_SIDEBAR editor State");
+
+  console.log("🔧 Toggle Layer Sidebar Handler - Current state:", state.editor.layerSidebarCollapsed);
+  
+  const newState = {
+    ...state,
+    editor: {
+      ...state.editor,
+      layerSidebarCollapsed: !state.editor.layerSidebarCollapsed,
+    },
+  };
+  
+  console.log("🔧 Toggle Layer Sidebar Handler - New state:", newState.editor.layerSidebarCollapsed);
+  
+  return newState;
 };
 
 const handleLoadData = (initialState: EditorState, initialEditorState: EditorState["editor"], action: EditorAction): EditorState => {
@@ -827,6 +847,10 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
     case "SET_PAGE_ID":
       const setPageIdState = handleSetPageIdState(state, action);
       return setPageIdState;
+    case "TOGGLE_LAYER_SIDEBAR":
+      console.log("🔧 TOGGLE_LAYER_SIDEBAR case triggered");
+      const toggleLayerSidebarState = handleToggleLayerSidebar(state, action);
+      return toggleLayerSidebarState;
     default:
       return state;
   }

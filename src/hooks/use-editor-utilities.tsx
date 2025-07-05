@@ -103,6 +103,7 @@ export const useEditorUtilities = () => {
           type: "column",
           styles: {
             ...containerDefaultStyles,
+            minHeight: "30px",
           } as React.CSSProperties,
         } as EditorElement;
 
@@ -120,6 +121,8 @@ export const useEditorUtilities = () => {
             styles: {
               ...containerDefaultStyles,
               padding: "0px",
+              minHeight: "30px",
+              margin: "0px",
             } as React.CSSProperties,
             type: "column",
           });
@@ -128,16 +131,17 @@ export const useEditorUtilities = () => {
         return {
           ...baseElement,
           name: "Grid Layout",
-          content: initialColumnElements, // Sadece column array'i
+          content: initialColumnElements,
           styles: {
             ...containerDefaultStyles,
             display: "grid",
             gridTemplateColumns: `repeat(${defaultGridColumns}, 1fr)`,
             gap: "1rem",
             gridColumns: defaultGridColumns,
-            columnSpans: Array(initialColumns).fill(defaultSpanPerColumn), // [4, 4, 4]
+            columnSpans: Array(initialColumns).fill(defaultSpanPerColumn),
             gridGap: "1rem",
-           
+
+
           } as React.CSSProperties,
           type: "gridLayout",
         } as EditorElement;
@@ -213,7 +217,7 @@ export const useEditorUtilities = () => {
           ...layoutElement,
           id: sponsorNeonCardId,
           name: "Sponsor Neon Card",
-          
+
           content: [
             {
               id: sponsorContainerElementId,
@@ -234,7 +238,7 @@ export const useEditorUtilities = () => {
               content: [
                 {
                   id: logoElementId,
-                  name: "Sponsor Logo", 
+                  name: "Sponsor Logo",
                   type: "image",
                   styles: {
                     maxWidth: "80%",

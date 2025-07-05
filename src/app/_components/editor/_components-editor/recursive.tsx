@@ -1,4 +1,5 @@
-import React, { Suspense } from "react";
+// src/app/_components/editor/_components-editor/recursive.tsx
+import React, { Suspense, memo } from "react";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import { useLayout, Layout } from "@/hooks/use-layout";
 
@@ -23,95 +24,70 @@ type Props = {
   layout?: Layout;
 };
 
-const Recursive = ({ element, containerId, index = 0, layout }: Props) => {
+// Element karşılaştırma fonksiyonu
+const areElementsEqual = (prevProps: Props, nextProps: Props) => {
+  // Element ID'si değişmişse re-render
+  if (prevProps.element.id !== nextProps.element.id) return false;
+  
+  // Styles değişmişse re-render
+  if (JSON.stringify(prevProps.element.styles) !== JSON.stringify(nextProps.element.styles)) return false;
+  
+  // Content değişmişse re-render
+  if (JSON.stringify(prevProps.element.content) !== JSON.stringify(nextProps.element.content)) return false;
+  
+  // Layout değişmişse re-render
+  if (prevProps.layout !== nextProps.layout) return false;
+  
+  // Type değişmişse re-render
+  if (prevProps.element.type !== nextProps.element.type) return false;
+  
+  return true;
+};
+
+const Recursive = memo(({ element, containerId, index = 0, layout }: Props) => {
   const { getElementLayout } = useLayout();
   const elementLayout = layout || getElementLayout(element);
 
-  switch (element.type) {
-    case "text":
-      return (
-        <Suspense fallback={null}>
-          <TextComponent element={element} />
-        </Suspense>
-      );
-    case "container":
-      return (
-        <Suspense fallback={null}>
-          <Container 
-            element={element} 
-            layout={elementLayout}
-          />
-        </Suspense>
-      );
-    case "closableContainer":
-      return (
-        <Suspense fallback={null}>
-          <ClosableContainer element={element} layout={elementLayout} />
-        </Suspense>
-      );
-    case "video":
-      return (
-        <Suspense fallback={null}>
-          <VideoComponent element={element} />
-        </Suspense>
-      );
-    case "2Col":
-      return (
-        <Suspense fallback={null}>
-          <TwoColumns element={element} layout={elementLayout} />
-        </Suspense>
-      );
-    case "__body":
-      return (
-        <Suspense fallback={null}>
-          <Body element={element} />
-        </Suspense>
-      );
-    case "link":
-      return (
-        <Suspense fallback={null}>
-          <LinkComponent element={element} />
-        </Suspense>
-      );
-    case "sponsorNeonCard":
-      return (
-        <Suspense fallback={null}>
-          <SponsorNeonCardComponent element={element} layout={elementLayout} />
-        </Suspense>
-      );
-    case "marquee":
-      return (
-        <Suspense fallback={null}>
-          <MarqueeComponent element={element} layout={elementLayout} />
-        </Suspense>
-      );
-    case "gridLayout":
-      return (
-        <Suspense fallback={null}>
-          <GridLayout element={element} />
-        </Suspense>
-      );
-    case "column":
-      return (
-        <Suspense fallback={null}>
-          <Column element={element} />
-        </Suspense>
-      );
-    case "gif":
-      return (
-        <Suspense fallback={null}>
-          <GifComponent element={element} />
-        </Suspense>
-      );
-    case "image":
-      return (
-        <Suspense fallback={null}>
-          <ImageComponent element={element} />
-        </Suspense>
-      );
-    default:
-      return null;
-  }
-};
+  const renderElement = () => {
+    switch (element.type) {
+      case "text":
+        return <TextComponent element={element} />;
+      case "container":
+        return <Container element={element} layout={elementLayout} />;
+      case "closableContainer":
+        return <ClosableContainer element={element} layout={elementLayout} />;
+      case "video":
+        return <VideoComponent element={element} />;
+      case "2Col":
+        return <TwoColumns element={element} layout={elementLayout} />;
+      case "__body":
+        return <Body element={element} />;
+      case "link":
+        return <LinkComponent element={element} />;
+      case "sponsorNeonCard":
+        return <SponsorNeonCardComponent element={element} layout={elementLayout} />;
+      case "marquee":
+        return <MarqueeComponent element={element} layout={elementLayout} />;
+      case "gridLayout":
+        return <GridLayout element={element} />;
+      case "column":
+        return <Column element={element} />;
+      case "gif":
+        return <GifComponent element={element} />;
+      case "image":
+        return <ImageComponent element={element} />;
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Suspense fallback={<div className="animate-pulse bg-gray-200 h-8 rounded" />}>
+      {renderElement()}
+    </Suspense>
+  );
+}, areElementsEqual);
+
+Recursive.displayName = 'Recursive';
 
 export default Recursive;

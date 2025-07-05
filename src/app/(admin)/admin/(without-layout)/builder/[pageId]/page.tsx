@@ -32,9 +32,6 @@ export default async function page({ params, searchParams }: Props) {
         pageData = await getPageById(pageId);
     }
 
-    console.log("User:", user);
-    console.log("Page data:", pageData);
-
     if (!pageData || pageData.status !== 200 || !pageData.page || !user) {
         return (
             <div className="flex items-center justify-center h-screen">
