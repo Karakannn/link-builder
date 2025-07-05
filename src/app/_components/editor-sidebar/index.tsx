@@ -33,7 +33,7 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                         e.stopPropagation();
                     }}
                 >
-                    <div className="h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar">
+                    <div className="h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar flex flex-col">
                         <SheetHeader className="text-left p-6">
                             <SheetTitle>Layers</SheetTitle>
                             <SheetDescription>Sayfadaki tüm elemanları gözden geçir ve düzenle</SheetDescription>
@@ -64,35 +64,45 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                         }}
                     >
                         <EditorSidebarProvider>
-                            <div className="grid gap-4 h-[calc(100%_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar">
-                                <TabsContent value="Custom">
-                                    <SheetHeader className="text-left p-6">
+                            <div className="flex flex-col h-full overflow-hidden">
+                                <TabsContent value="Custom" className="flex-1 flex flex-col overflow-hidden">
+                                    <SheetHeader className="text-left p-6 flex-shrink-0">
                                         <SheetTitle>Custom</SheetTitle>
                                         <SheetDescription>Custom Stiller burada. Tüm komponenta istediğin custom stili ekleyeyebilirsin</SheetDescription>
                                     </SheetHeader>
-                                    <CustomTab />
+                                    <div className="flex-1 overflow-y-auto pb-6">
+                                        <CustomTab />
+                                    </div>
                                 </TabsContent>
 
-                                <TabsContent value="CustomCSS">
-                                    <CustomCSSTab />
+                                <TabsContent value="CustomCSS" className="flex-1 flex flex-col overflow-hidden">
+                                    <div className="flex-1 overflow-y-auto pb-6">
+                                        <CustomCSSTab />
+                                    </div>
                                 </TabsContent>
 
-                                <TabsContent value="Settings">
-                                    <SheetHeader className="text-left p-6">
+                                <TabsContent value="Settings" className="flex-1 flex flex-col overflow-hidden">
+                                    <SheetHeader className="text-left p-6 flex-shrink-0">
                                         <SheetTitle>Stiller</SheetTitle>
                                         <SheetDescription>Stiller burada. Tüm komponentlara istediğin stili ekleyeyebilirsin</SheetDescription>
                                     </SheetHeader>
-                                    <SettingsTab />
+                                    <div className="flex-1 overflow-y-auto pb-6">
+                                        <SettingsTab />
+                                    </div>
                                 </TabsContent>
-                                <TabsContent value="Media">
-                                    <MediaBucketTab userId={userId} />
+                                <TabsContent value="Media" className="flex-1 flex flex-col overflow-hidden">
+                                    <div className="flex-1 overflow-y-auto pb-6">
+                                        <MediaBucketTab userId={userId} />
+                                    </div>
                                 </TabsContent>
-                                <TabsContent value="Components">
-                                    <SheetHeader className="text-left p-6 ">
+                                <TabsContent value="Components" className="flex-1 flex flex-col overflow-hidden">
+                                    <SheetHeader className="text-left p-6 flex-shrink-0">
                                         <SheetTitle>Components</SheetTitle>
                                         <SheetDescription>Burdan komponentları alıp sayfaya sürükleyebilirsin</SheetDescription>
                                     </SheetHeader>
-                                    <ComponentsTab />
+                                    <div className="flex-1 overflow-y-auto pb-6">
+                                        <ComponentsTab />
+                                    </div>
                                 </TabsContent>
                             </div>
                         </EditorSidebarProvider>

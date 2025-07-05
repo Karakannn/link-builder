@@ -162,7 +162,7 @@ const LayersTab = () => {
     };
 
     return (
-        <div className="p-3">
+        <div className="p-3 flex-1 flex flex-col pb-8 overflow-y-auto">
             <div className="mb-3 flex items-center gap-2">
                 <Layers size={16} />
                 <h2 className="text-sm font-medium">Layers</h2>
@@ -171,7 +171,7 @@ const LayersTab = () => {
                 </Badge>
             </div>
             
-            <div className="h-[calc(100vh-200px)] overflow-auto pr-2">
+            <div className="flex-1 overflow-auto pr-2">
                 {state.editor.elements.map((element) => renderElement(element))}
             </div>
         </div>
