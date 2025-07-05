@@ -1,15 +1,16 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { ColorPicker, ColorPickerSelection, ColorPickerHue, ColorPickerAlpha, ColorPickerOutput, ColorPickerFormat } from "@/components/ui/color-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Palette, Settings, Clock, Image, Type, FileText, Link2 } from "lucide-react";
+import { Palette, Settings, Clock, Image, Type, FileText, Link2, ImageIcon } from "lucide-react";
 import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
 import { useEditor } from "@/providers/editor/editor-provider";
+import { LogoSelectionModal } from "@/components/global/logo-selection-modal";
 import Color from "color";
 
 const presetColors = [
@@ -20,6 +21,7 @@ const presetColors = [
 const SponsorNeonCardCustomProperties = () => {
   const { handleOnChanges, getCurrentStyles } = useEditorSidebar();
   const { state, dispatch } = useEditor();
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
   // Parent element (neon card) styles
   const currentStyles = getCurrentStyles();
@@ -329,14 +331,30 @@ const SponsorNeonCardCustomProperties = () => {
         {logoElement && (
           <div className="space-y-2">
             <Label htmlFor="imageUrl">Image URL</Label>
-            <Input
-              id="imageUrl"
-              placeholder="https://example.com/logo.png"
-              value={(logoElement.content as any)?.src || ""}
-              onChange={(e) => updateChildElement(logoElement.id, {
-                content: { ...(logoElement.content as any), src: e.target.value }
-              })}
-            />
+            <div className="flex items-center gap-2">
+              <Input
+                id="imageUrl"
+                placeholder="https://example.com/logo.png"
+                value={(logoElement.content as any)?.src || ""}
+                onChange={(e) => updateChildElement(logoElement.id, {
+                  content: { ...(logoElement.content as any), src: e.target.value }
+                })}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsLogoModalOpen(true)}
+                className="px-3"
+                title="Select from available logos"
+              >
+                <ImageIcon size={16} />
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Click the icon to select from available logos
+            </p>
           </div>
         )}
 
@@ -419,6 +437,18 @@ const SponsorNeonCardCustomProperties = () => {
       <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded-lg dark:bg-gray-800">
         💡 <strong>Tip:</strong> Title color varsayılan olarak neon color ile aynıdır. "Sync with Neon" butonu ile tekrar senkronize edebilirsiniz.
       </div>
+
+      <LogoSelectionModal
+        isOpen={isLogoModalOpen}
+        onClose={() => setIsLogoModalOpen(false)}
+        onSelect={(logoPath) => {
+          if (logoElement) {
+            updateChildElement(logoElement.id, {
+              content: { ...(logoElement.content as any), src: logoPath }
+            });
+          }
+        }}
+      />
     </div>
   );
 };
