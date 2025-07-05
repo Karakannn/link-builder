@@ -4,10 +4,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import React from "react";
+import { Button } from "@/components/ui/button";
+import { LogoSelectionModal } from "@/components/global/logo-selection-modal";
+import { Images } from "lucide-react";
+import React, { useState } from "react";
 
 const ImageCustom = () => {
     const { handleChangeCustomValues, getCurrentContent } = useEditorSidebar();
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const currentContent = getCurrentContent();
     const maxWidth = currentContent.maxWidth || "80%";
@@ -22,17 +26,41 @@ const ImageCustom = () => {
         } as any);
     };
 
+    const handleLogoSelect = (logoPath: string) => {
+        handleChangeCustomValues({
+            target: {
+                id: "src",
+                value: logoPath,
+            },
+        } as any);
+    };
+
     return (
         <div className="space-y-4">
             {/* Image Source */}
             <div className="space-y-2">
                 <Label htmlFor="src">Resim URL'si</Label>
-                <Input
-                    id="src"
-                    placeholder="https://example.com/image.jpg"
-                    onChange={handleChangeCustomValues}
-                    value={currentContent.src || ""}
-                />
+                <div className="flex gap-2">
+                    <Input
+                        id="src"
+                        placeholder="https://example.com/image.jpg"
+                        onChange={handleChangeCustomValues}
+                        value={currentContent.src || ""}
+                        className="flex-1"
+                    />
+                    <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsModalOpen(true)}
+                        className="flex-shrink-0"
+                    >
+                        <Images className="h-4 w-4" />
+                    </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                    Logo seçmek için resim butonuna tıklayın veya URL girin
+                </p>
             </div>
 
             {/* Alt Text */}
@@ -137,6 +165,13 @@ const ImageCustom = () => {
                     </SelectContent>
                 </Select>
             </div>
+
+            {/* Logo Selection Modal */}
+            <LogoSelectionModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelect={handleLogoSelect}
+            />
         </div>
     );
 };
