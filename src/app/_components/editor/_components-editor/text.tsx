@@ -6,7 +6,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
@@ -21,7 +20,12 @@ const TextComponent = ({ element }: Props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { handleSelectElement } = useElementSelection(element);
-    const { getBorderClasses } = useElementBorderHighlight(element);
+    const { 
+        getBorderClasses, 
+        handleMouseEnter, 
+        handleMouseLeave,
+        isSelected 
+    } = useElementBorderHighlight(element);
     
     // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
@@ -71,19 +75,13 @@ const TextComponent = ({ element }: Props) => {
 
     useEffect(() => {
         setShowSpacingGuides(
-            state.editor.selectedElement.id === id && !state.editor.liveMode
+            isSelected && !state.editor.liveMode
         );
-    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+    }, [isSelected, state.editor.liveMode]);
 
     // Extract text properties from content
     const textProps = !Array.isArray(computedContent) ? computedContent : {};
-
-    
     const innerText = textProps.innerText || "Sponsor Title";
-    const fontSize = textProps.fontSize || "12px";
-    const fontWeight = textProps.fontWeight || "bold";
-    const color = textProps.color || "var(--card-color)";
-    const textAlign = textProps.textAlign || "center";
 
     return (
         <EditorElementWrapper element={element}>
@@ -91,11 +89,12 @@ const TextComponent = ({ element }: Props) => {
                 ref={sortable.setNodeRef}
                 style={computedStyles}
                 className={clsx("relative", getBorderClasses(), {
-                    "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
                 onClick={handleSelectElement}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 data-element-id={id}
                 {...(!state.editor.liveMode ? sortable.listeners : {})}
                 {...(!state.editor.liveMode ? sortable.attributes : {})}
@@ -110,9 +109,8 @@ const TextComponent = ({ element }: Props) => {
                     contentEditable={!state.editor.liveMode} 
                     onBlur={handleBlurElement}
                     className={clsx("title", {
-                        "select-none": state.editor.selectedElement.id !== id,
+                        "select-none": !isSelected,
                     })}
-                  
                     onClick={(e) => {
                         if (!state.editor.liveMode) {
                             e.stopPropagation();
@@ -120,7 +118,8 @@ const TextComponent = ({ element }: Props) => {
                         }
                     }}
                 />
-                <BadgeElementName element={element} />
+                
+                {/* Badge ve Delete button artık kendi görünürlük logic'ini kullanıyor */}
                 <DeleteElementButton element={element} />
             </div>
         </EditorElementWrapper>

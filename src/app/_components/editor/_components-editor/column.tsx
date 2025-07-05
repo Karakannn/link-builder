@@ -1,12 +1,11 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
-import { getElementStyles } from "@/lib/utils";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { GripVertical } from "lucide-react";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
@@ -28,7 +27,12 @@ export const ColumnComponent = ({
   const { id, name, type, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
-  const { getBorderClasses } = useElementBorderHighlight(element);
+  const { 
+    getBorderClasses, 
+    handleMouseEnter, 
+    handleMouseLeave,
+    isSelected 
+  } = useElementBorderHighlight(element);
 
   const sortable = useSortable({
     id: id,
@@ -44,8 +48,6 @@ export const ColumnComponent = ({
     disabled: state.editor.liveMode,
   });
 
-
-
   const computedStyles = {
     ...getElementStyles(element, state.editor.device),
     transform: CSS.Translate.toString(sortable.transform),
@@ -60,28 +62,25 @@ export const ColumnComponent = ({
   };
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
-
-  console.log(columnStyles);
   
   return (
     <EditorElementWrapper element={element}>
       <div
         ref={sortable.setNodeRef}
         style={columnStyles}
-        className={clsx("relative group", getBorderClasses(), {
-          "max-w-full w-full": true,
-          "h-fit": true,
-          "cursor-grab": !state.editor.liveMode,
+        className={clsx("relative", getBorderClasses(), {
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
         onClick={handleSelectElement}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         data-element-id={id}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
       >
         {/* Drag Handle - Only this area is draggable */}
-        {!state.editor.liveMode && (
+        {!state.editor.liveMode && isSelected && (
           <div
             className="absolute -top-3 -left-3 bg-gray-600 hover:bg-gray-700 text-white p-1 rounded cursor-grab active:cursor-grabbing transition-colors z-20"
             {...sortable.listeners}
@@ -91,14 +90,7 @@ export const ColumnComponent = ({
             <GripVertical size={12} />
           </div>
         )}
-
-        {/* Column size indicator */}
-        {!state.editor.liveMode && (
-          <div className="absolute -top-6 left-0 bg-gray-600 text-white text-xs px-2 py-1 rounded">
-            {gridSpan}/{totalGridColumns} ({Math.round((gridSpan / totalGridColumns) * 100)}%)
-          </div>
-        )}
-
+      
         {Array.isArray(content) && content.length > 0 && (
           <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
             {content.map((childElement, index) => (
@@ -107,11 +99,10 @@ export const ColumnComponent = ({
           </SortableContext>
         )}
 
-        <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
 
         {/* Spacing Visualizer - only in edit mode and when selected */}
-        {!isPreviewMode && state.editor.selectedElement.id === id && (
+        {!isPreviewMode && isSelected && (
           <SpacingVisualizer styles={computedStyles} />
         )}
       </div>

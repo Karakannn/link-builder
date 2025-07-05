@@ -5,8 +5,8 @@ import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
+import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { Image as ImageIcon, Upload, AlertCircle } from "lucide-react";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
@@ -90,7 +90,6 @@ const ImageComponent = ({ element }: Props) => {
                     transition: sortable.transition,
                 }}
                 className={clsx("relative", getBorderClasses(), {
-                    "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
@@ -99,10 +98,6 @@ const ImageComponent = ({ element }: Props) => {
                 {...(!state.editor.liveMode ? sortable.listeners : {})}
                 {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
-                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                    <BadgeElementName element={element} />
-                )}
-
                 {src ? (
                     <>
                         <img

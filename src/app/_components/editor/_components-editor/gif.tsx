@@ -8,7 +8,6 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
@@ -65,7 +64,6 @@ const GifComponent = ({ element }: Props) => {
                 ref={sortable.setNodeRef}
                 style={computedStyles}
                 className={clsx("relative", getBorderClasses(), {
-                    "cursor-grab": !state.editor.liveMode,
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
@@ -74,10 +72,6 @@ const GifComponent = ({ element }: Props) => {
                 {...(!state.editor.liveMode ? sortable.listeners : {})}
                 {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
-                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                    <BadgeElementName element={element} />
-                )}
-
                 <div
                     className="relative inline-block"
                     onMouseEnter={() => setShowOverlay(true)}

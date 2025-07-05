@@ -25,7 +25,7 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const { id, styles, content, type } = element
   const [showSpacingGuides, setShowSpacingGuides] = useState(false)
   const { handleSelectElement } = useElementSelection(element)
-  const { getBorderClasses, isSelected, isChildOfSelected } = useElementBorderHighlight(element)
+  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element)
 
 
 
@@ -48,14 +48,12 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
     transition: sortable.transition,
   } as any;
 
-  // Styles'dan neon card property'lerini al - ✅ Düzeltildi
   const borderSize = computedStyles.borderSize || 2;
   const borderRadius = computedStyles.borderRadius;
   const neonColor = computedStyles.neonColor || "#ff00aa";
   const animationDelay = computedStyles.animationDelay || 0;
   const href = computedStyles.href || "";
 
-  // BorderRadius'u parse et (px string'i varsa kaldır)
   let parsedBorderRadius = 12;
   if (typeof borderRadius === 'string') {
     parsedBorderRadius = parseInt(borderRadius.replace('px', '')) || 12;
@@ -81,11 +79,12 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
         ref={sortable.setNodeRef}
         style={computedStyles}
         className={clsx("relative z-10", getBorderClasses(), {
-          "cursor-grab": !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
         onClick={handleSelectElement}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         data-element-id={id}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
@@ -118,7 +117,6 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
           )}
         </SponsorNeonCard>
 
-        <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
       </div>
     </ElementContextMenu>

@@ -1,15 +1,15 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
-import { getElementStyles, expandSpacingShorthand } from "@/lib/utils";
+import { expandSpacingShorthand } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
-import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useLayout, Layout } from "@/hooks/use-layout";
@@ -23,7 +23,12 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
   const { id, name, type, styles, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
-  const { getBorderClasses } = useElementBorderHighlight(element);
+  const { 
+    getBorderClasses, 
+    handleMouseEnter, 
+    handleMouseLeave,
+    isSelected 
+  } = useElementBorderHighlight(element);
   const [measureRef, containerHeight] = useElementHeight(false);
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { getLayoutStyles } = useLayout();
@@ -58,11 +63,10 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
     measureRef(node);
   };
 
-
   useEffect(() => {
-    const shouldShowGuides = state.editor.selectedElement.id === id && !state.editor.liveMode;
+    const shouldShowGuides = isSelected && !state.editor.liveMode;
     setShowSpacingGuides(shouldShowGuides);
-  }, [state.editor.selectedElement.id, id, state.editor.liveMode, type]);
+  }, [isSelected, state.editor.liveMode, type]);
 
   if (sortable.isDragging) {
     return (
@@ -86,11 +90,12 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
           "h-fit": type === "container",
           "h-full": type === "__body",
           "overflow-y-auto": type === "__body",
-          "cursor-grab": type !== "__body" && !state.editor.liveMode,
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
         onClick={handleContainerClick}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         data-element-id={id}
         {...(type !== "__body" && !state.editor.liveMode ? sortable.listeners : {})}
         {...(type !== "__body" && !state.editor.liveMode ? sortable.attributes : {})}
@@ -115,7 +120,6 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
           </div>
         )}
 
-        <BadgeElementName element={element} />
         <DeleteElementButton element={element} />
       </div>
     </EditorElementWrapper>
