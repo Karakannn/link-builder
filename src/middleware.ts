@@ -10,11 +10,11 @@ const isCustomDomain = (hostname: string): boolean => {
     const appDomain = process.env.NEXT_PUBLIC_APP_DOMAIN || "prensmedya.com";
 
     const hostingDomains = [
-        appDomain,
         "localhost",
         "localhost:3000",
         "127.0.0.1",
-        "prensmedya.com",
+        appDomain, // prensmedya.com
+        `www.${appDomain}` // www.prensmedya.com
     ];
 
     const hostingProviders = [

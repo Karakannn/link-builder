@@ -109,7 +109,7 @@ export const containerDefaultStyles: React.CSSProperties = {
   paddingBottom: "20px",
   paddingLeft: "20px",
   fontSize: "16px",
-  minHeight: "100px",
+  minHeight: "40px",
 };
 
 // Specific default styles for closable container components
@@ -126,7 +126,7 @@ export const closableContainerDefaultStyles: React.CSSProperties = {
   paddingBottom: "20px",
   paddingLeft: "20px",
   fontSize: "16px",
-  minHeight: "100px",
+  minHeight: "40px",
 };
 
 // Specific default styles for sponsor neon card components

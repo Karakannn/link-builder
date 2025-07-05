@@ -14,7 +14,6 @@ const ImageCustom = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
 
     const currentContent = getCurrentContent();
-    const maxWidth = currentContent.maxWidth || "80%";
     const height = currentContent.height || "24px";
 
     const handleSliderChange = (property: string, value: number[]) => {
@@ -71,17 +70,6 @@ const ImageCustom = () => {
                     placeholder="Sponsor Logo"
                     onChange={handleChangeCustomValues}
                     value={currentContent.alt || ""}
-                />
-            </div>
-
-            {/* Max Width */}
-            <div className="space-y-2">
-                <Label htmlFor="maxWidth">Maksimum Genişlik</Label>
-                <Input
-                    id="maxWidth"
-                    placeholder="80%"
-                    onChange={handleChangeCustomValues}
-                    value={maxWidth}
                 />
             </div>
 

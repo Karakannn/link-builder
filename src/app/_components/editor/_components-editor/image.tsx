@@ -43,8 +43,6 @@ const ImageComponent = ({ element }: Props) => {
     const imageProps = !Array.isArray(computedContent) ? computedContent : {};
     const src = imageProps.src || '';
     const objectFit = imageProps.objectFit || 'contain';
-    const maxWidth = imageProps.maxWidth || '80%';
-    const height = imageProps.height || '24px';
     const borderRadius = imageProps.borderRadius || 0;
     const shadow = imageProps.shadow || 'none';
     const filter = imageProps.filter || 'none';
@@ -113,8 +111,7 @@ const ImageComponent = ({ element }: Props) => {
                             )}
                             style={{
                                 width: computedStyles.width || 'auto',
-                                height: height,
-                                maxWidth: maxWidth,
+                                height: computedStyles.height || 'auto',
                                 objectFit: objectFit as any,
                                 borderRadius: `${borderRadius}px`,
                                 opacity: opacity,
@@ -144,24 +141,13 @@ const ImageComponent = ({ element }: Props) => {
                             )}
                             style={{
                                 width: computedStyles.width || 'auto',
-                                height: height,
-                                maxWidth: maxWidth,
+                                height: computedStyles.height || 'auto',
+                                maxWidth: computedStyles.maxWidth || '80%',
                                 objectFit: objectFit as any,
                                 borderRadius: `${borderRadius}px`,
                                 opacity: opacity,
                             }}
                         />
-
-                        {/* Placeholder Overlay */}
-                        {!state.editor.liveMode && (
-                            <div className="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center rounded">
-                                <div className="text-center text-white bg-black bg-opacity-50 px-4 py-2 rounded-lg">
-                                    <Upload className="mx-auto h-6 w-6 mb-1" />
-                                    <div className="text-sm font-medium">Resim Ekle</div>
-                                    <div className="text-xs opacity-75">Ayarlardan resim URL'si ekleyin</div>
-                                </div>
-                            </div>
-                        )}
                     </>
                 )}
 

@@ -178,11 +178,9 @@ export const useEditorUtilities = () => {
             src: "",
             alt: "Sponsor Logo",
             objectFit: "contain",
-            maxWidth: "80%",
             height: "24px",
           } as any,
           styles: {
-            maxWidth: "80%",
             height: "24px",
             objectFit: "contain",
             margin: "0px",
@@ -241,7 +239,6 @@ export const useEditorUtilities = () => {
                   name: "Sponsor Logo",
                   type: "image",
                   styles: {
-                    maxWidth: "80%",
                     height: "24px",
                     objectFit: "contain" as const,
                     margin: "0px",
