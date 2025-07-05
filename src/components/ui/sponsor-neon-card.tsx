@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { useEditor } from '@/providers/editor/editor-provider';
 
 interface SponsorNeonCardProps {
   children?: React.ReactNode;
@@ -8,6 +9,7 @@ interface SponsorNeonCardProps {
   borderRadius?: number;
   neonColor?: string;
   animationDelay?: number;
+  href?: string;
 }
 
 // Helper function to convert hex to RGB
@@ -29,29 +31,33 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
   borderRadius = 12,
   neonColor = '#ff00aa',
   animationDelay = 0,
+  href,
 }) => {
   const rgbColor = hexToRgb(neonColor);
+  const { state } = useEditor();
 
-  return (
-    <div
-      className={cn(
-        "relative flex items-center justify-center text-white overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
-        className
-      )}
-      style={{
-        border: `${borderSize}px solid ${neonColor}`,
-        borderRadius: `${borderRadius}px`,
-        boxShadow: `inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45)`,
-        background: 'rgba(28, 28, 28, 0.75)',
-        backdropFilter: 'blur(1px)',
-        height: '100%',
-        animation: `blink 8s infinite alternate, cardShadow 3.5s infinite`,
-        animationDelay: `${animationDelay}s`,
-        // CSS custom properties for animations
-        '--card-color': neonColor,
-        '--card-color-rgb': rgbColor,
-      } as React.CSSProperties}
-    >
+  const commonProps = {
+    className: cn(
+      "relative flex items-center justify-center text-white overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
+      className
+    ),
+    style: {
+      border: `${borderSize}px solid ${neonColor}`,
+      borderRadius: `${borderRadius}px`,
+      boxShadow: `inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45)`,
+      background: 'rgba(28, 28, 28, 0.75)',
+      backdropFilter: 'blur(1px)',
+      height: '100%',
+      animation: `blink 8s infinite alternate, cardShadow 3.5s infinite`,
+      animationDelay: `${animationDelay}s`,
+      // CSS custom properties for animations
+      '--card-color': neonColor,
+      '--card-color-rgb': rgbColor,
+    } as React.CSSProperties,
+  };
+
+  const content = (
+    <>
       {/* Keyframes styles */}
       <style jsx>{`
         @keyframes cardShadow {
@@ -83,6 +89,27 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
       `}</style>
       
       {children}
+    </>
+  );
+
+  // If in live mode and href is provided, render as anchor tag
+  if (state.editor.liveMode && href) {
+    return (
+      <a
+        href={href || '#'}
+        target="_blank"
+        rel="noopener noreferrer"
+        {...commonProps}
+      >
+        {content}
+      </a>
+    );
+  }
+
+  // Otherwise render as div (for edit mode or when no href)
+  return (
+    <div {...commonProps}>
+      {content}
     </div>
   );
 };

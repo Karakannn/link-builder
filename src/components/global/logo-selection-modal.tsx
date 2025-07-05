@@ -83,23 +83,15 @@ export const LogoSelectionModal = ({ isOpen, onClose, onSelect }: LogoSelectionM
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="w-full max-w-full max-h-[80vh] sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             Logo Seçin
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onClose}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
           </DialogTitle>
         </DialogHeader>
         
         <div className="h-[60vh] w-full overflow-y-auto">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 p-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {AVAILABLE_LOGOS.map((logoName) => (
               <div
                 key={logoName}
@@ -116,7 +108,7 @@ export const LogoSelectionModal = ({ isOpen, onClose, onSelect }: LogoSelectionM
                   />
                 </div>
                 <div className="mt-2 text-center">
-                  <p className="text-sm font-medium text-gray-700 truncate capitalize">
+                  <p className="text-sm font-medium text-white/70 truncate capitalize">
                     {logoName.split('.')[0]}
                   </p>
                 </div>

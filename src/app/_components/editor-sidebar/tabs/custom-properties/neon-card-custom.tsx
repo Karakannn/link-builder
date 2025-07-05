@@ -239,6 +239,25 @@ const SponsorNeonCardCustomProperties = () => {
           <span className="font-medium">Content Settings</span>
         </div>
 
+        {/* Link URL */}
+        <div className="space-y-2">
+          <Label htmlFor="href">Link URL</Label>
+          <Input
+            id="href"
+            placeholder="https://example.com"
+            value={currentStyles.href || ""}
+            onChange={(e) => handleOnChanges({
+              target: {
+                id: "href",
+                value: e.target.value,
+              },
+            } as any)}
+          />
+          <p className="text-xs text-muted-foreground">
+            Optional: Add a link to make the card clickable
+          </p>
+        </div>
+
         {/* Title Text & Color */}
         {titleElement && (
           <div className="space-y-3">

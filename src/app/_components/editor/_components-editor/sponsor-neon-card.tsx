@@ -53,6 +53,7 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const borderRadius = computedStyles.borderRadius;
   const neonColor = computedStyles.neonColor || "#ff00aa";
   const animationDelay = computedStyles.animationDelay || 0;
+  const href = computedStyles.href || "";
 
   // BorderRadius'u parse et (px string'i varsa kaldır)
   let parsedBorderRadius = 12;
@@ -98,6 +99,7 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
           borderRadius={parsedBorderRadius}
           neonColor={neonColor}
           animationDelay={animationDelay as number}
+          href={href}
           className="w-full min-h-[100px]"
         >
           {/* Sadece child elementler */}
