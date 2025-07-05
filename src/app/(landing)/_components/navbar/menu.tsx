@@ -26,12 +26,12 @@ const Menu = ({ orientation }: MenuProps) => {
                 className={cn(
                   "rounded-xl flex gap-2 py-2 px-4 items-center",
                   section == menuItem.path
-                    ? "bg-gray-200 border-[#27272A]"
+                    ? "bg-white/10 border-[#27272A]"
                     : "",
                 )}
                 key={menuItem.id}
               >
-                {section == menuItem.path && menuItem.icon}
+                {menuItem.icon}
                 {menuItem.label}
               </Link>
             ))}

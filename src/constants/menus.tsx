@@ -1,4 +1,4 @@
-import { Home, CreditCard, User, File, BaggageClaim, SettingsIcon } from "lucide-react"
+import { Home, Star, CreditCard, MessageCircle } from "lucide-react"
 import { JSX } from "react"
 
 
@@ -15,22 +15,30 @@ export type MenuProps = {
 export const LANDING_PAGE_MENU: MenuProps[] = [
   {
     id: 0,
-    label: "Home",
+    label: "Ana Sayfa",
     icon: <Home />,
     path: "/",
     section: true,
   },
   {
     id: 1,
-    label: "Pricing",
+    label: "Özellikler",
+    icon: <Star />,
+    path: "#features",
+    section: true,
+  },
+  {
+    id: 2,
+    label: "Fiyatlandırma",
     icon: <CreditCard />,
     path: "#pricing",
     section: true,
   },
   {
-    id: 1,
-    label: "Explore",
-    icon: <User />,
-    path: "/explore",
+    id: 3,
+    label: "İletişim",
+    icon: <MessageCircle />,
+    path: "#contact",
+    section: true,
   },
 ]
