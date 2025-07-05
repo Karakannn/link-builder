@@ -5,11 +5,10 @@ import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
-import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import BadgeElementName from "@/components/global/editor-element/badge-element-name";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { Image as ImageIcon, Upload } from "lucide-react";
+import { Image as ImageIcon, Upload, AlertCircle } from "lucide-react";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
 
 type Props = {
@@ -20,7 +19,6 @@ const ImageComponent = ({ element }: Props) => {
     const { state, dispatch } = useEditor();
     const { id } = element;
     const [isLoading, setIsLoading] = useState(true);
-    const [hasError, setHasError] = useState(false);
     const imgRef = useRef<HTMLImageElement>(null);
     const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses } = useElementBorderHighlight(element);
@@ -28,7 +26,6 @@ const ImageComponent = ({ element }: Props) => {
     const computedStyles = getElementStyles(element, state.editor.device);
     const computedContent = getElementContent(element, state.editor.device);
 
-    // Placeholder image data URL (a simple gray placeholder)
     const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%239ca3af'%3EPlaceholder Image%3C/text%3E%3C/svg%3E";
 
     const sortable = useSortable({
@@ -45,7 +42,6 @@ const ImageComponent = ({ element }: Props) => {
 
     const imageProps = !Array.isArray(computedContent) ? computedContent : {};
     const src = imageProps.src || '';
-    const alt = imageProps.alt || 'Sponsor Logo';
     const objectFit = imageProps.objectFit || 'contain';
     const maxWidth = imageProps.maxWidth || '80%';
     const height = imageProps.height || '24px';
@@ -56,12 +52,10 @@ const ImageComponent = ({ element }: Props) => {
 
     const handleImageLoad = () => {
         setIsLoading(false);
-        setHasError(false);
     };
 
     const handleImageError = () => {
         setIsLoading(false);
-        setHasError(true);
     };
 
     const getShadowClass = () => {
@@ -114,7 +108,6 @@ const ImageComponent = ({ element }: Props) => {
                         <img
                             ref={imgRef}
                             src={src}
-                            alt={alt}
                             className={clsx(
                                 "max-w-full h-auto transition-all duration-300",
                                 getShadowClass(),
@@ -140,20 +133,9 @@ const ImageComponent = ({ element }: Props) => {
                                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                             </div>
                         )}
-
-                        {hasError && (
-                            <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                                <div className="text-center text-gray-500">
-                                    <ImageIcon className="mx-auto h-12 w-12 mb-2" />
-                                    <div>Resim yuklenemedi</div>
-                                    <div className="text-sm">Gecerli bir resim URL'si ekleyin</div>
-                                </div>
-                            </div>
-                        )}
                     </>
                 ) : (
                     <>
-                        {/* Placeholder Image */}
                         <img
                             src={placeholderImage}
                             alt="Placeholder"

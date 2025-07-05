@@ -5,7 +5,6 @@ import React, { useEffect } from "react";
 import clsx from "clsx";
 import { ChevronDown, ChevronRight, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 // Map element types to friendly names and colors
 const elementTypeInfo: Record<string, { name: string; color: string }> = {
@@ -124,23 +123,13 @@ const LayersTab = () => {
                     {!hasChildren && <div className="w-4 h-4" />}
                     
                     {/* Element type icon and name */}
-                    <TooltipProvider delayDuration={600}>
-                        <Tooltip>
-                            <TooltipTrigger asChild>
-                                <span 
-                                    className={clsx("truncate text-xs flex-1", {
-                                        "font-medium": isSelected
-                                    })}
-                                >
-                                    {element.name}
-                                </span>
-                            </TooltipTrigger>
-                            <TooltipContent side="right">
-                                <p>ID: {element.id}</p>
-                                <p>Type: {typeInfo.name}</p>
-                            </TooltipContent>
-                        </Tooltip>
-                    </TooltipProvider>
+                    <span 
+                        className={clsx("truncate text-xs flex-1", {
+                            "font-medium": isSelected
+                        })}
+                    >
+                        {element.name}
+                    </span>
                     
                     {/* Element type badge */}
                     <span className={clsx(

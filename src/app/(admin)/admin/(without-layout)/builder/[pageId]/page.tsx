@@ -91,7 +91,7 @@ export default async function page({ params, searchParams }: Props) {
             <DndContextProvider>
                 <div className="flex flex-col h-full">
                     <FunnelEditorNavigation user={user} pageDetails={page} />
-                    <div className="h-full flex justify-center ml-80">
+                    <div className="h-full flex justify-center">
                         <FunnelEditor pageDetails={pageContent} />
                     </div>
                     <FunnelEditorSidebar userId={user.id} />

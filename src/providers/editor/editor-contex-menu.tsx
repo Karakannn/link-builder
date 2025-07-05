@@ -18,12 +18,12 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
     const searchInElements = (elements: EditorElement[], parentId: string = "__body"): { containerId: string; index: number } | null => {
       for (let i = 0; i < elements.length; i++) {
         const element = elements[i];
-        
+
         // Eğer bu element target ise, parent'ını döndür
         if (element.id === targetElementId) {
           return { containerId: parentId, index: i };
         }
-        
+
         // Eğer bu element'in content'i array ise (container ise), içinde ara
         if (Array.isArray(element.content)) {
           const result = searchInElements(element.content, element.id);
@@ -34,29 +34,53 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
       }
       return null;
     };
-    
+
     return searchInElements(elements);
   };
 
-  // Recursive olarak element ve tüm child elementlerinin ID'lerini değiştir
   const duplicateElementWithNewIds = (element: EditorElement): EditorElement => {
     const newId = v4();
-    
-    // Eğer content array ise (container ise), child elementleri de duplicate et
+
+    const getNewName = (currentName: string): string => {
+      if (currentName.includes("Copy")) {
+        const baseName = currentName.replace(/\s+Copy(\s+\d+)?$/, '');
+        const existingElements = getAllElementNames(state.editor.elements);
+        let counter = 1;
+        while (existingElements.includes(`${baseName} Copy ${counter}`)) {
+          counter++;
+        }
+        return `${baseName} Copy ${counter}`;
+      }
+      return `${currentName} Copy`;
+    };
+
+    const getAllElementNames = (elements: EditorElement[]): string[] => {
+      const names: string[] = [];
+      const collectNames = (elements: EditorElement[]) => {
+        elements.forEach(element => {
+          names.push(element.name);
+          if (Array.isArray(element.content)) {
+            collectNames(element.content);
+          }
+        });
+      };
+      collectNames(elements);
+      return names;
+    };
+
     if (Array.isArray(element.content)) {
       return {
         ...element,
         id: newId,
-        name: `${element.name} Copy`,
+        name: getNewName(element.name),
         content: element.content.map(childElement => duplicateElementWithNewIds(childElement))
       };
     }
-    
-    // Eğer content array değilse, sadece ID'yi değiştir
+
     return {
       ...element,
       id: newId,
-      name: `${element.name} Copy`,
+      name: getNewName(element.name),
     };
   };
 
@@ -66,7 +90,7 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
 
     // Element'in parent container'ını ve index'ini bul
     const parentInfo = findParentContainer(element.id, state.editor.elements);
-    
+
     console.log("🔧 Duplicate operation:", {
       elementId: element.id,
       elementName: element.name,
@@ -74,14 +98,14 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
       duplicatedElementId: duplicatedElement.id,
       allElements: state.editor.elements
     });
-    
+
     if (parentInfo) {
       // Aynı container'da hemen altına ekle
       console.log("🔧 Inserting at:", {
         containerId: parentInfo.containerId,
         insertIndex: parentInfo.index + 1
       });
-      
+
       dispatch({
         type: "INSERT_ELEMENT",
         payload: {
@@ -93,13 +117,13 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
     } else {
       // Fallback: body'ye ekle
       console.log("🔧 Fallback: adding to body");
-    dispatch({
-      type: "ADD_ELEMENT",
-      payload: {
+      dispatch({
+        type: "ADD_ELEMENT",
+        payload: {
           containerId: "__body",
-        elementDetails: duplicatedElement,
-      },
-    });
+          elementDetails: duplicatedElement,
+        },
+      });
     }
   };
 

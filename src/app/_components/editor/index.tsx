@@ -58,7 +58,7 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
     /*   <><Pages layout={Layout.Horizontal} /></> */
     <div
       data-editor-container="true"
-      className={clsx("use-automation-zoom-in overflow-hidden overflow-y-auto mr-[385px] bg-background transition-all rounded-md", {
+      className={clsx("use-automation-zoom-in overflow-hidden overflow-y-auto mr-[385px] ml-80 bg-background transition-all rounded-md", {
         "!p-0 !mr-0 !ml-0": state.editor.previewMode === true || state.editor.liveMode === true,
         "h-[calc(100vh_-_97px)]": !isLiveMode,
         // Device-based widths only apply in edit mode, not in live mode

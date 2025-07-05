@@ -2,7 +2,7 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
-import { Play, Pause, Image as ImageIcon, Download } from "lucide-react";
+import { Play, Pause, Image as ImageIcon, Download, AlertCircle } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
@@ -114,12 +114,8 @@ const GifComponent = ({ element }: Props) => {
                             )}
 
                             {hasError && (
-                                <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                                    <div className="text-center text-gray-500">
-                                        <ImageIcon className="mx-auto h-12 w-12 mb-2" />
-                                        <div>GIF yuklenemedi</div>
-                                        <div className="text-sm">Gecerli bir GIF URL'si ekleyin</div>
-                                    </div>
+                                <div className="flex items-center justify-center bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                    <AlertCircle className="h-6 w-6 text-gray-400" />
                                 </div>
                             )}
 
