@@ -43,21 +43,21 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
 
     useEffect(() => {
         if (hasCheckedRef.current) return;
-        
+
         const checkOverlay = async () => {
             try {
                 setIsLoading(true);
-                
+
                 // Get site settings - use public action for custom domain
                 const settingsResult = await getPublicSiteOverlaySettings(siteId);
-                
+
                 if (settingsResult.status === 200 && settingsResult.settings) {
-                    const { 
-                        enableOverlay, 
-                        selectedModalId, 
-                        liveStreamLink: streamLink 
+                    const {
+                        enableOverlay,
+                        selectedModalId,
+                        liveStreamLink: streamLink
                     } = settingsResult.settings;
-                    
+
                     if (enableOverlay) {
                         // Check landing modal
                         if (selectedModalId) {
@@ -66,30 +66,30 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                                 // Parse the modal content properly
                                 let parsedContent: EditorElement[] = [];
                                 try {
-                                    const content = typeof modalResult.content === 'string' 
-                                        ? JSON.parse(modalResult.content) 
+                                    const content = typeof modalResult.content === 'string'
+                                        ? JSON.parse(modalResult.content)
                                         : modalResult.content;
-                                    
+
                                     if (Array.isArray(content)) {
                                         parsedContent = content as EditorElement[];
                                     }
                                 } catch (parseError) {
                                     console.error("Error parsing modal content:", parseError);
                                 }
-                                
+
                                 if (parsedContent.length > 0) {
                                     setModalContent(parsedContent);
                                     setHasLandingModal(true);
                                 }
                             }
                         }
-                        
+
                         // Check live stream
                         if (streamLink) {
                             setLiveStreamLink(streamLink);
                             setHasLiveStream(true);
                         }
-                        
+
                         // Show overlay if at least one is configured
                         if (selectedModalId || streamLink) {
                             setIsOpen(true);
@@ -131,7 +131,7 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
         <OverlayContext.Provider value={value}>
             {children}
             {isOpen && (
-                <div 
+                <div
                     className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
                     onClick={handleBackdropClick}
                 >
@@ -144,35 +144,29 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                             >
                                 <X className="w-5 h-5" />
                             </button>
-                            
+
                             {/* Column layout for both components */}
-                            <div className="flex flex-col gap-6 p-4">
+                            <div className="flex flex-col items-center gap-6 p-4">
                                 {/* Live Stream Card */}
                                 {hasLiveStream && liveStreamLink && (
-                                    <div className="flex-1">
-                                        <LiveStreamCard 
-                                            liveStreamLink={liveStreamLink}
-                                            showCloseButton={false}
-                                        />
-                                    </div>
+                                    <LiveStreamCard
+                                        liveStreamLink={liveStreamLink}
+                                        showCloseButton={false}
+                                    />
                                 )}
                                 {/* Landing Modal */}
                                 {hasLandingModal && modalContent && (
-                                    <div className="flex-1">
-                                        <div className="bg-background rounded-lg shadow-xl border border-border overflow-hidden">
-                                            <div className="p-6 min-h-[300px]">
-                                                {modalContent.map((element) => (
-                                                    <Recursive
-                                                        key={element.id}
-                                                        element={element}
-                                                    />
-                                                ))}
-                                            </div>
-                                        </div>
+                                    <div className="p-6 min-h-[300px]">
+                                        {modalContent.map((element) => (
+                                            <Recursive
+                                                key={element.id}
+                                                element={element}
+                                            />
+                                        ))}
                                     </div>
                                 )}
-                                
-                               
+
+
                             </div>
                         </div>
                     </div>

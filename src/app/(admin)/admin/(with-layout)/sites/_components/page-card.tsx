@@ -14,15 +14,15 @@ interface PageCardProps {
   onDelete?: (pageId: string) => void;
 }
 
-export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDelete = () => {} }: PageCardProps) => {
+export const PageCard = ({ page, onEdit = () => { }, onSetAsHome = () => { }, onDelete = () => { } }: PageCardProps) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const formattedDate = page.createdAt
     ? formatDistanceToNow(new Date(page.createdAt), {
-        addSuffix: true,
-        locale: tr,
-      })
+      addSuffix: true,
+      locale: tr,
+    })
     : "Tarih bilgisi yok";
 
   const handleSetAsHome = async () => {
@@ -56,11 +56,23 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
             <Globe className="h-5 w-5 text-gray-500" />
             <h3 className="font-semibold text-lg">{page.title}</h3>
           </div>
-          {page.isHome && (
-            <Badge variant="outline" className="flex items-center gap-1">
+          {page.isHome ? (
+            <Badge variant="outline" className="flex items-center gap-1 p-2 border-green-600/50">
               <CircleCheck className="h-3 w-3 text-green-500" />
               <span>Aktif</span>
             </Badge>
+          ) : (
+
+            <Button
+              variant="secondary"
+              size="sm"
+              className="gap-1 text-xs"
+              onClick={handleSetAsHome}
+              disabled={isLoading}
+            >
+               <CircleCheck className="size-3 text-gray-500" />
+              Aktifleştir
+            </Button>
           )}
         </div>
         <div className="flex items-center text-sm text-muted-foreground mt-1">
@@ -95,37 +107,26 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
             <Pencil className="h-3.5 w-3.5" />
             Düzenle
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="gap-1" 
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1"
             onClick={handleLivePreview}
             disabled={isLoading}
           >
             <Eye className="h-3.5 w-3.5" />
             Önizle
           </Button>
-          {!page.isHome && (
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              className="gap-1" 
-              onClick={handleSetAsHome}
-              disabled={isLoading}
-            >
-              <Home className="h-3.5 w-3.5" />
-              Aktifleştir
-            </Button>
-          )}
+
         </div>
-        
+
         {!page.isHome && (
           <AlertDialog>
             <AlertDialogTrigger asChild>
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                className="gap-1" 
+              <Button
+                variant="destructive"
+                size="sm"
+                className="gap-1"
                 disabled={isLoading}
               >
                 <Trash2 className="h-3.5 w-3.5" />

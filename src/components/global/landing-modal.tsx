@@ -100,7 +100,6 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
                     <div className="flex-1 p-6 bg-muted/20">
                         <div className="max-w-md mx-auto">
                             {/* Modal Container */}
-                            <div className="bg-background rounded-lg shadow-xl border border-border overflow-hidden">
                                 {/* Modal Content */}
                                 <div className="p-6 min-h-[300px]">
                                     {contentElements.length > 0 ? (
@@ -121,7 +120,6 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
                                         </div>
                                     )}
                                 </div>
-                            </div>
                             
                             {/* Instructions */}
                             <div className="mt-4 text-center text-sm text-muted-foreground">
