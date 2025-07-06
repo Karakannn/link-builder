@@ -146,7 +146,16 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                             </button>
                             
                             {/* Column layout for both components */}
-                            <div className="flex flex-col md:flex-row gap-6 p-4">
+                            <div className="flex flex-col gap-6 p-4">
+                                {/* Live Stream Card */}
+                                {hasLiveStream && liveStreamLink && (
+                                    <div className="flex-1">
+                                        <LiveStreamCard 
+                                            liveStreamLink={liveStreamLink}
+                                            showCloseButton={false}
+                                        />
+                                    </div>
+                                )}
                                 {/* Landing Modal */}
                                 {hasLandingModal && modalContent && (
                                     <div className="flex-1">
@@ -163,15 +172,7 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                                     </div>
                                 )}
                                 
-                                {/* Live Stream Card */}
-                                {hasLiveStream && liveStreamLink && (
-                                    <div className="flex-1">
-                                        <LiveStreamCard 
-                                            liveStreamLink={liveStreamLink}
-                                            showCloseButton={false}
-                                        />
-                                    </div>
-                                )}
+                               
                             </div>
                         </div>
                     </div>

@@ -14,35 +14,8 @@ interface LiveStreamCardProps {
 export function LiveStreamCard({ liveStreamLink, onClose, showCloseButton = true }: LiveStreamCardProps) {
     const [isEmbedVisible, setIsEmbedVisible] = useState(false);
 
-    // Extract video ID from YouTube URL for embedding
-    const getYouTubeEmbedUrl = (url: string) => {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        if (match && match[2].length === 11) {
-            return `https://www.youtube.com/embed/${match[2]}?autoplay=1`;
-        }
-        return null;
-    };
 
-    // Extract video ID from Twitch URL for embedding
-    const getTwitchEmbedUrl = (url: string) => {
-        const channelMatch = url.match(/twitch\.tv\/([a-zA-Z0-9_]+)/);
-        if (channelMatch && channelMatch[1]) {
-            return `https://player.twitch.tv/?channel=${channelMatch[1]}&parent=${window.location.hostname}`;
-        }
-        return null;
-    };
-
-    const getEmbedUrl = () => {
-        if (liveStreamLink.includes('youtube.com') || liveStreamLink.includes('youtu.be')) {
-            return getYouTubeEmbedUrl(liveStreamLink);
-        } else if (liveStreamLink.includes('twitch.tv')) {
-            return getTwitchEmbedUrl(liveStreamLink);
-        }
-        return null;
-    };
-
-    const embedUrl = getEmbedUrl();
+    const embedUrl = liveStreamLink;
 
     const handleWatchClick = () => {
         if (embedUrl) {

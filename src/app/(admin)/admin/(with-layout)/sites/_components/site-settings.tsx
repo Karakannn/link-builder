@@ -17,7 +17,7 @@ type Props = {
 
 export const SiteSettings = ({ siteId }: Props) => {
   const [enableOverlay, setEnableOverlay] = useState(false);
-  const [selectedModalId, setSelectedModalId] = useState<string>("");
+  const [selectedModalId, setSelectedModalId] = useState<string>("clear");
   const [liveStreamLink, setLiveStreamLink] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [favicon, setFavicon] = useState<string>("");
@@ -36,14 +36,21 @@ export const SiteSettings = ({ siteId }: Props) => {
       // Load modals
       const modalsResult = await getAllUserModals();
       if (modalsResult.status === 200) {
-        setModals(modalsResult.modals || []);
+        // Filter out modals with invalid IDs
+        const validModals = (modalsResult.modals || []).filter(
+          (modal) => modal.id && modal.id.trim() !== ""
+        );
+        setModals(validModals);
+        console.log("Loaded modals:", validModals);
       }
 
       // Load site settings
       const settingsResult = await getSiteOverlaySettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
         setEnableOverlay(settingsResult.settings.enableOverlay || false);
-        setSelectedModalId(settingsResult.settings.selectedModalId || "");
+        const modalId = settingsResult.settings.selectedModalId;
+        // Ensure we never set an empty string - use "clear" instead
+        setSelectedModalId(modalId && modalId.trim() !== "" ? modalId : "clear");
         setLiveStreamLink(settingsResult.settings.liveStreamLink || "");
         setTitle(settingsResult.settings.title || "");
         setFavicon(settingsResult.settings.favicon || "");
@@ -61,7 +68,7 @@ export const SiteSettings = ({ siteId }: Props) => {
     try {
       const result = await updateSiteSettings(siteId, {
         enableOverlay,
-        selectedModalId: enableOverlay ? selectedModalId : undefined,
+        selectedModalId: enableOverlay && selectedModalId !== "clear" ? selectedModalId : undefined,
         liveStreamLink: enableOverlay ? liveStreamLink : undefined,
         title,
         favicon,
@@ -188,12 +195,15 @@ export const SiteSettings = ({ siteId }: Props) => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="modal-select">Modal Seçin</Label>
-                    <Select value={selectedModalId} onValueChange={setSelectedModalId}>
+                    <Select 
+                      value={selectedModalId || "clear"} 
+                      onValueChange={(value) => setSelectedModalId(value || "clear")}
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder="Bir modal seçin" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">
+                        <SelectItem value="clear">
                           <span className="text-muted-foreground">Seçimi Temizle</span>
                         </SelectItem>
                         {modals.length === 0 ? (
@@ -201,11 +211,13 @@ export const SiteSettings = ({ siteId }: Props) => {
                             Modal bulunamadı
                           </SelectItem>
                         ) : (
-                          modals.map((modal) => (
-                            <SelectItem key={modal.id} value={modal.id}>
-                              {modal.name}
-                            </SelectItem>
-                          ))
+                          modals
+                            .filter((modal) => modal.id && modal.id.trim() !== "")
+                            .map((modal) => (
+                              <SelectItem key={modal.id} value={modal.id}>
+                                {modal.name || "Unnamed Modal"}
+                              </SelectItem>
+                            ))
                         )}
                       </SelectContent>
                     </Select>
