@@ -14,7 +14,7 @@ import { LogoSelectionModal } from "@/components/global/logo-selection-modal";
 import Color from "color";
 
 const presetColors = [
-  "#eb0a82", "#00FFF1", "#bcc388", "#fb7c28", "#45B7D1", 
+  "#eb0a82", "#00FFF1", "#bcc388", "#fb7c28", "#45B7D1",
   "#0d92bf", "#0aa947", "#f1db4b", "#db0000", "#960aa9",
 ];
 
@@ -33,11 +33,11 @@ const SponsorNeonCardCustomProperties = () => {
   // Child elementleri bul
   const element = state.editor.selectedElement;
   const childElements = Array.isArray(element.content) ? element.content : [];
-  
+
   const findInContent = (content: any[], type: string, nameContains?: string): any => {
     for (const child of content) {
-      if (child.type === type && 
-          (nameContains ? child.name.toLowerCase().includes(nameContains.toLowerCase()) : true)) {
+      if (child.type === type &&
+        (nameContains ? child.name.toLowerCase().includes(nameContains.toLowerCase()) : true)) {
         return child;
       }
       if (Array.isArray(child.content)) {
@@ -58,7 +58,7 @@ const SponsorNeonCardCustomProperties = () => {
   // Child element güncelleme fonksiyonu
   const updateChildElement = (elementId: string, updates: any) => {
     const updatedContent = updateChildInContent(element.content as any[], elementId, updates);
-    
+
     dispatch({
       type: "UPDATE_ELEMENT",
       payload: {
@@ -88,7 +88,7 @@ const SponsorNeonCardCustomProperties = () => {
   // Parent element (neon card) ayarları için
   const handleSliderChange = (property: string, value: number[]) => {
     console.log("🔧 Neon Card Property Update:", property, "=", value[0]);
-    
+
     handleOnChanges({
       target: {
         id: property,
@@ -99,7 +99,7 @@ const SponsorNeonCardCustomProperties = () => {
 
   const handleColorPickerChange = (color: any) => {
     let hexColor = "#ff00aa";
-    
+
     try {
       if (Array.isArray(color) && color.length >= 3) {
         const colorObj = Color.rgb(color[0], color[1], color[2]);
@@ -112,7 +112,7 @@ const SponsorNeonCardCustomProperties = () => {
       console.warn('Invalid color value:', color);
       hexColor = "#ff00aa";
     }
-    
+
     // Neon card color'ını güncelle
     handleOnChanges({
       target: {
@@ -125,7 +125,7 @@ const SponsorNeonCardCustomProperties = () => {
   // Title color için ayrı fonksiyon
   const handleTitleColorChange = (color: any) => {
     let hexColor = "#ff00aa";
-    
+
     try {
       if (Array.isArray(color) && color.length >= 3) {
         const colorObj = Color.rgb(color[0], color[1], color[2]);
@@ -138,7 +138,7 @@ const SponsorNeonCardCustomProperties = () => {
       console.warn('Invalid color value:', color);
       hexColor = "#ff00aa";
     }
-    
+
     // Title elementinin rengini güncelle
     if (titleElement) {
       updateChildElement(titleElement.id, {
@@ -274,13 +274,13 @@ const SponsorNeonCardCustomProperties = () => {
                 })}
               />
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label>Title Color</Label>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={handleSync}
                   className="flex items-center gap-1 text-xs"
                 >
@@ -479,12 +479,46 @@ const SponsorNeonCardCustomProperties = () => {
       <LogoSelectionModal
         isOpen={isLogoModalOpen}
         onClose={() => setIsLogoModalOpen(false)}
-        onSelect={(logoPath) => {
+        onSelect={(logoData) => {
+          let updatedContent = element.content as any[];
+          
+          // Update logo image URL
           if (logoElement) {
-            updateChildElement(logoElement.id, {
-              content: { ...(logoElement.content as any), src: logoPath }
+            updatedContent = updateChildInContent(updatedContent, logoElement.id, {
+              content: { 
+                ...(logoElement.content as any), 
+                src: logoData.url 
+              }
             });
           }
+          
+          // Update title text and color
+          if (titleElement) {
+            updatedContent = updateChildInContent(updatedContent, titleElement.id, {
+              content: { 
+                ...(titleElement.content as any), 
+                innerText: logoData.title 
+              },
+              styles: {
+                ...titleElement.styles,
+                color: logoData.defaultColor,
+              }
+            });
+          }
+          // Single dispatch with ALL changes including neon color
+          dispatch({
+            type: "UPDATE_ELEMENT",
+            payload: {
+              elementDetails: {
+                ...element,
+                content: updatedContent,
+                styles: {
+                  ...element.styles,
+                  neonColor: logoData.defaultColor,
+                } as any
+              },
+            },
+          });
         }}
       />
     </div>
