@@ -23,12 +23,15 @@ import MarqueePlaceholder from "./marquee-placeholder";
 // Neon Card component
 import SponsorNeonCardPlaceholder from "./sponsor-neon-card-placeholder";
 
+// Pulsating Button component
+import PulsatingButtonPlaceholder from "./pulsating-button-placeholder";
+
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
         label: string;
         id: EditorBtns;
-        category: "layout" | "marquee" | "text" | "media" | "cards";
+        category: "layout" | "marquee" | "text" | "media" | "cards" | "buttons";
     }[] = [
         // Layout Elements
         {
@@ -98,6 +101,14 @@ const ComponentsTab = () => {
             category: "cards",
         },
         
+        // Button Elements
+        {
+            Component: <PulsatingButtonPlaceholder />,
+            label: "Pulsating Button",
+            id: "pulsatingButton",
+            category: "buttons",
+        },
+        
         // Marquee Elements
         {
             Component: <MarqueePlaceholder />,
@@ -115,6 +126,7 @@ const ComponentsTab = () => {
         { id: "text", name: "Text", defaultOpen: true },
         { id: "media", name: "Media", defaultOpen: true },
         { id: "cards", name: "Cards", defaultOpen: true },
+        { id: "buttons", name: "Buttons", defaultOpen: true },
         { id: "marquee", name: "Marquee", defaultOpen: false },
     ];
 

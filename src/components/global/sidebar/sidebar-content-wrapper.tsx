@@ -31,6 +31,11 @@ const SidebarContentWrapper = async (props: Props) => {
             url: "/admin/landing-modal",
             icon: "database",
         },
+        {
+            title: "Live Stream Cards",
+            url: "/admin/live-stream-cards",
+            icon: "video",
+        },
     ];
 
     const adminNavMain = [

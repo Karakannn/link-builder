@@ -19,6 +19,7 @@ export type EditorBtns =
   | "interactiveGridPattern"
   | "retroGrid"
   | "dotPattern"
+  | "pulsatingButton"
   | null;
 
 // Elements that support layout functionality (horizontal/vertical)
@@ -145,4 +146,22 @@ export const sponsorNeonCardDefaultStyles: React.CSSProperties = {
   fontSize: "16px",
   minHeight: "350px",
   maxWidth: "400px",
+};
+
+// Specific default styles for pulsating button components
+export const pulsatingButtonDefaultStyles: React.CSSProperties = {
+  ...defaultStyles,
+  margin: "0px",
+  padding: "0px",
+  marginTop: "0px",
+  marginRight: "0px",
+  marginBottom: "0px",
+  marginLeft: "0px",
+  paddingTop: "0px",
+  paddingRight: "0px",
+  paddingBottom: "0px",
+  paddingLeft: "0px",
+  fontSize: "16px",
+  minHeight: "40px",
+  minWidth: "120px",
 };

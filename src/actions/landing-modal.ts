@@ -346,6 +346,7 @@ export async function updateSiteSettings(siteId: string, settings: {
     enableOverlay?: boolean;
     overlayType?: 'LANDING_MODAL' | 'LIVE_STREAM_CARD';
     selectedModalId?: string;
+    selectedCardId?: string;
     liveStreamLink?: string;
     title?: string;
     favicon?: string;
@@ -395,6 +396,7 @@ export async function updateSiteSettings(siteId: string, settings: {
                 enableOverlay: enableOverlay,
                 overlayType: overlayType,
                 selectedModalId: settings.selectedModalId ?? null,
+                selectedCardId: settings.selectedCardId ?? null,
                 liveStreamLink: settings.liveStreamLink ?? null,
                 title: settings.title ?? null,
                 favicon: settings.favicon ?? null,
@@ -404,6 +406,7 @@ export async function updateSiteSettings(siteId: string, settings: {
                 enableOverlay: enableOverlay,
                 overlayType: overlayType,
                 selectedModalId: settings.selectedModalId ?? null,
+                selectedCardId: settings.selectedCardId ?? null,
                 liveStreamLink: settings.liveStreamLink ?? null,
                 title: settings.title ?? null,
                 favicon: settings.favicon ?? null,
