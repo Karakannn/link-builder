@@ -77,7 +77,7 @@ export const useElementBorderHighlight = (element: EditorElement) => {
 
         if (shouldAlwaysShowBorder) {
             if (isSelected) {
-                return `${baseClasses} !border-blue-500 !border-solid !border-1`;
+                return `${baseClasses} !border-blue-500 !border-1`;
             }
             if (isHovered) {
                 return `${baseClasses} border-solid border-[1px] border-blue-400`;
@@ -86,7 +86,7 @@ export const useElementBorderHighlight = (element: EditorElement) => {
         }
 
         if (isSelected) {
-            return `${baseClasses} !border-blue-500 !border-solid !border-1`;
+            return `${baseClasses} !border-blue-500 !border-1`;
         }
 
         if (isHovered) {
