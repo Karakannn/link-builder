@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Globe, Home, Pencil, Plus, Trash2, Eye } from "lucide-react";
+import { Calendar, Globe, Home, Pencil, Trash2, Eye, CircleCheck } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { tr } from "date-fns/locale";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -58,8 +58,8 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
           </div>
           {page.isHome && (
             <Badge variant="outline" className="flex items-center gap-1">
-              <Home className="h-3 w-3" />
-              <span>Ana Sayfa</span>
+              <CircleCheck className="h-3 w-3 text-green-500" />
+              <span>Aktif</span>
             </Badge>
           )}
         </div>
@@ -89,8 +89,8 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
         </div>
       </CardContent>
 
-      <CardFooter className="flex justify-between pt-2">
-        <div className="flex gap-2">
+      <CardFooter className="flex flex-wrap justify-between pt-2">
+        <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" className="gap-1" onClick={() => onEdit(page.id)} disabled={isLoading}>
             <Pencil className="h-3.5 w-3.5" />
             Düzenle
@@ -103,7 +103,7 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
             disabled={isLoading}
           >
             <Eye className="h-3.5 w-3.5" />
-            Önizleme
+            Önizle
           </Button>
           {!page.isHome && (
             <Button 
@@ -114,7 +114,7 @@ export const PageCard = ({ page, onEdit = () => {}, onSetAsHome = () => {}, onDe
               disabled={isLoading}
             >
               <Home className="h-3.5 w-3.5" />
-              Ana Sayfa Yap
+              Aktifleştir
             </Button>
           )}
         </div>

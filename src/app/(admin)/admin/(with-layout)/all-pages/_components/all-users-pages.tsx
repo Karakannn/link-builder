@@ -30,8 +30,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { TemplateSelectionModal } from "../../sites/_components/template-selection-modal";
-import { PageTemplate } from "@/constants/page-templates";
-import { ThemeOption } from "@/constants/theme-options";
 
 type UsersData = {
   status: number;
@@ -194,16 +192,41 @@ const AllUsersPages = ({ usersData }: Props) => {
     setIsCreatePageModalOpen(true);
   };
 
-  const handleCreatePage = async (title: string, slug: string, template: PageTemplate, theme: ThemeOption) => {
+  const handleCreatePage = async (title: string, slug: string) => {
     if (!selectedSiteForCreate) return;
     
     setIsCreatingPage(true);
     try {
-      const templateContent = template.getContent(theme);
+      // Generate basic page content
+      const basicContent = [
+        {
+          id: "container-1",
+          type: "container",
+          content: [
+            {
+              id: "text-1",
+              type: "text",
+              content: {
+                innerText: `Hoş geldiniz! Bu sayfa "${title}" başlıklı yeni sayfanızdır.`,
+                className: "text-2xl font-bold text-center"
+              }
+            }
+          ],
+          styles: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2rem",
+            minHeight: "50vh"
+          }
+        }
+      ];
+      
       const result = await adminCreatePageFromTemplate(
         title, 
         slug, 
-        JSON.parse(JSON.stringify(templateContent)),
+        basicContent,
         selectedSiteForCreate.id
       );
       
@@ -222,7 +245,7 @@ const AllUsersPages = ({ usersData }: Props) => {
     }
   };
 
-  const handleGlobalCreatePage = async (title: string, slug: string, template: PageTemplate, theme: ThemeOption) => {
+  const handleGlobalCreatePage = async (title: string, slug: string) => {
     if (!selectedGlobalSite) {
       toast.error("Lütfen bir site seçin");
       return;
@@ -230,11 +253,36 @@ const AllUsersPages = ({ usersData }: Props) => {
     
     setIsGlobalCreatingPage(true);
     try {
-      const templateContent = template.getContent(theme);
+      // Generate basic page content
+      const basicContent = [
+        {
+          id: "container-1",
+          type: "container",
+          content: [
+            {
+              id: "text-1",
+              type: "text",
+              content: {
+                innerText: `Hoş geldiniz! Bu sayfa "${title}" başlıklı yeni sayfanızdır.`,
+                className: "text-2xl font-bold text-center"
+              }
+            }
+          ],
+          styles: {
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "2rem",
+            minHeight: "50vh"
+          }
+        }
+      ];
+      
       const result = await adminCreatePageFromTemplate(
         title, 
         slug, 
-        JSON.parse(JSON.stringify(templateContent)),
+        basicContent,
         selectedGlobalSite
       );
       
@@ -492,7 +540,7 @@ const AllUsersPages = ({ usersData }: Props) => {
                                       variant="outline"
                                       onClick={() => handleSetAsHome(page.id, page.title)}
                                       disabled={loadingStates[page.id]}
-                                      title="Ana sayfa yap"
+                                      title="Aktifleştir"
                                     >
                                       {loadingStates[page.id] ? (
                                         <Loader2 className="w-3 h-3 animate-spin" />

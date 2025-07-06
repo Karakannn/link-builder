@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, Settings } from "lucide-react";
 import { createPageFromTemplate, setPageAsHome, deletePage } from "@/actions/page";
-import { PageTemplate } from "@/constants/page-templates";
-import { ThemeOption } from "@/constants/theme-options";
 import { toast } from "sonner";
 
 type PagesData = {
@@ -36,11 +34,58 @@ const AllPages = ({ pagesData }: Props) => {
     router.push("/admin/builder/" + pageId);
   };
 
-  const handleCreatePage = async (title: string, slug: string, template: PageTemplate, theme: ThemeOption) => {
+  const handleCreatePage = async (title: string, slug: string) => {
     setIsCreatingPage(true);
     try {
-      const templateContent = template.getContent(theme);
-      const result = await createPageFromTemplate(title, slug, JSON.parse(JSON.stringify(templateContent)));
+      // Create a basic page with default template
+      const basicPageContent = [
+        {
+          id: "page-container",
+          name: "Page Container",
+          type: "container",
+          styles: {
+            display: "flex",
+            flexDirection: "column",
+            minHeight: "100vh",
+            padding: "40px 20px",
+            backgroundColor: "white",
+          },
+          content: [
+            {
+              id: "page-header",
+              name: "Page Header",
+              type: "text",
+              styles: {
+                fontSize: "32px",
+                fontWeight: "bold",
+                color: "#333",
+                marginBottom: "20px",
+                textAlign: "center",
+              },
+              content: {
+                innerText: title,
+              },
+            },
+            {
+              id: "page-content",
+              name: "Page Content",
+              type: "text",
+              styles: {
+                fontSize: "16px",
+                color: "#666",
+                lineHeight: "1.6",
+                textAlign: "center",
+                marginBottom: "30px",
+              },
+              content: {
+                innerText: "Sayfa içeriğini düzenlemek için editörde değişiklik yapın.",
+              },
+            },
+          ],
+        },
+      ];
+      
+      const result = await createPageFromTemplate(title, slug, JSON.parse(JSON.stringify(basicPageContent)));
       
       if (result.status === 200) {
         toast.success("Sayfa başarıyla oluşturuldu!");
