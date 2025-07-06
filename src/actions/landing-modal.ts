@@ -318,11 +318,13 @@ export async function updateSiteLandingModalSettings(siteId: string, enableLandi
             },
             create: {
                 siteId: siteId,
-                enableLandingModal,
+                enableOverlay: enableLandingModal,
+                overlayType: 'LANDING_MODAL',
                 selectedModalId
             },
             update: {
-                enableLandingModal,
+                enableOverlay: enableLandingModal,
+                overlayType: 'LANDING_MODAL',
                 selectedModalId
             }
         });
@@ -341,11 +343,15 @@ export async function updateSiteLandingModalSettings(siteId: string, enableLandi
 }
 
 export async function updateSiteSettings(siteId: string, settings: {
-    enableLandingModal?: boolean;
+    enableOverlay?: boolean;
+    overlayType?: 'LANDING_MODAL' | 'LIVE_STREAM_CARD';
     selectedModalId?: string;
+    liveStreamLink?: string;
     title?: string;
     favicon?: string;
     googleAnalyticsId?: string;
+    // Backward compatibility
+    enableLandingModal?: boolean;
 }) {
     try {
         const clerkUser = await currentUser();
@@ -376,21 +382,29 @@ export async function updateSiteSettings(siteId: string, settings: {
             throw new Error("Site not found");
         }
 
+        // Handle backward compatibility and new overlay fields
+        const enableOverlay = settings.enableOverlay ?? settings.enableLandingModal ?? false;
+        const overlayType = settings.overlayType ?? 'LANDING_MODAL';
+
         const result = await client.siteSettings.upsert({
             where: {
                 siteId: siteId
             },
             create: {
                 siteId: siteId,
-                enableLandingModal: settings.enableLandingModal ?? false,
+                enableOverlay: enableOverlay,
+                overlayType: overlayType,
                 selectedModalId: settings.selectedModalId ?? null,
+                liveStreamLink: settings.liveStreamLink ?? null,
                 title: settings.title ?? null,
                 favicon: settings.favicon ?? null,
                 googleAnalyticsId: settings.googleAnalyticsId ?? null
             },
             update: {
-                enableLandingModal: settings.enableLandingModal ?? false,
+                enableOverlay: enableOverlay,
+                overlayType: overlayType,
                 selectedModalId: settings.selectedModalId ?? null,
+                liveStreamLink: settings.liveStreamLink ?? null,
                 title: settings.title ?? null,
                 favicon: settings.favicon ?? null,
                 googleAnalyticsId: settings.googleAnalyticsId ?? null
@@ -415,7 +429,7 @@ export async function updateSiteSettings(siteId: string, settings: {
     }
 }
 
-export async function getSiteLandingModalSettings(siteId: string) {
+export async function getSiteOverlaySettings(siteId: string) {
     try {
         const clerkUser = await currentUser();
         if (!clerkUser) {
@@ -451,12 +465,56 @@ export async function getSiteLandingModalSettings(siteId: string) {
             }
         });
 
+        // Add backward compatibility fields
+        const compatibleSettings = settings ? {
+            ...settings,
+            enableLandingModal: settings.enableOverlay && settings.overlayType === 'LANDING_MODAL'
+        } : null;
+
         return {
             status: 200,
-            settings
+            settings: compatibleSettings
         };
     } catch (error) {
-        console.error("[GET_SITE_LANDING_MODAL_SETTINGS]", error);
+        console.error("[GET_SITE_OVERLAY_SETTINGS]", error);
+        return {
+            status: 500,
+            message: "Site ayarları yüklenirken bir hata oluştu"
+        };
+    }
+}
+
+// Backward compatibility function
+export async function getSiteLandingModalSettings(siteId: string) {
+    return getSiteOverlaySettings(siteId);
+}
+
+// Public action for getting site overlay settings (no authentication required)
+export async function getPublicSiteOverlaySettings(siteId: string) {
+    try {
+        if (!siteId) {
+            throw new Error("Site ID is required");
+        }
+
+        // Get site settings without authentication
+        const settings = await client.siteSettings.findUnique({
+            where: {
+                siteId: siteId
+            }
+        });
+
+        // Add backward compatibility fields
+        const compatibleSettings = settings ? {
+            ...settings,
+            enableLandingModal: settings.enableOverlay && settings.overlayType === 'LANDING_MODAL'
+        } : null;
+
+        return {
+            status: 200,
+            settings: compatibleSettings
+        };
+    } catch (error) {
+        console.error("[GET_PUBLIC_SITE_OVERLAY_SETTINGS]", error);
         return {
             status: 500,
             message: "Site ayarları yüklenirken bir hata oluştu"
@@ -752,12 +810,14 @@ export async function adminUpdateSiteLandingModalSettings(siteId: string, enable
                 siteId: siteId
             },
             update: {
-                enableLandingModal,
+                enableOverlay: enableLandingModal,
+                overlayType: 'LANDING_MODAL',
                 selectedModalId: enableLandingModal ? selectedModalId : null
             },
             create: {
                 siteId: siteId,
-                enableLandingModal,
+                enableOverlay: enableLandingModal,
+                overlayType: 'LANDING_MODAL',
                 selectedModalId: enableLandingModal ? selectedModalId : null
             }
         });

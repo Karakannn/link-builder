@@ -22,7 +22,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ModalTemplateSelectionModal } from "../../landing-modal/_components/modal-template-selection-modal";
-import { ModalTemplate, ModalTheme, ModalLayout } from "@/constants/modal-templates";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 // Kullanıcıya göre grupla
@@ -118,7 +117,7 @@ const AllModals = ({ modalsData }: Props) => {
     setIsCreateModalOpen(true);
   };
 
-  const handleCreateModal = async (name: string, template: ModalTemplate, theme: ModalTheme, layout: ModalLayout) => {
+  const handleCreateModal = async (name: string) => {
     if (!selectedUserForCreate || !selectedUserForCreate.id) {
       toast.error("Kullanıcı bilgisi eksik");
       return;
@@ -128,20 +127,89 @@ const AllModals = ({ modalsData }: Props) => {
     try {
       console.log("[FRONTEND] Creating modal with:", {
         name,
-        template: template.name,
-        theme: theme.name,
-        layout: layout.name,
         userId: selectedUserForCreate.id,
         userEmail: selectedUserForCreate.email,
         selectedUserForCreate
       });
 
-      const templateContent = template.getContent(theme, layout);
-      console.log("[FRONTEND] Template content generated:", typeof templateContent);
+      // Create a basic modal with default template
+      const basicModalContent = [
+        {
+          id: "modal-container",
+          name: "Modal Container",
+          type: "container",
+          styles: {
+            display: "flex",
+            flexDirection: "column",
+            width: "500px",
+            height: "300px",
+            padding: "40px",
+            backgroundColor: "white",
+            borderRadius: "12px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+            gap: "0.5rem",
+          },
+          content: [
+            {
+              id: "modal-title",
+              name: "Modal Title",
+              type: "text",
+              styles: {
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: "#667eea",
+                marginBottom: "20px",
+                textAlign: "center",
+              },
+              content: {
+                innerText: name,
+              },
+            },
+            {
+              id: "modal-content",
+              name: "Modal Content",
+              type: "text",
+              styles: {
+                fontSize: "16px",
+                color: "#666",
+                lineHeight: "1.6",
+                textAlign: "center",
+                marginBottom: "20px",
+              },
+              content: {
+                innerText: "Modal içeriğini düzenlemek için editörde değişiklik yapın.",
+              },
+            },
+            {
+              id: "modal-button",
+              name: "Modal Button",
+              type: "link",
+              styles: {
+                padding: "12px 24px",
+                fontSize: "16px",
+                backgroundColor: "#667eea",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "500",
+                textAlign: "center",
+                textDecoration: "none",
+              },
+              content: {
+                href: "#",
+                innerText: "Tamam",
+              },
+            },
+          ],
+        },
+      ];
+      
+      console.log("[FRONTEND] Template content generated:", typeof basicModalContent);
       
       const result = await adminCreateModalFromTemplate(
         name, 
-        JSON.parse(JSON.stringify(templateContent)),
+        JSON.parse(JSON.stringify(basicModalContent)),
         selectedUserForCreate.id
       );
       
@@ -168,7 +236,7 @@ const AllModals = ({ modalsData }: Props) => {
     }
   };
 
-  const handleGlobalCreateModal = async (name: string, template: ModalTemplate, theme: ModalTheme, layout: ModalLayout) => {
+  const handleGlobalCreateModal = async (name: string) => {
     if (!selectedGlobalUser) {
       toast.error("Lütfen bir kullanıcı seçin");
       return;
@@ -176,11 +244,82 @@ const AllModals = ({ modalsData }: Props) => {
     
     setIsGlobalCreatingModal(true);
     try {
-      const templateContent = template.getContent(theme, layout);
+      // Create a basic modal with default template
+      const basicModalContent = [
+        {
+          id: "modal-container",
+          name: "Modal Container",
+          type: "container",
+          styles: {
+            display: "flex",
+            flexDirection: "column",
+            width: "500px",
+            height: "300px",
+            padding: "40px",
+            backgroundColor: "white",
+            borderRadius: "12px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+            gap: "0.5rem",
+          },
+          content: [
+            {
+              id: "modal-title",
+              name: "Modal Title",
+              type: "text",
+              styles: {
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: "#667eea",
+                marginBottom: "20px",
+                textAlign: "center",
+              },
+              content: {
+                innerText: name,
+              },
+            },
+            {
+              id: "modal-content",
+              name: "Modal Content",
+              type: "text",
+              styles: {
+                fontSize: "16px",
+                color: "#666",
+                lineHeight: "1.6",
+                textAlign: "center",
+                marginBottom: "20px",
+              },
+              content: {
+                innerText: "Modal içeriğini düzenlemek için editörde değişiklik yapın.",
+              },
+            },
+            {
+              id: "modal-button",
+              name: "Modal Button",
+              type: "link",
+              styles: {
+                padding: "12px 24px",
+                fontSize: "16px",
+                backgroundColor: "#667eea",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "500",
+                textAlign: "center",
+                textDecoration: "none",
+              },
+              content: {
+                href: "#",
+                innerText: "Tamam",
+              },
+            },
+          ],
+        },
+      ];
       
       const result = await adminCreateModalFromTemplate(
         name, 
-        JSON.parse(JSON.stringify(templateContent)),
+        JSON.parse(JSON.stringify(basicModalContent)),
         selectedGlobalUser
       );
       

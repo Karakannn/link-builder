@@ -7,7 +7,7 @@ import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeh
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
-import { getSiteLandingModalSettings, adminGetSiteLandingModalSettings } from "@/actions/landing-modal";
+import { getSiteOverlaySettings, adminGetSiteLandingModalSettings } from "@/actions/landing-modal";
 import { client } from "@/lib/prisma";
 import { Metadata } from "next";
 
@@ -128,14 +128,15 @@ export default async function page({ params, searchParams }: Props) {
             if (adminCheck.status === 200) {
                 modalSettingsResult = await adminGetSiteLandingModalSettings(page.siteId);
             } else {
-                modalSettingsResult = await getSiteLandingModalSettings(page.siteId);
+                modalSettingsResult = await getSiteOverlaySettings(page.siteId);
             }
             
             if (modalSettingsResult.status === 200 && modalSettingsResult.settings) {
+                const settings = modalSettingsResult.settings;
                 initialModalSettings = {
-                    enableLandingModal: modalSettingsResult.settings.enableLandingModal,
-                    selectedModalId: modalSettingsResult.settings.selectedModalId,
-                    googleAnalyticsId: modalSettingsResult.settings.googleAnalyticsId
+                    enableLandingModal: ('enableLandingModal' in settings && settings.enableLandingModal) || (settings.enableOverlay && settings.overlayType === 'LANDING_MODAL'),
+                    selectedModalId: settings.selectedModalId,
+                    googleAnalyticsId: settings.googleAnalyticsId
                 };
             }
         } catch (error) {

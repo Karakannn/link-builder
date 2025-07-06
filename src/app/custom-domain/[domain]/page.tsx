@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import FunnelEditor from "@/app/_components/editor";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import EditorProvider from "@/providers/editor/editor-provider";
-import { LandingModalProvider } from "@/providers/landing-modal-provider";
-import { LandingModalTrigger } from "./_components/landing-modal-trigger";
+import { OverlayProvider } from "@/providers/overlay-provider";
 import { ResponsiveDeviceDetector } from "@/components/global/responsive-device-detector";
 import { GoogleAnalytics } from "./_components/google-analytics";
 import { Metadata } from "next";
@@ -150,21 +149,26 @@ export default async function CustomDomainPage({ params }: Props) {
             notFound();
         }
 
-        // Landing modal ayarlarını kontrol et
+        // Overlay ayarlarını kontrol et
         const siteSettings = domain.site.settings;
-        const shouldShowLandingModal = siteSettings?.enableLandingModal && siteSettings?.selectedModalId;
+        const shouldShowOverlay = siteSettings?.enableOverlay && (
+            (siteSettings?.overlayType === 'LANDING_MODAL' && siteSettings?.selectedModalId) ||
+            (siteSettings?.overlayType === 'LIVE_STREAM_CARD' && siteSettings?.liveStreamLink)
+        );
 
         console.log("✅ Rendering custom domain page:", {
             domain: domainName,
             site: domain.site.name,
             page: homepage.title,
             contentLength: pageContent.length,
-            shouldShowLandingModal,
-            selectedModalId: siteSettings?.selectedModalId
+            shouldShowOverlay,
+            overlayType: siteSettings?.overlayType,
+            selectedModalId: siteSettings?.selectedModalId,
+            liveStreamLink: siteSettings?.liveStreamLink
         });
 
         return (
-            <LandingModalProvider isPreview={false}>
+            <OverlayProvider siteId={domain.site.id}>
                 <EditorProvider siteId={domain.site.id} pageDetails={pageContent}>
                     <ResponsiveDeviceDetector>
                         <div className="w-full h-screen">
@@ -172,13 +176,6 @@ export default async function CustomDomainPage({ params }: Props) {
                                 pageDetails={pageContent} 
                                 liveMode={true}
                             />
-                            {/* Landing modal trigger - sadece gerekirse render et */}
-                            {shouldShowLandingModal && (
-                                <LandingModalTrigger 
-                                    modalId={siteSettings.selectedModalId!}
-                                    siteId={domain.site.id}
-                                />
-                            )}
                             {/* Google Analytics - sadece gerekirse render et */}
                             {siteSettings?.googleAnalyticsId && (
                                 <GoogleAnalytics 
@@ -188,7 +185,7 @@ export default async function CustomDomainPage({ params }: Props) {
                         </div>
                     </ResponsiveDeviceDetector>
                 </EditorProvider>
-            </LandingModalProvider>
+            </OverlayProvider>
         );
 
     } catch (error) {

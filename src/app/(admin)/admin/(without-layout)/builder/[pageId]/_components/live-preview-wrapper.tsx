@@ -6,9 +6,8 @@ import { useEditor } from "@/providers/editor/editor-provider";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import { X, Laptop, Tablet, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LandingModalProvider } from "@/providers/landing-modal-provider";
-import { LandingModalTrigger } from "@/app/custom-domain/[domain]/_components/landing-modal-trigger";
-import { getSiteLandingModalSettings } from "@/actions/landing-modal";
+import { OverlayProvider } from "@/providers/overlay-provider";
+import { getSiteOverlaySettings } from "@/actions/landing-modal";
 import { ResponsiveDeviceDetector } from "@/components/global/responsive-device-detector";
 import { GoogleAnalytics } from "@/app/custom-domain/[domain]/_components/google-analytics";
 
@@ -24,11 +23,19 @@ interface LivePreviewWrapperProps {
 
 export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }: LivePreviewWrapperProps) {
     const { dispatch, state } = useEditor();
-    const [landingModalSettings, setLandingModalSettings] = useState<{
-        enableLandingModal: boolean;
+    const [overlaySettings, setOverlaySettings] = useState<{
+        enableOverlay: boolean;
+        overlayType: 'LANDING_MODAL' | 'LIVE_STREAM_CARD';
         selectedModalId: string | null;
+        liveStreamLink?: string | null;
         googleAnalyticsId?: string | null;
-    } | null>(initialModalSettings || null);
+    } | null>(initialModalSettings ? {
+        enableOverlay: initialModalSettings.enableLandingModal,
+        overlayType: 'LANDING_MODAL',
+        selectedModalId: initialModalSettings.selectedModalId,
+        liveStreamLink: null,
+        googleAnalyticsId: initialModalSettings.googleAnalyticsId
+    } : null);
 
     useEffect(() => {
         // Live mode'u aktif et
@@ -38,21 +45,23 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
         
         // Eğer initialModalSettings yoksa, client-side'da yükle
         if (!initialModalSettings) {
-            const loadLandingModalSettings = async () => {
+            const loadOverlaySettings = async () => {
                 try {
-                    const result = await getSiteLandingModalSettings(siteId);
+                    const result = await getSiteOverlaySettings(siteId);
                     if (result.status === 200 && result.settings) {
-                        setLandingModalSettings({
-                            enableLandingModal: result.settings.enableLandingModal,
+                        setOverlaySettings({
+                            enableOverlay: result.settings.enableOverlay,
+                            overlayType: result.settings.overlayType,
                             selectedModalId: result.settings.selectedModalId,
+                            liveStreamLink: result.settings.liveStreamLink,
                             googleAnalyticsId: result.settings.googleAnalyticsId
                         });
                     }
                 } catch (error) {
-                    console.error("❌ Error loading landing modal settings:", error);
+                    console.error("❌ Error loading overlay settings:", error);
                 }
             };
-            loadLandingModalSettings();
+            loadOverlaySettings();
         }
     }, []); // SADECE ilk renderda çalışacak
 
@@ -60,7 +69,10 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
         window.close();
     };
 
-    const shouldShowLandingModal = landingModalSettings?.enableLandingModal && landingModalSettings?.selectedModalId;
+    const shouldShowOverlay = overlaySettings?.enableOverlay && (
+        (overlaySettings?.overlayType === 'LANDING_MODAL' && overlaySettings?.selectedModalId) ||
+        (overlaySettings?.overlayType === 'LIVE_STREAM_CARD' && overlaySettings?.liveStreamLink)
+    );
 
     // Device icon component
     const getDeviceIcon = () => {
@@ -75,7 +87,7 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
     };
 
     return (
-        <LandingModalProvider isPreview={false}>
+        <OverlayProvider siteId={siteId}>
             <ResponsiveDeviceDetector>
                 <div className="w-full h-screen relative">
                     {/* Header with close button and device indicator */}
@@ -108,22 +120,14 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
                         />
                     </div>
 
-                    {/* Landing modal trigger - sadece gerekirse render et */}
-                    {shouldShowLandingModal && (
-                        <LandingModalTrigger 
-                            modalId={landingModalSettings.selectedModalId!}
-                            siteId={siteId}
-                        />
-                    )}
-
                     {/* Google Analytics - sadece gerekirse render et */}
-                    {landingModalSettings?.googleAnalyticsId && (
+                    {overlaySettings?.googleAnalyticsId && (
                         <GoogleAnalytics 
-                            googleAnalyticsId={landingModalSettings.googleAnalyticsId}
+                            googleAnalyticsId={overlaySettings.googleAnalyticsId}
                         />
                     )}
                 </div>
             </ResponsiveDeviceDetector>
-        </LandingModalProvider>
+        </OverlayProvider>
     );
 } 

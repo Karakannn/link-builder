@@ -2,15 +2,27 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ModalCard } from "./modal-card";
-import { ModalTemplateSelectionModal } from "./modal-template-selection-modal";
 import { Button } from "@/components/ui/button";
-import { Plus, Loader2 } from "lucide-react";
-import { createModalFromTemplate, deleteModal } from "@/actions/landing-modal";
-import { ModalTemplate } from "@/constants/modal-templates";
-import { ModalTheme } from "@/constants/modal-templates";
-import { ModalLayout } from "@/constants/modal-templates";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText,
+  Edit,
+  Trash2,
+  Calendar,
+  User,
+  Loader2,
+  AlertTriangle,
+  Plus
+} from "lucide-react";
+import { createModalFromTemplate, deleteModal, updateModalName } from "@/actions/landing-modal";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ModalTemplateSelectionModal } from "./modal-template-selection-modal";
+import { ModalCard } from "./modal-card";
 
 type ModalsData = {
   status: number;
@@ -32,11 +44,83 @@ const AllModals = ({ modalsData }: Props) => {
     router.push("/admin/landing-modal/builder/" + modalId);
   };
 
-  const handleCreateModal = async (name: string, template: ModalTemplate, theme: ModalTheme, layout: ModalLayout) => {
+  const handleCreateModal = async (name: string) => {
     setIsCreatingModal(true);
     try {
-      const templateContent = template.getContent(theme, layout);
-      const result = await createModalFromTemplate(name, templateContent);
+      // Create a basic modal with default template
+      const basicModalContent = [
+        {
+          id: "modal-container",
+          name: "Modal Container",
+          type: "container",
+          styles: {
+            display: "flex",
+            flexDirection: "column",
+            width: "500px",
+            height: "300px",
+            padding: "40px",
+            backgroundColor: "white",
+            borderRadius: "12px",
+            boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+            gap: "0.5rem",
+          },
+          content: [
+            {
+              id: "modal-title",
+              name: "Modal Title",
+              type: "text",
+              styles: {
+                fontSize: "24px",
+                fontWeight: "bold",
+                color: "#667eea",
+                marginBottom: "20px",
+                textAlign: "center",
+              },
+              content: {
+                innerText: name,
+              },
+            },
+            {
+              id: "modal-content",
+              name: "Modal Content",
+              type: "text",
+              styles: {
+                fontSize: "16px",
+                color: "#666",
+                lineHeight: "1.6",
+                textAlign: "center",
+                marginBottom: "20px",
+              },
+              content: {
+                innerText: "Modal içeriğini düzenlemek için editörde değişiklik yapın.",
+              },
+            },
+            {
+              id: "modal-button",
+              name: "Modal Button",
+              type: "link",
+              styles: {
+                padding: "12px 24px",
+                fontSize: "16px",
+                backgroundColor: "#667eea",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "500",
+                textAlign: "center",
+                textDecoration: "none",
+              },
+              content: {
+                href: "#",
+                innerText: "Tamam",
+              },
+            },
+          ],
+        },
+      ];
+      
+      const result = await createModalFromTemplate(name, basicModalContent);
       
       if (result.status === 200) {
         toast.success("Modal başarıyla oluşturuldu!");

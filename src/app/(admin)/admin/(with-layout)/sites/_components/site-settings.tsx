@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Save, Globe, BarChart3 } from "lucide-react";
-import { getAllUserModals, getSiteLandingModalSettings, updateSiteSettings } from "@/actions/landing-modal";
+import { Loader2, Save, Globe, BarChart3, Layers, Video, FileText } from "lucide-react";
+import { getAllUserModals, getSiteOverlaySettings, updateSiteSettings } from "@/actions/landing-modal";
 import { toast } from "sonner";
 
 type Props = {
@@ -16,8 +16,9 @@ type Props = {
 };
 
 export const SiteSettings = ({ siteId }: Props) => {
-  const [enableLandingModal, setEnableLandingModal] = useState(false);
+  const [enableOverlay, setEnableOverlay] = useState(false);
   const [selectedModalId, setSelectedModalId] = useState<string>("");
+  const [liveStreamLink, setLiveStreamLink] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [favicon, setFavicon] = useState<string>("");
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState<string>("");
@@ -39,10 +40,11 @@ export const SiteSettings = ({ siteId }: Props) => {
       }
 
       // Load site settings
-      const settingsResult = await getSiteLandingModalSettings(siteId);
+      const settingsResult = await getSiteOverlaySettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
-        setEnableLandingModal(settingsResult.settings.enableLandingModal);
+        setEnableOverlay(settingsResult.settings.enableOverlay || false);
         setSelectedModalId(settingsResult.settings.selectedModalId || "");
+        setLiveStreamLink(settingsResult.settings.liveStreamLink || "");
         setTitle(settingsResult.settings.title || "");
         setFavicon(settingsResult.settings.favicon || "");
         setGoogleAnalyticsId(settingsResult.settings.googleAnalyticsId || "");
@@ -58,8 +60,9 @@ export const SiteSettings = ({ siteId }: Props) => {
     setIsSaving(true);
     try {
       const result = await updateSiteSettings(siteId, {
-        enableLandingModal,
-        selectedModalId: enableLandingModal ? selectedModalId : undefined,
+        enableOverlay,
+        selectedModalId: enableOverlay ? selectedModalId : undefined,
+        liveStreamLink: enableOverlay ? liveStreamLink : undefined,
         title,
         favicon,
         googleAnalyticsId
@@ -153,53 +156,100 @@ export const SiteSettings = ({ siteId }: Props) => {
           </div>
         </div>
 
-        {/* Landing Modal Settings */}
+        {/* Overlay Settings */}
         <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Layers className="w-5 h-5" />
+            <h3 className="text-lg font-semibold">Overlay Ayarları</h3>
+          </div>
+
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-base font-medium text-foreground">Landing Modal</Label>
+              <Label className="text-base font-medium text-foreground">Overlay Aktif</Label>
               <p className="text-sm text-muted-foreground">
-                Ziyaretçiler siteye girdiğinde gösterilecek modal
+                Ziyaretçiler siteye girdiğinde gösterilecek overlay
               </p>
             </div>
             <Switch
-              checked={enableLandingModal}
-              onCheckedChange={setEnableLandingModal}
+              checked={enableOverlay}
+              onCheckedChange={setEnableOverlay}
             />
           </div>
 
-          {enableLandingModal && (
-            <div className="space-y-2">
-              <Label htmlFor="modal-select">Modal Seçin</Label>
-              <Select value={selectedModalId} onValueChange={setSelectedModalId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Bir modal seçin" />
-                </SelectTrigger>
-                <SelectContent>
-                  {modals.length === 0 ? (
-                    <SelectItem value="" disabled>
-                      Modal bulunamadı
-                    </SelectItem>
-                  ) : (
-                    modals.map((modal) => (
-                      <SelectItem key={modal.id} value={modal.id}>
-                        {modal.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              {modals.length === 0 && (
-                <p className="text-sm text-amber-600">
-                  Henüz modal oluşturmadınız.{" "}
-                  <a 
-                    href="/admin/landing-modal" 
-                    className="text-primary hover:underline"
-                  >
-                    Modal oluşturmak için tıklayın
-                  </a>
+          {enableOverlay && (
+            <div className="space-y-4 pl-4 border-l-2 border-border">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Landing Modal Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileText className="w-4 h-4" />
+                    <h4 className="font-medium">Landing Modal</h4>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="modal-select">Modal Seçin</Label>
+                    <Select value={selectedModalId} onValueChange={setSelectedModalId}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Bir modal seçin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">
+                          <span className="text-muted-foreground">Seçimi Temizle</span>
+                        </SelectItem>
+                        {modals.length === 0 ? (
+                          <SelectItem value="no-modal" disabled>
+                            Modal bulunamadı
+                          </SelectItem>
+                        ) : (
+                          modals.map((modal) => (
+                            <SelectItem key={modal.id} value={modal.id}>
+                              {modal.name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {modals.length === 0 && (
+                      <p className="text-sm text-amber-600">
+                        Henüz modal oluşturmadınız.{" "}
+                        <a 
+                          href="/admin/landing-modal" 
+                          className="text-primary hover:underline"
+                        >
+                          Modal oluşturmak için tıklayın
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Live Stream Card Section */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Video className="w-4 h-4" />
+                    <h4 className="font-medium">Canlı Yayın Kartı</h4>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="live-stream-link">Canlı Yayın Linki</Label>
+                    <Input
+                      id="live-stream-link"
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      value={liveStreamLink}
+                      onChange={(e) => setLiveStreamLink(e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      YouTube, Twitch veya diğer platform canlı yayın URL'sini girin
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                <p className="text-sm text-muted-foreground">
+                  İkisi de yapılandırılmışsa, overlay her iki içeriği de yan yana gösterecek.
                 </p>
-              )}
+              </div>
             </div>
           )}
         </div>

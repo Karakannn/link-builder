@@ -4,6 +4,58 @@ import { client } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { createInitialPage } from "./page";
 
+// New function to sync current Clerk user to database
+export const syncCurrentUserToDatabase = async () => {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) {
+      return { status: 404, message: "No user authenticated" };
+    }
+
+    // Check if user already exists in database
+    const existingUser = await client.user.findUnique({
+      where: {
+        clerkId: clerkUser.id,
+      },
+    });
+
+    if (existingUser) {
+      return { 
+        status: 200, 
+        message: "User already exists in database",
+        user: existingUser 
+      };
+    }
+
+    // Create user in database
+    const newUser = await client.user.create({
+      data: {
+        email: clerkUser.emailAddresses[0].emailAddress,
+        firstname: clerkUser.firstName || "Unknown",
+        lastname: clerkUser.lastName || "User", 
+        clerkId: clerkUser.id,
+        image: clerkUser.imageUrl || null,
+        role: "USER"
+      },
+    });
+
+    // Create initial page for the user
+    const initialPage = await createInitialPage(newUser);
+
+    return {
+      status: 200,
+      message: "User successfully synced to database",
+      user: newUser
+    };
+  } catch (error) {
+    console.error("Sync user error:", error);
+    return {
+      status: 500,
+      message: "Failed to sync user to database"
+    };
+  }
+};
+
 export const onAuthenticatedUser = async () => {
   try {
     const clerk = await currentUser();

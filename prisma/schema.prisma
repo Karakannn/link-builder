@@ -90,16 +90,18 @@ model LandingModal {
 }
 
 model SiteSettings {
-  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  siteId             String   @unique @db.Uuid
-  enableLandingModal Boolean  @default(false)
-  selectedModalId    String?  @db.Uuid
-  title              String?
-  favicon            String?
-  googleAnalyticsId  String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  site               Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  siteId            String      @unique @db.Uuid
+  enableOverlay     Boolean     @default(false)
+  overlayType       OverlayType @default(LANDING_MODAL)
+  selectedModalId   String?     @db.Uuid
+  liveStreamLink    String?
+  title             String?
+  favicon           String?
+  googleAnalyticsId String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  site              Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@index([siteId])
 }
@@ -134,4 +136,9 @@ enum MediaType {
   VIDEO
   DOCUMENT
   AUDIO
+}
+
+enum OverlayType {
+  LANDING_MODAL
+  LIVE_STREAM_CARD
 }
