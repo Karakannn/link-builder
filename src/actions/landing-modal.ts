@@ -340,6 +340,81 @@ export async function updateSiteLandingModalSettings(siteId: string, enableLandi
     }
 }
 
+export async function updateSiteSettings(siteId: string, settings: {
+    enableLandingModal?: boolean;
+    selectedModalId?: string;
+    title?: string;
+    favicon?: string;
+    googleAnalyticsId?: string;
+}) {
+    try {
+        const clerkUser = await currentUser();
+        if (!clerkUser) {
+            throw new Error("Unauthorized");
+        }
+
+        // Get the user's database ID using clerkId
+        const user = await client.user.findUnique({
+            where: {
+                clerkId: clerkUser.id
+            }
+        });
+
+        if (!user) {
+            throw new Error("User not found");
+        }
+
+        // Verify site belongs to user
+        const site = await client.site.findFirst({
+            where: {
+                id: siteId,
+                userId: user.id
+            }
+        });
+
+        if (!site) {
+            throw new Error("Site not found");
+        }
+
+        const result = await client.siteSettings.upsert({
+            where: {
+                siteId: siteId
+            },
+            create: {
+                siteId: siteId,
+                enableLandingModal: settings.enableLandingModal ?? false,
+                selectedModalId: settings.selectedModalId ?? null,
+                title: settings.title ?? null,
+                favicon: settings.favicon ?? null,
+                googleAnalyticsId: settings.googleAnalyticsId ?? null
+            },
+            update: {
+                enableLandingModal: settings.enableLandingModal ?? false,
+                selectedModalId: settings.selectedModalId ?? null,
+                title: settings.title ?? null,
+                favicon: settings.favicon ?? null,
+                googleAnalyticsId: settings.googleAnalyticsId ?? null
+            }
+        });
+
+        return {
+            status: 200,
+            settings: result
+        };
+    } catch (error) {
+        console.error("[UPDATE_SITE_SETTINGS]", error);
+        console.error("Error details:", {
+            siteId,
+            settings,
+            error: error instanceof Error ? error.message : error
+        });
+        return {
+            status: 500,
+            message: "Site ayarları güncellenirken bir hata oluştu"
+        };
+    }
+}
+
 export async function getSiteLandingModalSettings(siteId: string) {
     try {
         const clerkUser = await currentUser();

@@ -6,8 +6,9 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Loader2, Save } from "lucide-react";
-import { getAllUserModals, getSiteLandingModalSettings, updateSiteLandingModalSettings } from "@/actions/landing-modal";
+import { Input } from "@/components/ui/input";
+import { Loader2, Save, Globe, BarChart3 } from "lucide-react";
+import { getAllUserModals, getSiteLandingModalSettings, updateSiteSettings } from "@/actions/landing-modal";
 import { toast } from "sonner";
 
 type Props = {
@@ -17,6 +18,9 @@ type Props = {
 export const SiteSettings = ({ siteId }: Props) => {
   const [enableLandingModal, setEnableLandingModal] = useState(false);
   const [selectedModalId, setSelectedModalId] = useState<string>("");
+  const [title, setTitle] = useState<string>("");
+  const [favicon, setFavicon] = useState<string>("");
+  const [googleAnalyticsId, setGoogleAnalyticsId] = useState<string>("");
   const [modals, setModals] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -39,6 +43,9 @@ export const SiteSettings = ({ siteId }: Props) => {
       if (settingsResult.status === 200 && settingsResult.settings) {
         setEnableLandingModal(settingsResult.settings.enableLandingModal);
         setSelectedModalId(settingsResult.settings.selectedModalId || "");
+        setTitle(settingsResult.settings.title || "");
+        setFavicon(settingsResult.settings.favicon || "");
+        setGoogleAnalyticsId(settingsResult.settings.googleAnalyticsId || "");
       }
     } catch (error) {
       toast.error("Ayarlar yüklenirken bir hata oluştu");
@@ -50,11 +57,13 @@ export const SiteSettings = ({ siteId }: Props) => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      const result = await updateSiteLandingModalSettings(
-        siteId,
+      const result = await updateSiteSettings(siteId, {
         enableLandingModal,
-        enableLandingModal ? selectedModalId : undefined
-      );
+        selectedModalId: enableLandingModal ? selectedModalId : undefined,
+        title,
+        favicon,
+        googleAnalyticsId
+      });
 
       if (result.status === 200) {
         toast.success("Ayarlar başarıyla kaydedildi!");
@@ -89,6 +98,61 @@ export const SiteSettings = ({ siteId }: Props) => {
         <CardTitle>Site Ayarları</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* General Settings */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-5 h-5" />
+            <h3 className="text-lg font-semibold">Genel Ayarlar</h3>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="site-title">Site Başlığı</Label>
+            <Input
+              id="site-title"
+              placeholder="Sitenizin başlığını girin"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              Bu başlık browser sekmesinde ve arama motorlarında görünecek
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="site-favicon">Favicon URL</Label>
+            <Input
+              id="site-favicon"
+              placeholder="https://example.com/favicon.ico"
+              value={favicon}
+              onChange={(e) => setFavicon(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              Sitenizin favicon'unun URL'sini girin (16x16 veya 32x32 px)
+            </p>
+          </div>
+        </div>
+
+        {/* Analytics Settings */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 className="w-5 h-5" />
+            <h3 className="text-lg font-semibold">Analytics</h3>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="google-analytics">Google Analytics ID</Label>
+            <Input
+              id="google-analytics"
+              placeholder="G-XXXXXXXXXX"
+              value={googleAnalyticsId}
+              onChange={(e) => setGoogleAnalyticsId(e.target.value)}
+            />
+            <p className="text-sm text-muted-foreground">
+              Google Analytics tracking ID'nizi girin (örn: G-XXXXXXXXXX)
+            </p>
+          </div>
+        </div>
+
         {/* Landing Modal Settings */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">

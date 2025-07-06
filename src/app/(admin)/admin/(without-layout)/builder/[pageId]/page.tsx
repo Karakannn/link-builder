@@ -8,11 +8,81 @@ import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
 import { getSiteLandingModalSettings, adminGetSiteLandingModalSettings } from "@/actions/landing-modal";
+import { client } from "@/lib/prisma";
+import { Metadata } from "next";
 
 type Props = {
     params: Promise<{ pageId: string }>;
     searchParams: Promise<{ live?: string }>;
 };
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+    const resolvedParams = await params;
+    const resolvedSearchParams = await searchParams;
+    const pageId = resolvedParams.pageId;
+    const isLiveMode = resolvedSearchParams.live === 'true';
+
+    try {
+        // Get page data with site settings
+        const pageData = await client.page.findUnique({
+            where: {
+                id: pageId,
+            },
+            include: {
+                site: {
+                    include: {
+                        settings: true,
+                    },
+                },
+            },
+        });
+
+        if (!pageData?.site) {
+            return {
+                title: isLiveMode ? "Live Preview" : "Page Editor",
+                description: "LinkBuilder - Build amazing landing pages",
+            };
+        }
+
+        const siteSettings = pageData.site.settings;
+        
+        // Title: Site settings > Page title > Site name
+        const title = siteSettings?.title || pageData.title || pageData.site.name;
+        
+        // Add mode suffix for non-live modes
+        const finalTitle = isLiveMode ? title : `${title} - Editor`;
+        
+        // Favicon: Site settings > Default
+        const favicon = siteSettings?.favicon || "/favicon.ico";
+
+        return {
+            title: finalTitle,
+            description: pageData.site.description || `Edit and preview ${pageData.site.name}`,
+            icons: {
+                icon: favicon,
+                shortcut: favicon,
+                apple: favicon,
+            },
+            openGraph: {
+                title: finalTitle,
+                description: pageData.site.description || `Edit and preview ${pageData.site.name}`,
+                siteName: pageData.site.name,
+                type: "website",
+            },
+            twitter: {
+                title: finalTitle,
+                description: pageData.site.description || `Edit and preview ${pageData.site.name}`,
+                card: "summary_large_image",
+            },
+        };
+    } catch (error) {
+        console.error("❌ Error generating metadata:", error);
+        return {
+            title: isLiveMode ? "Live Preview" : "Page Editor",
+            description: "LinkBuilder - Build amazing landing pages",
+        };
+    }
+}
 
 export default async function page({ params, searchParams }: Props) {
     const resolvedParams = await params;
@@ -64,7 +134,8 @@ export default async function page({ params, searchParams }: Props) {
             if (modalSettingsResult.status === 200 && modalSettingsResult.settings) {
                 initialModalSettings = {
                     enableLandingModal: modalSettingsResult.settings.enableLandingModal,
-                    selectedModalId: modalSettingsResult.settings.selectedModalId
+                    selectedModalId: modalSettingsResult.settings.selectedModalId,
+                    googleAnalyticsId: modalSettingsResult.settings.googleAnalyticsId
                 };
             }
         } catch (error) {

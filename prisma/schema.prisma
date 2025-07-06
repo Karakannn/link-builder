@@ -94,6 +94,9 @@ model SiteSettings {
   siteId             String   @unique @db.Uuid
   enableLandingModal Boolean  @default(false)
   selectedModalId    String?  @db.Uuid
+  title              String?
+  favicon            String?
+  googleAnalyticsId  String?
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
   site               Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)

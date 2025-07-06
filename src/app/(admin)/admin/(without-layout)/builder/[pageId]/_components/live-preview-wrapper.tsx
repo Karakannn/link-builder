@@ -10,6 +10,7 @@ import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { LandingModalTrigger } from "@/app/custom-domain/[domain]/_components/landing-modal-trigger";
 import { getSiteLandingModalSettings } from "@/actions/landing-modal";
 import { ResponsiveDeviceDetector } from "@/components/global/responsive-device-detector";
+import { GoogleAnalytics } from "@/app/custom-domain/[domain]/_components/google-analytics";
 
 interface LivePreviewWrapperProps {
     pageContent: EditorElement[];
@@ -17,6 +18,7 @@ interface LivePreviewWrapperProps {
     initialModalSettings?: {
         enableLandingModal: boolean;
         selectedModalId: string | null;
+        googleAnalyticsId?: string | null;
     } | null;
 }
 
@@ -25,6 +27,7 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
     const [landingModalSettings, setLandingModalSettings] = useState<{
         enableLandingModal: boolean;
         selectedModalId: string | null;
+        googleAnalyticsId?: string | null;
     } | null>(initialModalSettings || null);
 
     useEffect(() => {
@@ -41,7 +44,8 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
                     if (result.status === 200 && result.settings) {
                         setLandingModalSettings({
                             enableLandingModal: result.settings.enableLandingModal,
-                            selectedModalId: result.settings.selectedModalId
+                            selectedModalId: result.settings.selectedModalId,
+                            googleAnalyticsId: result.settings.googleAnalyticsId
                         });
                     }
                 } catch (error) {
@@ -109,6 +113,13 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
                         <LandingModalTrigger 
                             modalId={landingModalSettings.selectedModalId!}
                             siteId={siteId}
+                        />
+                    )}
+
+                    {/* Google Analytics - sadece gerekirse render et */}
+                    {landingModalSettings?.googleAnalyticsId && (
+                        <GoogleAnalytics 
+                            googleAnalyticsId={landingModalSettings.googleAnalyticsId}
                         />
                     )}
                 </div>
