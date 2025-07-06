@@ -208,6 +208,7 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
   const handleOnChanges = (e: any) => {
     const settingProperty = e.target.id;
     let value = e.target.value;
+    console.log(e.target)
 
     if (activeDevice === "Desktop") {
       // Update base styles for Desktop

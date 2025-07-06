@@ -50,7 +50,7 @@ const SponsorNeonCardCustomProperties = () => {
 
   const logoElement = findInContent(childElements, "image");
   const titleElement = findInContent(childElements, "text", "title") || findInContent(childElements, "text", "sponsor");
-  const descriptionElement = findInContent(childElements, "text", "description") || findInContent(childElements, "text", "text");
+  const descriptionElement = findInContent(childElements, "text", "text") || findInContent(childElements, "text", "text");
 
   // Title'ın current color'ını al
   const titleCurrentColor = titleElement?.styles?.color || neonColor;
@@ -481,23 +481,23 @@ const SponsorNeonCardCustomProperties = () => {
         onClose={() => setIsLogoModalOpen(false)}
         onSelect={(logoData) => {
           let updatedContent = element.content as any[];
-          
+
           // Update logo image URL
           if (logoElement) {
             updatedContent = updateChildInContent(updatedContent, logoElement.id, {
-              content: { 
-                ...(logoElement.content as any), 
-                src: logoData.url 
+              content: {
+                ...(logoElement.content as any),
+                src: logoData.url
               }
             });
           }
-          
+
           // Update title text and color
           if (titleElement) {
             updatedContent = updateChildInContent(updatedContent, titleElement.id, {
-              content: { 
-                ...(titleElement.content as any), 
-                innerText: logoData.title 
+              content: {
+                ...(titleElement.content as any),
+                innerText: logoData.title
               },
               styles: {
                 ...titleElement.styles,
@@ -505,7 +505,7 @@ const SponsorNeonCardCustomProperties = () => {
               }
             });
           }
-          // Single dispatch with ALL changes including neon color
+          // dispatch
           dispatch({
             type: "UPDATE_ELEMENT",
             payload: {

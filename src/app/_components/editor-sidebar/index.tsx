@@ -107,13 +107,13 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                                         <SheetTitle>Custom</SheetTitle>
                                         <SheetDescription>Custom Stiller burada. Tüm komponenta istediğin custom stili ekleyeyebilirsin</SheetDescription>
                                     </SheetHeader>
-                                    <div className="flex-1 overflow-y-auto pb-6">
+                                    <div className="flex-1 overflow-y-auto pb-24">
                                         <CustomTab />
                                     </div>
                                 </TabsContent>
 
                                 <TabsContent value="CustomCSS" className="flex-1 flex flex-col overflow-hidden">
-                                    <div className="flex-1 overflow-y-auto pb-6">
+                                    <div className="flex-1 overflow-y-auto pb-24">
                                         <CustomCSSTab />
                                     </div>
                                 </TabsContent>
@@ -123,12 +123,12 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                                         <SheetTitle>Stiller</SheetTitle>
                                         <SheetDescription>Stiller burada. Tüm komponentlara istediğin stili ekleyeyebilirsin</SheetDescription>
                                     </SheetHeader>
-                                    <div className="flex-1 overflow-y-auto pb-6">
+                                    <div className="flex-1 overflow-y-auto pb-24">
                                         <SettingsTab />
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="Media" className="flex-1 flex flex-col overflow-hidden">
-                                    <div className="flex-1 overflow-y-auto pb-6">
+                                    <div className="flex-1 overflow-y-auto pb-24">
                                         <MediaBucketTab userId={userId} />
                                     </div>
                                 </TabsContent>
@@ -137,7 +137,7 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                                         <SheetTitle>Components</SheetTitle>
                                         <SheetDescription>Burdan komponentları alıp sayfaya sürükleyebilirsin</SheetDescription>
                                     </SheetHeader>
-                                    <div className="flex-1 overflow-y-auto pb-6">
+                                    <div className="flex-1 overflow-y-auto pb-24">
                                         <ComponentsTab />
                                     </div>
                                 </TabsContent>

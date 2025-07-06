@@ -25,11 +25,11 @@ const ImageCustom = () => {
         } as any);
     };
 
-    const handleLogoSelect = (logoPath: string) => {
+    const handleLogoSelect = (logoData: any) => {
         handleChangeCustomValues({
             target: {
                 id: "src",
-                value: logoPath,
+                value: logoData.url,
             },
         } as any);
     };
