@@ -4,6 +4,7 @@ import {
   linkDefaultStyles,
   containerDefaultStyles,
   closableContainerDefaultStyles,
+  pulsatingButtonDefaultStyles,
   supportsLayout
 } from '@/lib/constants';
 import { EditorElement, EditorState } from '@/providers/editor/editor-provider';
@@ -344,6 +345,20 @@ export const useEditorUtilities = () => {
             ...defaultStyles,
           } as React.CSSProperties,
           type: "marquee",
+        } as EditorElement;
+
+      case "pulsatingButton":
+        return {
+          ...baseElement,
+          name: "Pulsating Button",
+          content: {
+            innerText: "Click me",
+            pulseColor: "#808080",
+            duration: "1.5s",
+            href: "",
+          } as any,
+          styles: { ...pulsatingButtonDefaultStyles } as React.CSSProperties,
+          type: "pulsatingButton",
         } as EditorElement;
 
       default:

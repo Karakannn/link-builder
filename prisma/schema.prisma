@@ -20,6 +20,7 @@ model User {
   updatedAt     DateTime       @updatedAt
   domains       Domain[]
   landingModals LandingModal[]
+  liveStreamCards LiveStreamCard[]
   media         Media[]
   sites         Site[]
 }
@@ -89,12 +90,26 @@ model LandingModal {
   @@index([userId])
 }
 
+model LiveStreamCard {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  content   Json
+  isEnabled Boolean  @default(true)
+  userId    String   @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  name      String
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+}
+
 model SiteSettings {
   id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   siteId            String      @unique @db.Uuid
   enableOverlay     Boolean     @default(false)
   overlayType       OverlayType @default(LANDING_MODAL)
   selectedModalId   String?     @db.Uuid
+  selectedCardId    String?     @db.Uuid
   liveStreamLink    String?
   title             String?
   favicon           String?

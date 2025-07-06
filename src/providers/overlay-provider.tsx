@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { getPublicSiteOverlaySettings, getPublicLandingModalContent } from "@/actions/landing-modal";
-import { LiveStreamCard } from "@/components/global/live-stream-card";
+import { getPublicLiveStreamCardContent } from "@/actions/live-stream-card";
 import { X } from "lucide-react";
 import Recursive from "@/app/_components/editor/_components-editor/recursive";
 import { EditorElement } from "@/providers/editor/editor-provider";
@@ -13,6 +13,7 @@ interface OverlayContextType {
     hasLandingModal: boolean;
     hasLiveStream: boolean;
     modalContent: EditorElement[] | null;
+    liveStreamContent: EditorElement[] | null;
     liveStreamLink: string | null;
     isLoading: boolean;
 }
@@ -37,6 +38,7 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
     const [hasLandingModal, setHasLandingModal] = useState(false);
     const [hasLiveStream, setHasLiveStream] = useState(false);
     const [modalContent, setModalContent] = useState<EditorElement[] | null>(null);
+    const [liveStreamContent, setLiveStreamContent] = useState<EditorElement[] | null>(null);
     const [liveStreamLink, setLiveStreamLink] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const hasCheckedRef = useRef(false);
@@ -55,8 +57,16 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                     const {
                         enableOverlay,
                         selectedModalId,
+                        selectedCardId,
                         liveStreamLink: streamLink
                     } = settingsResult.settings;
+
+                    console.log("🔴 Site settings:", {
+                        enableOverlay,
+                        selectedModalId,
+                        selectedCardId,
+                        streamLink
+                    });
 
                     if (enableOverlay) {
                         // Check landing modal
@@ -84,14 +94,43 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                             }
                         }
 
-                        // Check live stream
-                        if (streamLink) {
-                            setLiveStreamLink(streamLink);
-                            setHasLiveStream(true);
+                        // Check live stream card from database
+                        if (selectedCardId) {
+                            console.log("🔴 Checking live stream card with ID:", selectedCardId);
+                            const cardResult = await getPublicLiveStreamCardContent(selectedCardId);
+                            console.log("🔴 Card result:", cardResult);
+                            
+                            if (cardResult && cardResult.card && cardResult.card.content) {
+                                // Parse the card content properly
+                                let parsedContent: EditorElement[] = [];
+                                try {
+                                    const content = typeof cardResult.card.content === 'string'
+                                        ? JSON.parse(cardResult.card.content)
+                                        : cardResult.card.content;
+
+                                    console.log("🔴 Parsed content:", content);
+
+                                    if (Array.isArray(content)) {
+                                        parsedContent = content as EditorElement[];
+                                    }
+                                } catch (parseError) {
+                                    console.error("Error parsing card content:", parseError);
+                                }
+
+                                if (parsedContent.length > 0) {
+                                    console.log("🔴 Setting live stream content:", parsedContent);
+                                    setLiveStreamContent(parsedContent);
+                                    setHasLiveStream(true);
+                                } else {
+                                    console.log("🔴 No parsed content found");
+                                }
+                            } else {
+                                console.log("🔴 No card result or content found");
+                            }
                         }
 
                         // Show overlay if at least one is configured
-                        if (selectedModalId || streamLink) {
+                        if (selectedModalId || selectedCardId) {
                             setIsOpen(true);
                         }
                     }
@@ -123,6 +162,7 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
         hasLandingModal,
         hasLiveStream,
         modalContent,
+        liveStreamContent,
         liveStreamLink,
         isLoading
     };
@@ -147,14 +187,19 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
 
                             {/* Column layout for both components */}
                             <div className="flex flex-col items-center gap-6 p-4">
-                                {/* Live Stream Card */}
-                                {hasLiveStream && liveStreamLink && (
-                                    <LiveStreamCard
-                                        liveStreamLink={liveStreamLink}
-                                        showCloseButton={false}
-                                    />
+                                {/* Live Stream Card - Recursive */}
+                                {hasLiveStream && liveStreamContent && (
+                                    <div className="w-full max-w-2xl">
+                                        {liveStreamContent.map((element) => (
+                                            <Recursive
+                                                key={element.id}
+                                                element={element}
+                                            />
+                                        ))}
+                                    </div>
                                 )}
-                                {/* Landing Modal */}
+
+                                {/* Landing Modal - Recursive */}
                                 {hasLandingModal && modalContent && (
                                     <div className="p-6 min-h-[300px]">
                                         {modalContent.map((element) => (
@@ -165,8 +210,6 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                                         ))}
                                     </div>
                                 )}
-
-
                             </div>
                         </div>
                     </div>
@@ -174,4 +217,4 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
             )}
         </OverlayContext.Provider>
     );
-}; 
+};

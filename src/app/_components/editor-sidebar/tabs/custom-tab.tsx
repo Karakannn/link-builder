@@ -10,6 +10,7 @@ import MarqueeCustomProperties from "./custom-properties/marquee-custom";
 import BodyCustomProperties from "./custom-properties/body-custom";
 import NeonCardCustomProperties from "./custom-properties/neon-card-custom";
 import ImageCustom from "./custom-properties/image-custom";
+import PulsatingButtonCustomProperties from "./custom-properties/pulsating-button-custom";
 
 type CustomElementType =
   | "link"
@@ -19,6 +20,7 @@ type CustomElementType =
   | "column"
   | "gif"
   | "image"
+  | "pulsatingButton"
   | "__body";
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
@@ -28,6 +30,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   gridLayout: GridLayoutCustomProperties,
   gif: GifCustomProperties,
   image: ImageCustom,
+  pulsatingButton: PulsatingButtonCustomProperties,
   column: () => <div className="px-6 text-muted-foreground">Column properties managed by Grid Layout</div>,
   __body: BodyCustomProperties,
 };

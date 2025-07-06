@@ -1,75 +1,50 @@
 "use client"
 
-import type React from "react"
+import React from "react"
+import { cn } from "@/lib/utils"
 
-interface PulsatingButtonProps {
-   text: string
-   pulseColor: string
-   backgroundColor: string
-   textColor: string
-   animationDuration: string
-   buttonWidth: string
-   buttonHeight: string
+interface PulsatingButtonProps
+   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+   pulseColor?: string
+   duration?: string
 }
 
-export const PulsatingButton: React.FC<PulsatingButtonProps> = ({
-   text,
-   pulseColor,
-   backgroundColor,
-   textColor,
-   animationDuration,
-   buttonWidth,
-   buttonHeight,
-}) => {
-   const pulseKeyframes = {
-      "--tw-pulse-color": pulseColor,
-      animation: `pulse ${animationDuration} linear infinite`,
-   }
-
-   return (
-      <div className="flex items-center justify-center">
+export const PulsatingButton = React.forwardRef<
+   HTMLButtonElement,
+   PulsatingButtonProps
+>(
+   (
+      {
+         className,
+         children,
+         pulseColor = "#808080",
+         duration = "1.5s",
+         ...props
+      },
+      ref,
+   ) => {
+      console.log("🔧 PulsatingButton UI - Props:", { pulseColor, duration });
+      
+      return (
          <button
-            className="relative block flex cursor-pointer items-center justify-center text-center"
-            style={{
-               color: textColor,
-               backgroundColor,
-               width: buttonWidth,
-               height: buttonHeight,
-               borderRadius: "12px",
-               ...pulseKeyframes,
-            }}
+            ref={ref}
+            className={cn(
+               "relative flex cursor-pointer items-center justify-center rounded-lg bg-primary px-4 py-2 text-center text-primary-foreground",
+               className,
+            )}
+            {...props}
          >
-            <div>{text}</div>
-            <style jsx>
-               {`
-          @keyframes pulse {
-            0% {
-              box-shadow: 0 0 0 0 rgba(var(--tw-pulse-color), 0);
-            }
-            50% {
-              box-shadow: 0 0 0 8px rgba(var(--tw-pulse-color), 0.5);
-            }
-            100% {
-              box-shadow: 0 0 0 0 rgba(var(--tw-pulse-color), 0);
-            }
-          }
-          button::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            border-radius: 20px;
-            background: inherit;
-            animation: inherit;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-          }
-        `}
-            </style>
+            <div className="relative z-10">{children}</div>
+            <div 
+               className="absolute left-1/2 top-1/2 size-full -translate-x-1/2 -translate-y-1/2 rounded-lg animate-pulse-custom"
+               style={{
+                  color: pulseColor,
+                  animationDuration: duration,
+               }}
+            />
          </button>
-      </div>
-   )
-}
+      )
+   },
+)
 
+PulsatingButton.displayName = "PulsatingButton"

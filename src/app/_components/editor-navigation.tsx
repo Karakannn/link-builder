@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Page, User } from "@prisma/client";
 import { upsertPage } from "@/actions/page";
 import { saveLandingModalContent } from "@/actions/landing-modal";
+import { saveLiveStreamCardContent } from "@/actions/live-stream-card";
 
 interface Props {
   user: User;
@@ -32,6 +33,8 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
 
   // Check if we're on the landing modal page
   const isLandingModalPage = pathname?.includes('landing-modal');
+  // Check if we're on the live stream card page
+  const isLiveStreamCardPage = pathname?.includes('live-stream-cards');
 
   useEffect(() => {
     dispatch({
@@ -115,6 +118,11 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
         const modalId = pageDetails.id;
         response = await saveLandingModalContent(content, modalId);
         console.log("Modal save response:", response);
+      } else if (isLiveStreamCardPage) {
+        // For live stream card pages, use saveLiveStreamCardContent
+        const cardId = pageDetails.id;
+        response = await saveLiveStreamCardContent(content, cardId);
+        console.log("Stream card save response:", response);
       } else {
         // For regular pages, use upsertPage
         response = await upsertPage({
@@ -128,12 +136,16 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
       setLastUpdated(new Date());
 
       toast("Başarılı", {
-        description: isLandingModalPage ? "Modal başarıyla kaydedildi" : "Sayfa başarıyla kaydedildi",
+        description: isLandingModalPage ? "Modal başarıyla kaydedildi" : 
+                   isLiveStreamCardPage ? "Stream card başarıyla kaydedildi" : 
+                   "Sayfa başarıyla kaydedildi",
       });
     } catch (error) {
       console.error("Save error:", error);
       toast("Hata!", {
-        description: isLandingModalPage ? "Modal kaydedilemedi" : "Editör kaydedilemedi",
+        description: isLandingModalPage ? "Modal kaydedilemedi" : 
+                   isLiveStreamCardPage ? "Stream card kaydedilemedi" : 
+                   "Editör kaydedilemedi",
       });
     } finally {
       setIsSaving(false);
@@ -148,7 +160,11 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
         })}
       >
         <aside className="flex items-center gap-4 max-w-[260px] w-[300px]">
-          <Link href={isLandingModalPage ? `/admin/landing-modal` : `/admin/sites`}>
+          <Link href={
+            isLandingModalPage ? `/admin/landing-modal` : 
+            isLiveStreamCardPage ? `/admin/live-stream-cards` : 
+            `/admin/sites`
+          }>
             <ArrowLeftCircle />
           </Link>
           <div className="flex flex-col w-full">
@@ -240,6 +256,16 @@ const FunnelEditorNavigation: React.FC<Props> = ({ user, pageDetails }) => {
             >
               <Square className="w-4 h-4 mr-2" />
               Modal Önizle
+            </Button>
+          )}
+          {isLiveStreamCardPage && (
+            <Button 
+              variant="outline" 
+              onClick={handlePreviewModalClick}
+              className="ml-2 bg-red-50 hover:bg-red-100 border-red-200 text-red-700"
+            >
+              <Square className="w-4 h-4 mr-2" />
+              Stream Card Önizle
             </Button>
           )}
           <div className="ml-2">

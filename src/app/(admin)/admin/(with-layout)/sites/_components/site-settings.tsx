@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Save, Globe, BarChart3, Layers, Video, FileText } from "lucide-react";
 import { getAllUserModals, getSiteOverlaySettings, updateSiteSettings } from "@/actions/landing-modal";
+import { getAllUserLiveStreamCards } from "@/actions/live-stream-card";
 import { toast } from "sonner";
 
 type Props = {
@@ -18,11 +19,13 @@ type Props = {
 export const SiteSettings = ({ siteId }: Props) => {
   const [enableOverlay, setEnableOverlay] = useState(false);
   const [selectedModalId, setSelectedModalId] = useState<string>("clear");
+  const [selectedCardId, setSelectedCardId] = useState<string>("clear");
   const [liveStreamLink, setLiveStreamLink] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [favicon, setFavicon] = useState<string>("");
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState<string>("");
   const [modals, setModals] = useState<any[]>([]);
+  const [cards, setCards] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -44,6 +47,17 @@ export const SiteSettings = ({ siteId }: Props) => {
         console.log("Loaded modals:", validModals);
       }
 
+      // Load live stream cards
+      const cardsResult = await getAllUserLiveStreamCards();
+      if (cardsResult.status === 200) {
+        // Filter out cards with invalid IDs
+        const validCards = (cardsResult.cards || []).filter(
+          (card) => card.id && card.id.trim() !== ""
+        );
+        setCards(validCards);
+        console.log("Loaded cards:", validCards);
+      }
+
       // Load site settings
       const settingsResult = await getSiteOverlaySettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
@@ -51,6 +65,8 @@ export const SiteSettings = ({ siteId }: Props) => {
         const modalId = settingsResult.settings.selectedModalId;
         // Ensure we never set an empty string - use "clear" instead
         setSelectedModalId(modalId && modalId.trim() !== "" ? modalId : "clear");
+        const cardId = settingsResult.settings.selectedCardId;
+        setSelectedCardId(cardId && cardId.trim() !== "" ? cardId : "clear");
         setLiveStreamLink(settingsResult.settings.liveStreamLink || "");
         setTitle(settingsResult.settings.title || "");
         setFavicon(settingsResult.settings.favicon || "");
@@ -66,14 +82,19 @@ export const SiteSettings = ({ siteId }: Props) => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
+      console.log("🔴 Saving site settings with selectedCardId:", selectedCardId);
+      
       const result = await updateSiteSettings(siteId, {
         enableOverlay,
         selectedModalId: enableOverlay && selectedModalId !== "clear" ? selectedModalId : undefined,
+        selectedCardId: enableOverlay && selectedCardId !== "clear" ? selectedCardId : undefined,
         liveStreamLink: enableOverlay ? liveStreamLink : undefined,
         title,
         favicon,
         googleAnalyticsId
       });
+
+      console.log("🔴 Save result:", result);
 
       if (result.status === 200) {
         toast.success("Ayarlar başarıyla kaydedildi!");
@@ -242,6 +263,47 @@ export const SiteSettings = ({ siteId }: Props) => {
                     <h4 className="font-medium">Canlı Yayın Kartı</h4>
                   </div>
                   
+                  <div className="space-y-2">
+                    <Label htmlFor="card-select">Stream Card Seçin</Label>
+                    <Select 
+                      value={selectedCardId || "clear"} 
+                      onValueChange={(value) => setSelectedCardId(value || "clear")}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Bir stream card seçin" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="clear">
+                          <span className="text-muted-foreground">Seçimi Temizle</span>
+                        </SelectItem>
+                        {cards.length === 0 ? (
+                          <SelectItem value="no-card" disabled>
+                            Stream card bulunamadı
+                          </SelectItem>
+                        ) : (
+                          cards
+                            .filter((card) => card.id && card.id.trim() !== "")
+                            .map((card) => (
+                              <SelectItem key={card.id} value={card.id}>
+                                {card.name || "Unnamed Card"}
+                              </SelectItem>
+                            ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                    {cards.length === 0 && (
+                      <p className="text-sm text-amber-600">
+                        Henüz stream card oluşturmadınız.{" "}
+                        <a 
+                          href="/admin/live-stream-cards" 
+                          className="text-primary hover:underline"
+                        >
+                          Stream card oluşturmak için tıklayın
+                        </a>
+                      </p>
+                    )}
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="live-stream-link">Canlı Yayın Linki</Label>
                     <Input
