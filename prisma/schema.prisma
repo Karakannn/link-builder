@@ -9,20 +9,20 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstname     String
-  lastname      String
-  email         String
-  clerkId       String         @unique
-  image         String?
-  role          UserRole       @default(USER)
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  domains       Domain[]
-  landingModals LandingModal[]
+  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  firstname       String
+  lastname        String
+  email           String
+  clerkId         String           @unique
+  image           String?
+  role            UserRole         @default(USER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  domains         Domain[]
+  landingModals   LandingModal[]
   liveStreamCards LiveStreamCard[]
-  media         Media[]
-  sites         Site[]
+  media           Media[]
+  sites           Site[]
 }
 
 model Site {
@@ -109,13 +109,13 @@ model SiteSettings {
   enableOverlay     Boolean     @default(false)
   overlayType       OverlayType @default(LANDING_MODAL)
   selectedModalId   String?     @db.Uuid
-  selectedCardId    String?     @db.Uuid
   liveStreamLink    String?
   title             String?
   favicon           String?
   googleAnalyticsId String?
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
+  selectedCardId    String?     @db.Uuid
   site              Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@index([siteId])
