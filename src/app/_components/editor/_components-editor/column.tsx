@@ -10,6 +10,7 @@ import { GripVertical } from "lucide-react";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
+import { usePerformance } from "@/hooks/use-performance-hooks";
 
 type Props = {
   element: EditorElement;
@@ -24,6 +25,7 @@ export const ColumnComponent = ({
   totalGridColumns = 12,
   isPreviewMode = false
 }: Props) => {
+  
   const { id, name, type, content } = element;
   const { state } = useEditor();
   const { handleSelectElement } = useElementSelection(element);
@@ -66,6 +68,8 @@ export const ColumnComponent = ({
 
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
   
+
+  usePerformance('ColumnComponent');
   return (
     <EditorElementWrapper element={element}>
       <div

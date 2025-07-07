@@ -7,12 +7,16 @@ import Recursive from "./recursive";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { usePerformance } from "@/hooks/use-performance-hooks";
 
 interface BodyContainerProps {
   element: EditorElement;
 }
 
 export const BodyContainer = ({ element }: BodyContainerProps) => {
+
+  usePerformance('TextComponent');
+  
   const { state } = useEditor();
   const { id, name, type, content, styles } = element;
   const { handleSelectElement } = useElementSelection(element);
