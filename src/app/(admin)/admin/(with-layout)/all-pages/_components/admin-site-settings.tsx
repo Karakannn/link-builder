@@ -39,7 +39,7 @@ export const AdminSiteSettings = ({ siteId, siteName, userName, userEmail }: Pro
       }
 
       // Load site settings
-      const settingsResult = await adminGetSiteLandingModalSettings(siteId);
+      const settingsResult: any = await adminGetSiteLandingModalSettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
         setEnableLandingModal(settingsResult.settings.enableLandingModal);
         setSelectedModalId(settingsResult.settings.selectedModalId || "");
