@@ -13,6 +13,7 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -24,7 +25,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     const [measureRef, containerHeight] = useElementHeight(false);
     const isElementSelected = useIsElementSelected(id);
-
+    const { handleSelectElement } = useElementSelection(element);
     const previewMode = usePreviewMode();
     const liveMode = useLiveMode();
     const device = useDevice();
@@ -88,7 +89,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
-                onClick={() => selectElement(element)}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}

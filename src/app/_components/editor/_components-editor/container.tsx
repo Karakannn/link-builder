@@ -16,6 +16,7 @@ import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementById, useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useDevice, useIsEditMode } from "@/providers/editor/editor-ui-context";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -35,6 +36,7 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
     const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(liveElement);
     const [measureRef, containerHeight] = useElementHeight(false);
     const { getLayoutStyles } = useLayout();
+    const { handleSelectElement } = useElementSelection(initialElement);
 
     const sortable = useMemo(
         () => ({
@@ -64,7 +66,6 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
             ...getLayoutStyles(layout),
         });
     }, [liveElement, transform, transition, layout, getLayoutStyles]);
-
     const handleContainerClick = useCallback(
         (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -131,7 +132,7 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
                 ref={setNodeRef}
                 style={computedStyles}
                 className={containerClasses}
-                onClick={handleContainerClick}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}

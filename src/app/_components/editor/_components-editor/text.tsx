@@ -16,6 +16,7 @@ import { EditorElementWrapper } from "@/components/global/editor-element/editor-
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useIsEditMode, useDevice } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -23,40 +24,23 @@ type Props = {
 
 // 🚀 REACT 19: Memoized Text Component
 const TextComponent = memo(({ element }: Props) => {
-    console.log(`📝 TextComponent render START: ${element.id}`);
 
     try {
         const { id, styles, content, type } = element;
-        console.log(`✅ Text element destructured: ${id}`);
 
         // 🚀 REACT 19: Granular subscriptions
-        console.log(`🔍 Getting hooks for TextComponent: ${id}`);
 
         const isSelected = useIsElementSelected(id);
-        console.log(`✅ Hook 1 (useIsElementSelected): ${isSelected} for ${id}`);
-
         const isEditMode = useIsEditMode();
-        console.log(`✅ Hook 2 (useIsEditMode): ${isEditMode} for ${id}`);
-
         const device = useDevice();
-        console.log(`✅ Hook 3 (useDevice): ${device} for ${id}`);
-
         const { updateElement, selectElement } = useElementActions();
-        console.log(`✅ Hook 4 (useElementActions) for ${id}`);
-
         // Local state and refs
         const spanRef = useRef<HTMLSpanElement | null>(null);
-        console.log(`✅ Hook 5 (useRef) for ${id}`);
-
         const containerRef = useRef<HTMLDivElement>(null);
-        console.log(`✅ Hook 6 (useRef) for ${id}`);
-
         const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-        console.log(`✅ Hook 7 (useState) for ${id}`);
+        const { handleSelectElement } = useElementSelection(element);
 
-        // 🚀 REACT 19: Memoized sortable configuration
         const sortableConfig = useMemo(() => {
-            console.log(`🔧 Computing sortable config for TextComponent ${id}`);
             return {
                 id: id,
                 data: {
@@ -72,17 +56,14 @@ const TextComponent = memo(({ element }: Props) => {
 
         // dnd-kit sortable
         const sortable = useSortable(sortableConfig);
-        console.log(`✅ Hook 8 (useSortable) for ${id}`);
 
         // 🚀 REACT 19: Memoized content computation
         const computedContent = useMemo(() => {
-            console.log(`📄 Computing content for TextComponent ${id}`);
             return getElementContent(element, device);
         }, [element, device]);
 
         // 🚀 REACT 19: Memoized styles computation
         const computedStyles = useMemo(() => {
-            console.log(`🎨 Computing styles for TextComponent ${id}`);
             return {
                 ...getElementStyles(element, device),
                 transform: CSS.Transform.toString(sortable.transform),
@@ -92,7 +73,6 @@ const TextComponent = memo(({ element }: Props) => {
 
         // 🚀 REACT 19: Optimized blur handler
         const handleBlurElement = useCallback(() => {
-            console.log(`📝 Blur handler for TextComponent ${id}`);
             if (spanRef.current && isEditMode) {
                 updateElement({
                     ...element,
@@ -105,20 +85,18 @@ const TextComponent = memo(({ element }: Props) => {
         }, [updateElement, element, computedContent, isEditMode]);
 
         // 🚀 REACT 19: Optimized click handler
-        const handleSelectElement = useCallback(
-            (e: React.MouseEvent) => {
-                console.log(`👆 Click handler for TextComponent ${id}`);
-                e.stopPropagation();
-                if (isEditMode) {
-                    selectElement(element);
-                }
-            },
-            [isEditMode, selectElement, element]
-        );
+        /*   const handleSelectElement = useCallback(
+              (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  if (isEditMode) {
+                      selectElement(element);
+                  }
+              },
+              [isEditMode, selectElement, element]
+          ); */
 
         // 🚀 REACT 19: Effect for content synchronization
         useEffect(() => {
-            console.log(`🔄 Syncing content for TextComponent ${id}`);
             if (spanRef.current && !Array.isArray(computedContent)) {
                 spanRef.current.innerText = computedContent.innerText as string;
             }
@@ -126,7 +104,6 @@ const TextComponent = memo(({ element }: Props) => {
 
         // 🚀 REACT 19: Effect for spacing guides
         useEffect(() => {
-            console.log(`📏 Setting spacing guides for TextComponent ${id}: ${isSelected && isEditMode}`);
             setShowSpacingGuides(isSelected && isEditMode);
         }, [isSelected, isEditMode]);
 
@@ -134,7 +111,6 @@ const TextComponent = memo(({ element }: Props) => {
         const textProps = !Array.isArray(computedContent) ? computedContent : {};
         const innerText = textProps.innerText || "Sponsor Title";
 
-        console.log(`✅ TextComponent render SUCCESS: ${id}`);
 
         return (
             <EditorElementWrapper element={element}>

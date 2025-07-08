@@ -13,6 +13,7 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -28,7 +29,7 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12, 
     const isElementSelected = useIsElementSelected(id);
     const liveMode = useLiveMode();
     const device = useDevice();
-
+    const { handleSelectElement } = useElementSelection(element);
     const sortable = useSortable({
         id: id,
         data: {
@@ -70,7 +71,7 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12, 
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
-                onClick={() => selectElement(element)}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
