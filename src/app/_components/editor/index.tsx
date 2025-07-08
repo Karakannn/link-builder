@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import { EyeOff } from "lucide-react";
 import React, { useEffect } from "react";
@@ -9,6 +9,7 @@ import { useDataActions } from "@/hooks/editor-actions/use-data-actions";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useDevice, usePreviewMode, useLiveMode, useLayerSidebarCollapsed } from "@/providers/editor/editor-ui-context";
+import { useElements } from "@/providers/editor/editor-elements-provider";
 
 type Props = {
     pageDetails: EditorElement[];
@@ -17,7 +18,6 @@ type Props = {
 };
 
 const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => {
-    const { state } = useEditor();
     const { loadData } = useDataActions();
     const { toggleLiveMode, togglePreviewMode } = useUIActions();
     const { selectElement } = useElementActions();
@@ -26,9 +26,7 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
     const previewMode = usePreviewMode();
     const editorLiveMode = useLiveMode();
     const layerSidebarCollapsed = useLayerSidebarCollapsed();
-
-    console.log("previewMode", previewMode);
-    console.log("liveMode", liveMode);
+    const elements = useElements();
 
     useEffect(() => {
         if (liveMode) {
@@ -73,7 +71,7 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
                     <EyeOff />
                 </Button>
             )}
-            {Array.isArray(state.editor.elements) && state.editor.elements.map((childElement) => <Recursive key={childElement.id} element={childElement} />)}
+            {Array.isArray(elements) && elements.map((childElement) => <Recursive key={childElement.id} element={childElement} />)}
         </div>
     );
 };

@@ -3,14 +3,15 @@
 import { useEffect } from "react";
 import { useEditor } from "@/providers/editor/editor-provider";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
+import { useDevice } from "@/providers/editor/editor-ui-context";
 
 interface ResponsiveDeviceDetectorProps {
     children: React.ReactNode;
 }
 
 export function ResponsiveDeviceDetector({ children }: ResponsiveDeviceDetectorProps) {
-    const { state } = useEditor();
     const { changeDevice } = useUIActions();
+    const device = useDevice();
 
     useEffect(() => {
         const updateDeviceBasedOnWindowSize = () => {
@@ -25,7 +26,7 @@ export function ResponsiveDeviceDetector({ children }: ResponsiveDeviceDetectorP
                 newDevice = "Desktop";
             }
 
-            if (state.editor.device !== newDevice) {
+            if (device !== newDevice) {
                 changeDevice;
                 newDevice;
             }
@@ -38,7 +39,7 @@ export function ResponsiveDeviceDetector({ children }: ResponsiveDeviceDetectorP
         return () => {
             window.removeEventListener("resize", updateDeviceBasedOnWindowSize);
         };
-    }, [changeDevice, state.editor.device]);
+    }, [changeDevice, device]);
 
     return <>{children}</>;
 }

@@ -1,24 +1,23 @@
 "use client";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement } from "@/providers/editor/editor-provider";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
-import { Play, Pause, Image as ImageIcon, Download, AlertCircle } from "lucide-react";
-import React, { useState, useRef, useEffect } from "react";
+import { Image as ImageIcon, Download, AlertCircle } from "lucide-react";
+import React, { useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useDevice, useLiveMode, usePreviewMode } from "@/providers/editor/editor-ui-context";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 
 type Props = {
     element: EditorElement;
 };
 
 const GifComponent = ({ element }: Props) => {
-    const { state } = useEditor();
     const { id, name, type, styles, content } = element;
     const imgRef = useRef<HTMLImageElement>(null);
     const [showOverlay, setShowOverlay] = useState(false);
@@ -26,10 +25,12 @@ const GifComponent = ({ element }: Props) => {
     const [hasError, setHasError] = useState(false);
     const { selectElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+    const isElementSelected = useIsElementSelected(id);
 
     const previewMode = usePreviewMode();
     const liveMode = useLiveMode();
     const device = useDevice();
+
 
     const computedStyles = getElementStyles(element, device);
     const computedContent = getElementContent(element, device);
@@ -109,7 +110,7 @@ const GifComponent = ({ element }: Props) => {
                                 </div>
                             )}
 
-                            {showOverlay && !state.editor.liveMode && src && !hasError && (
+                            {showOverlay && !liveMode && src && !hasError && (
                                 <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 rounded">
                                     <div className="flex gap-2">
                                         <button
@@ -140,7 +141,7 @@ const GifComponent = ({ element }: Props) => {
                     )}
                 </div>
 
-                {state.editor.selectedElement.id === id && !state.editor.liveMode && <DeleteElementButton element={element} />}
+                {isElementSelected && !liveMode && <DeleteElementButton element={element} />}
             </div>
         </EditorElementWrapper>
     );

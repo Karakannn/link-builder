@@ -9,22 +9,23 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     element: EditorElement;
 };
 
 const TextComponent = ({ element }: Props) => {
-    const { state } = useEditor();
     const { id, styles, content, type } = element;
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { selectElement, updateElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-
+    const device = useDevice();
+    const liveMode = useLiveMode();
     // Get computed content based on current device
-    const computedContent = getElementContent(element, state.editor.device);
+    const computedContent = getElementContent(element, device);
 
     // dnd-kit sortable
     const sortable = useSortable({
@@ -36,12 +37,12 @@ const TextComponent = ({ element }: Props) => {
             isSidebarElement: false,
             isEditorElement: true,
         },
-        disabled: state.editor.liveMode,
+        disabled: liveMode,
     });
 
     // Get computed styles based on current device
     const computedStyles = {
-        ...getElementStyles(element, state.editor.device),
+        ...getElementStyles(element, device),
         transform: CSS.Transform.toString(sortable.transform),
         transition: sortable.transition,
     };
@@ -65,8 +66,8 @@ const TextComponent = ({ element }: Props) => {
     }, [computedContent]);
 
     useEffect(() => {
-        setShowSpacingGuides(isSelected && !state.editor.liveMode);
-    }, [isSelected, state.editor.liveMode]);
+        setShowSpacingGuides(isSelected && !liveMode);
+    }, [isSelected, liveMode]);
 
     // Extract text properties from content
     const textProps = !Array.isArray(computedContent) ? computedContent : {};
@@ -85,21 +86,21 @@ const TextComponent = ({ element }: Props) => {
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
-                {...(!state.editor.liveMode ? sortable.listeners : {})}
-                {...(!state.editor.liveMode ? sortable.attributes : {})}
+                {...(!liveMode ? sortable.listeners : {})}
+                {...(!liveMode ? sortable.attributes : {})}
             >
                 {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
                 <span
                     ref={spanRef}
                     suppressHydrationWarning={true}
-                    contentEditable={!state.editor.liveMode}
+                    contentEditable={!liveMode}
                     onBlur={handleBlurElement}
                     className={clsx("title", {
                         "select-none": !isSelected,
                     })}
                     onClick={(e) => {
-                        if (!state.editor.liveMode) {
+                        if (!liveMode) {
                             e.stopPropagation();
                             selectElement(element);
                         }

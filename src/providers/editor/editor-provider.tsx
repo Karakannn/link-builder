@@ -8,6 +8,7 @@ import { EditorActionsProvider } from "./editör-actions-provider";
 import { LandingModalProvider } from "../landing-modal-provider";
 import { EditorHistoryProvider } from "./editor-history-context";
 import { EditorUIProvider } from "./editor-ui-context";
+import { EditorElementsProvider } from "./editor-elements-provider";
 
 export type DeviceTypes = "Desktop" | "Mobile" | "Tablet";
 
@@ -700,7 +701,7 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
             const updateElements = updateAnElement(state.editor.elements, action);
 
             // Check if the updated element is the currently selected element
-            const updatedElementIsSelected = state.editor.selectedElement.id === action.payload.elementDetails.id;
+            const updatedElementIsSelected = state.editor.selectedElement?.id === action.payload.elementDetails.id;
 
             const updatedEditorStateWithUpdate = {
                 ...state.editor,
@@ -899,7 +900,9 @@ const EditorProvider = (props: EditorProps) => {
                         liveMode={state.editor.liveMode}
                         layerSidebarCollapsed={state.editor.layerSidebarCollapsed}
                     >
-                        <LandingModalProvider>{props.children}</LandingModalProvider>
+                        <EditorElementsProvider elements={state.editor.elements} selectedElement={state.editor.selectedElement}>
+                            <LandingModalProvider>{props.children}</LandingModalProvider>
+                        </EditorElementsProvider>
                     </EditorUIProvider>
                 </EditorHistoryProvider>
             </EditorActionsProvider>

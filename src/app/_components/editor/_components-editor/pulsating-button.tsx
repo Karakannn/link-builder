@@ -1,6 +1,6 @@
 "use client";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { getElementContent, getElementStyles } from "@/lib/utils";
+import { EditorElement } from "@/providers/editor/editor-provider";
+import { getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
@@ -11,21 +11,25 @@ import { EditorElementWrapper } from "@/components/global/editor-element/editor-
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { PulsatingButton } from "@/components/ui/pulsating-button";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     element: EditorElement;
 };
 
 const PulsatingButtonComponent = ({ element }: Props) => {
-    const { state } = useEditor();
     const { id, styles, content, type } = element;
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { selectElement, updateElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+    const isElementSelected = useIsElementSelected(id);
+    const device = useDevice();
+    const liveMode = useLiveMode();
 
     // Get computed styles based on current device
-    const computedStyles = getElementStyles(element, state.editor.device);
+    const computedStyles = getElementStyles(element, device);
 
     // dnd-kit sortable
     const sortable = useSortable({
@@ -37,7 +41,7 @@ const PulsatingButtonComponent = ({ element }: Props) => {
             isSidebarElement: false,
             isEditorElement: true,
         },
-        disabled: state.editor.liveMode,
+        disabled: liveMode,
     });
 
     const handleBlurElement = () => {
@@ -58,7 +62,7 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     };
 
     const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        if (!state.editor.liveMode) {
+        if (!liveMode) {
             e.stopPropagation();
             selectElement(element);
         } else {
@@ -79,8 +83,8 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     }, [content]);
 
     useEffect(() => {
-        setShowSpacingGuides(state.editor.selectedElement.id === id && !state.editor.liveMode);
-    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+        setShowSpacingGuides(isElementSelected && !liveMode);
+    }, [isElementSelected, id, liveMode]);
 
     const contentData = Array.isArray(content) ? {} : content;
     const pulseColor = (contentData as any).pulseColor || "#808080";
@@ -108,10 +112,10 @@ const PulsatingButtonComponent = ({ element }: Props) => {
                     pulseColor={pulseColor}
                     duration={duration}
                     suppressHydrationWarning={true}
-                    contentEditable={!state.editor.liveMode}
+                    contentEditable={!liveMode}
                     onBlur={handleBlurElement}
                     className={clsx({
-                        "select-none": state.editor.selectedElement.id !== id,
+                        "select-none": !isElementSelected,
                     })}
                     onClick={handleButtonClick}
                 >

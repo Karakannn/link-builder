@@ -14,6 +14,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useLayout, Layout } from "@/hooks/use-layout";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 
 interface ClosableContainerProps {
     element: EditorElement;
@@ -21,7 +22,6 @@ interface ClosableContainerProps {
 }
 
 export const ClosableContainer = ({ element, layout = "vertical" }: ClosableContainerProps) => {
-    const { state } = useEditor();
     const [mounted, setMounted] = useState(false);
     const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
     const { getLayoutStyles } = useLayout();
@@ -59,7 +59,7 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
         selectElement(element);
     };
 
-    const isSelected = state.editor.selectedElement.id === element.id;
+    const isSelected = useIsElementSelected(element.id);
     const isAbsolute = element.styles.position === "absolute";
     const isPreviewMode = previewMode || liveMode;
 

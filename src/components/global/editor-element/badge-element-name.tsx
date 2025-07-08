@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement } from "@/providers/editor/editor-provider";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import React from "react";
 import { Type, Square, Grid3X3, Image, Link, Video, FileImage, CreditCard, ArrowRight } from "lucide-react";
@@ -11,7 +11,6 @@ type Props = {
 };
 
 const BadgeElementName = ({ element, gridSpan, totalGridColumns }: Props) => {
-    const { state } = useEditor();
     const { shouldShowBadge, isSelected } = useElementBorderHighlight(element);
 
     // Eğer badge gösterilmeyecekse null döndür
@@ -29,7 +28,7 @@ const BadgeElementName = ({ element, gridSpan, totalGridColumns }: Props) => {
             case "gridLayout":
                 return { icon: Grid3X3, shortName: "G", fullName: "Grid" };
             case "column":
-                const sizeInfo = gridSpan && totalGridColumns && isSelected 
+                const sizeInfo = gridSpan && totalGridColumns && isSelected
                     ? ` ${gridSpan}/${totalGridColumns}`
                     : "";
                 return { icon: Square, shortName: "Col", fullName: `Column${sizeInfo}` };
@@ -55,13 +54,13 @@ const BadgeElementName = ({ element, gridSpan, totalGridColumns }: Props) => {
     // Element boyutuna göre badge tipini belirle
     const getElementSize = () => {
         if (typeof window === 'undefined') return 'medium';
-        
+
         const elementDom = document.querySelector(`[data-element-id="${element.id}"]`);
         if (!elementDom) return 'medium';
-        
+
         const rect = elementDom.getBoundingClientRect();
         const area = rect.width * rect.height;
-        
+
         if (area < 2000) return 'tiny';    // Çok küçük elementler
         if (area < 8000) return 'small';   // Küçük elementler  
         return 'medium';                   // Normal elementler

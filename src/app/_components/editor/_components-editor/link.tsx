@@ -10,21 +10,24 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     element: EditorElement;
 };
 
 const LinkComponent = ({ element }: Props) => {
-    const { state } = useEditor();
     const { id, styles, content, type } = element;
     const linkRef = useRef<HTMLAnchorElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { selectElement, updateElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-
-    // Get computed styles based on current device
-    const computedStyles = getElementStyles(element, state.editor.device);
+    const isElementSelected = useIsElementSelected(id);
+    const device = useDevice();
+    const liveMode = useLiveMode();
+   
+    const computedStyles = getElementStyles(element, device);
 
     // dnd-kit sortable
     const sortable = useSortable({
@@ -36,7 +39,7 @@ const LinkComponent = ({ element }: Props) => {
             isSidebarElement: false,
             isEditorElement: true,
         },
-        disabled: state.editor.liveMode,
+        disabled: liveMode,
     });
 
     const handleBlurElement = () => {
@@ -59,8 +62,8 @@ const LinkComponent = ({ element }: Props) => {
     }, [content]);
 
     useEffect(() => {
-        setShowSpacingGuides(state.editor.selectedElement.id === id && !state.editor.liveMode);
-    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+        setShowSpacingGuides(isElementSelected && !liveMode);
+    }, [isElementSelected, id, liveMode]);
 
     return (
         <EditorElementWrapper element={element}>
@@ -79,21 +82,21 @@ const LinkComponent = ({ element }: Props) => {
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
-                {...(!state.editor.liveMode ? sortable.listeners : {})}
-                {...(!state.editor.liveMode ? sortable.attributes : {})}
+                {...(!liveMode ? sortable.listeners : {})}
+                {...(!liveMode ? sortable.attributes : {})}
             >
                 {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
                 <a
                     ref={linkRef}
                     suppressHydrationWarning={true}
-                    contentEditable={!state.editor.liveMode}
+                    contentEditable={!liveMode}
                     onBlur={handleBlurElement}
                     className={clsx({
-                        "select-none": state.editor.selectedElement.id !== id,
+                        "select-none": !isElementSelected,
                     })}
                     onClick={(e) => {
-                        if (!state.editor.liveMode) {
+                        if (!liveMode) {
                             e.stopPropagation();
                             selectElement(element);
                         }

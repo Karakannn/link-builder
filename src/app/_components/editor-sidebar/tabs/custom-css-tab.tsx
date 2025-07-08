@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { Code } from 'lucide-react';
+import { useSelectedElementId } from "@/providers/editor/editor-elements-provider";
 
 export const CustomCSSTab = () => {
     const { getCurrentStyles, handleOnChanges } = useEditorSidebar();
-    const { state } = useEditor();
+    const selectedElementId = useSelectedElementId();
     const [customCSS, setCustomCSS] = useState('');
     const [debouncedCSS, setDebouncedCSS] = useState('');
 
@@ -23,7 +23,7 @@ export const CustomCSSTab = () => {
         } catch (error) {
             console.error("🔧 Custom CSS Tab - Error getting styles:", error);
         }
-    }, [getCurrentStyles, state.editor.selectedElement]);
+    }, [getCurrentStyles, selectedElementId]);
 
     // Debounce effect - 1 saniye bekleyip sonra kaydet
     useEffect(() => {

@@ -1,12 +1,15 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { useCallback, useState } from "react";
+import { useIsElementSelected, useSelectedElement } from "@/providers/editor/editor-elements-provider";
+import { useLiveMode } from "@/providers/editor/editor-ui-context";
 
 
 export const useElementBorderHighlight = (element: EditorElement) => {
-    const { state } = useEditor();
     const [isHovered, setIsHovered] = useState(false);
+    const liveMode = useLiveMode();
 
-    const isSelected = state.editor.selectedElement.id === element.id;
+    const isSelected = useIsElementSelected(element.id);
+    const selectedElement = useSelectedElement();
 
     const hasSelectedParent = (elementId: string, selectedId: string): boolean => {
         // Seçili element yoksa false döndür
@@ -15,7 +18,6 @@ export const useElementBorderHighlight = (element: EditorElement) => {
         if (elementId === selectedId) return true;
 
         // Seçili element'in alt elementlerini kontrol et
-        const selectedElement = state.editor.selectedElement;
         if (selectedElement.id && selectedElement.content) {
             const checkInContent = (content: any[]): boolean => {
                 for (const child of content) {
@@ -35,17 +37,17 @@ export const useElementBorderHighlight = (element: EditorElement) => {
         return false;
     };
 
-    const isChildOfSelected = hasSelectedParent(element.id, state.editor.selectedElement.id);
+    const isChildOfSelected = hasSelectedParent(element.id, selectedElement.id);
 
     const alwaysShowBorderTypes = ["container", "gridLayout", "column", "__body"];
     const shouldAlwaysShowBorder = alwaysShowBorderTypes.includes(element.type || "");
 
     const handleMouseEnter = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-        if (!state.editor.liveMode) {
+        if (!liveMode) {
             setIsHovered(true);
         }
-    }, [state.editor.liveMode]);
+    }, [liveMode]);
 
     const handleMouseLeave = useCallback(() => {
         setIsHovered(false);
@@ -54,7 +56,7 @@ export const useElementBorderHighlight = (element: EditorElement) => {
     const getBorderClasses = () => {
         const baseClasses = "transition-all";
 
-        if (state.editor.liveMode) {
+        if (liveMode) {
             return baseClasses;
         }
 
@@ -78,8 +80,8 @@ export const useElementBorderHighlight = (element: EditorElement) => {
         return baseClasses;
     };
 
-    const shouldShowBadge = (isHovered || isSelected) && !state.editor.liveMode;
-    const shouldShowDeleteButton = isSelected && !state.editor.liveMode && element.type !== "__body";
+    const shouldShowBadge = (isHovered || isSelected) && !liveMode;
+    const shouldShowDeleteButton = isSelected && !liveMode && element.type !== "__body";
 
     return {
         isSelected,

@@ -1,8 +1,9 @@
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSeparator } from "@/components/ui/context-menu";
-import {  Trash2, Eye, EyeOff, Settings, CopyIcon } from "lucide-react";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { Trash2, Eye, EyeOff, Settings, CopyIcon } from "lucide-react";
+import { EditorElement } from "@/providers/editor/editor-provider";
 import { v4 } from "uuid";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElements } from "./editor-elements-provider";
 
 interface ElementContextMenuProps {
     element: EditorElement;
@@ -10,8 +11,9 @@ interface ElementContextMenuProps {
 }
 
 const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
-    const { state } = useEditor();
+  
     const { selectElement, insertElement, addElement, deleteElement, updateElement } = useElementActions();
+    const elements = useElements();
 
     const findParentContainer = (targetElementId: string, elements: EditorElement[]): { containerId: string; index: number } | null => {
         const searchInElements = (elements: EditorElement[], parentId: string = "__body"): { containerId: string; index: number } | null => {
@@ -41,7 +43,7 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
         const getNewName = (currentName: string): string => {
             if (currentName.includes("Copy")) {
                 const baseName = currentName.replace(/\s+Copy(\s+\d+)?$/, "");
-                const existingElements = getAllElementNames(state.editor.elements);
+                const existingElements = getAllElementNames(elements);
                 let counter = 1;
                 while (existingElements.includes(`${baseName} Copy ${counter}`)) {
                     counter++;
@@ -83,7 +85,7 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
 
     const handleDuplicate = () => {
         const duplicatedElement = duplicateElementWithNewIds(element);
-        const parentInfo = findParentContainer(element.id, state.editor.elements);
+        const parentInfo = findParentContainer(element.id, elements);
 
         if (parentInfo) {
             insertElement(parentInfo.containerId, parentInfo.index + 1, duplicatedElement);

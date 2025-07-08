@@ -3,24 +3,25 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { Plus, Minus } from "lucide-react";
 import { v4 } from "uuid";
 import { defaultStyles } from "@/lib/constants";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useSelectedElement } from "@/providers/editor/editor-elements-provider";
+import { useDevice } from "@/providers/editor/editor-ui-context";
 
 const GridLayoutCustomProperties = () => {
     const { getCurrentStyles } = useEditorSidebar();
-    const { state } = useEditor();
     const { updateElement } = useElementActions();
+    const selectedElement = useSelectedElement();
 
-    const element = state.editor.selectedElement;
+    const element = selectedElement;
     const content = Array.isArray(element.content) ? element.content : [];
     const styles = getCurrentStyles(); // Bu artık responsive styles'ı da içeriyor
     const spans = (styles as any).columnSpans || [];
     const gap = (styles as any).gridGap || styles.gap || "1rem";
-    const currentDevice = state.editor.device;
-
+    const currentDevice = useDevice();
+    
     // Device'a göre maksimum sütun sayısı
     const getMaxColumns = () => {
         switch (currentDevice) {

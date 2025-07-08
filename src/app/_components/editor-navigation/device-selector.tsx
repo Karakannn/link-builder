@@ -3,13 +3,14 @@
 import React, { memo, useCallback } from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { DeviceTypes, useEditor } from "@/providers/editor/editor-provider";
+import { DeviceTypes } from "@/providers/editor/editor-provider";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
 import { Laptop, Tablet, Smartphone } from "lucide-react";
+import { useDevice } from "@/providers/editor/editor-ui-context";
 
 export const DeviceSelector = memo(() => {
-    const { state } = useEditor(); 
     const { changeDevice } = useUIActions();
+    const device = useDevice();
 
     const handleDeviceChange = useCallback(
         (value: string) => {
@@ -19,7 +20,7 @@ export const DeviceSelector = memo(() => {
     );
 
     return (
-        <Tabs defaultValue="Desktop" className="w-fit" value={state.editor.device} onValueChange={handleDeviceChange}>
+        <Tabs defaultValue="Desktop" className="w-fit" value={device} onValueChange={handleDeviceChange}>
             <TabsList className="grid w-full grid-cols-3 bg-transparent h-fit">
                 <Tooltip>
                     <TooltipTrigger>

@@ -1,7 +1,9 @@
 import React, { ChangeEventHandler, createContext, useContext, useEffect, useState } from "react";
-import { DeviceTypes, useEditor } from "./editor-provider";
+import { DeviceTypes } from "./editor-provider";
 import { getElementContent } from "@/lib/utils";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useSelectedElement } from "@/providers/editor/editor-elements-provider";
+import { useDevice } from "@/providers/editor/editor-ui-context";
 
 export const EditorSidebarContext = createContext<{
     getCurrentStyles: () => any;
@@ -14,15 +16,15 @@ export const EditorSidebarContext = createContext<{
     activeDevice: DeviceTypes;
     setActiveDevice: any;
 }>({
-    getCurrentStyles: () => {},
-    getCurrentContent: () => {},
-    handleColorChange: () => {},
-    handleChangeCustomValues: () => {},
-    handleStyleColorChangeComplete: () => {},
-    handleResetToDesktop: () => {},
-    handleOnChanges: () => {},
+    getCurrentStyles: () => { },
+    getCurrentContent: () => { },
+    handleColorChange: () => { },
+    handleChangeCustomValues: () => { },
+    handleStyleColorChangeComplete: () => { },
+    handleResetToDesktop: () => { },
+    handleOnChanges: () => { },
     activeDevice: "Desktop",
-    setActiveDevice: () => {},
+    setActiveDevice: () => { },
 });
 
 type EditorSidebarProps = {
@@ -30,18 +32,19 @@ type EditorSidebarProps = {
 };
 
 const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
-    const { state } = useEditor();
+    const device = useDevice();
     const { updateElement } = useElementActions();
+    const selectedElement = useSelectedElement();
 
-    const [activeDevice, setActiveDevice] = useState<DeviceTypes>(state.editor.device);
+    const [activeDevice, setActiveDevice] = useState<DeviceTypes>(device);
 
     useEffect(() => {
-        setActiveDevice(state.editor.device);
-    }, [state.editor.device]);
+        setActiveDevice(device);
+    }, [device]);
 
     // Function to get the current styles based on the active device
     const getCurrentStyles = () => {
-        const element = state.editor.selectedElement;
+        const element = selectedElement;
         if (activeDevice === "Desktop" || !element.responsiveStyles) {
             return element.styles;
         }
@@ -53,13 +56,13 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
 
     // Function to get the current content based on active device
     const getCurrentContent = () => {
-        const elementContent = getElementContent(state.editor.selectedElement, activeDevice);
+        const elementContent = getElementContent(selectedElement, activeDevice);
 
         // If the element has customProperties, merge them with the content
-        if (state.editor.selectedElement.customProperties) {
+        if (selectedElement.customProperties) {
             return {
                 ...elementContent,
-                customProperties: state.editor.selectedElement.customProperties,
+                customProperties: selectedElement.customProperties,
             };
         }
 
@@ -99,9 +102,9 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
             const propertyName = settingProperty.replace("customProperties.", "");
 
             updateElement({
-                ...state.editor.selectedElement,
+                ...selectedElement,
                 customProperties: {
-                    ...state.editor.selectedElement.customProperties,
+                    ...selectedElement.customProperties,
                     [propertyName]: value,
                 },
             });
@@ -111,30 +114,30 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
 
         if (activeDevice === "Desktop") {
             // Update base content values for Desktop
-            if (Array.isArray(state.editor.selectedElement.content)) {
+            if (Array.isArray(selectedElement.content)) {
                 // For containers, content is an array, so we don't update it here
                 return;
             }
 
             updateElement({
-                ...state.editor.selectedElement,
+                ...selectedElement,
                 content: {
-                    ...state.editor.selectedElement.content,
+                    ...selectedElement.content,
                     [settingProperty]: value,
                 },
             });
         } else {
             // Update responsive content for Tablet/Mobile
-            if (Array.isArray(state.editor.selectedElement.content)) {
+            if (Array.isArray(selectedElement.content)) {
                 // For containers, content is an array, so we don't update it here
                 return;
             }
 
-            const currentContent = state.editor.selectedElement.content as any;
+            const currentContent = selectedElement.content as any;
             const currentResponsiveContent = currentContent?.responsiveContent || {};
 
             updateElement({
-                ...state.editor.selectedElement,
+                ...selectedElement,
                 content: {
                     ...currentContent,
                     responsiveContent: {
@@ -178,9 +181,9 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
         if (activeDevice === "Desktop") return;
 
         updateElement({
-            ...state.editor.selectedElement,
+            ...selectedElement,
             responsiveStyles: {
-                ...state.editor.selectedElement.responsiveStyles,
+                ...selectedElement.responsiveStyles,
                 [activeDevice]: {},
             },
         });
@@ -195,18 +198,18 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
         if (activeDevice === "Desktop") {
             // Update base styles for Desktop
             updateElement({
-                ...state.editor.selectedElement,
+                ...selectedElement,
                 styles: {
-                    ...state.editor.selectedElement.styles,
+                    ...selectedElement.styles,
                     [settingProperty]: value,
                 },
             });
         } else {
             // Update responsive styles for Tablet/Mobile
-            const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
+            const currentResponsiveStyles = selectedElement.responsiveStyles || {};
 
             updateElement({
-                ...state.editor.selectedElement,
+                ...selectedElement,
                 responsiveStyles: {
                     ...currentResponsiveStyles,
                     [activeDevice]: {

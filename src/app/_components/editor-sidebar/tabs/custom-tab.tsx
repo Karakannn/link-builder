@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useEditor } from "@/providers/editor/editor-provider";
+import { useSelectedElement } from "@/providers/editor/editor-elements-provider";
 
 import LinkCustomProperties from "./custom-properties/link-custom";
 import GridLayoutCustomProperties from "./custom-properties/grid-layout-custom";
@@ -36,9 +36,8 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
 };
 
 export const CustomTab = () => {
-  const { state } = useEditor();
 
-  const selectedElement = state.editor.selectedElement;
+  const selectedElement = useSelectedElement();
   const elementType = selectedElement?.type as CustomElementType;
 
   if (!elementType || !customElementComponentMap[elementType]) {

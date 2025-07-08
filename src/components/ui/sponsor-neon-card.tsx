@@ -1,6 +1,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { useEditor } from '@/providers/editor/editor-provider';
+import { useLiveMode } from '@/providers/editor/editor-ui-context';
 
 interface SponsorNeonCardProps {
   children?: React.ReactNode;
@@ -36,8 +37,7 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
   href,
 }) => {
   const rgbColor = hexToRgb(neonColor);
-  const { state } = useEditor();
-
+  const liveMode = useLiveMode();
   // Map animation types to CSS classes
   const getAnimationClass = (type: string) => {
     switch (type) {
@@ -96,7 +96,7 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
   );
 
   // If in live mode and href is provided, render as anchor tag
-  if (state.editor.liveMode && href) {
+  if (liveMode && href) {
     return (
       <a
         href={href || '#'}

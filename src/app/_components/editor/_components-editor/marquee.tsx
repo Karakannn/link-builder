@@ -14,6 +14,8 @@ import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-hig
 import { useLayout, Layout } from "@/hooks/use-layout";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
 import { cn } from "@/lib/utils";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
   element: EditorElement;
@@ -29,17 +31,18 @@ interface MarqueeItemData {
 }
 
 const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
-  const { state } = useEditor();
   const { id, name, type, styles, content } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { selectElement } = useElementActions();
   const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-
+  const isElementSelected = useIsElementSelected(id);
+  const device = useDevice();
+  const liveMode = useLiveMode();
   // Get computed styles based on current device
-  const computedStyles = getElementStyles(element, state.editor.device);
+  const computedStyles = getElementStyles(element, device);
 
   // Get computed content based on current device
-  const computedContent = getElementContent(element, state.editor.device);
+  const computedContent = getElementContent(element, device);
 
   // dnd-kit sortable
   const sortable = useSortable({
@@ -51,14 +54,14 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
       isSidebarElement: false,
       isEditorElement: true,
     },
-    disabled: state.editor.liveMode,
+    disabled: liveMode,
   });
 
   useEffect(() => {
     setShowSpacingGuides(
-      state.editor.selectedElement.id === id && !state.editor.liveMode
+      isElementSelected && !liveMode
     );
-  }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+  }, [isElementSelected, id, liveMode]);
 
   // Extract marquee specific props from content with defaults
   const marqueeProps = !Array.isArray(computedContent) ? computedContent : {};

@@ -3,16 +3,18 @@
 import React, { memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, Square } from "lucide-react";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
 import { useLandingModal } from "@/providers/landing-modal-provider";
 import { usePathname } from "next/navigation";
+import { useElements } from "@/providers/editor/editor-elements-provider";
 
 export const PreviewControls = memo(() => {
-    const { state } = useEditor();
+
     const { toggleLiveMode, togglePreviewMode } = useUIActions();
     const { openModal } = useLandingModal();
+
     const pathname = usePathname();
+    const elements = useElements();
 
     const isLandingModalPage = pathname?.includes("landing-modal");
     const isLiveStreamCardPage = pathname?.includes("live-stream-cards");
@@ -23,8 +25,8 @@ export const PreviewControls = memo(() => {
     }, [togglePreviewMode, toggleLiveMode]);
 
     const handlePreviewModalClick = useCallback(() => {
-        openModal(state.editor.elements);
-    }, [openModal, state.editor.elements]);
+        openModal(elements);
+    }, [openModal, elements]);
 
     return (
         <>

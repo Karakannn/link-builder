@@ -10,11 +10,9 @@ type Props = {
 };
 
 const DeleteElementButton = ({ element }: Props) => {
-    const { state } = useEditor();
     const { shouldShowDeleteButton } = useElementBorderHighlight(element);
     const { handleDelete, canDelete } = useElementDeletion(element, element.type !== "__body");
 
-    // Eğer delete button gösterilmeyecekse null döndür
     if (!shouldShowDeleteButton || !canDelete) {
         return null;
     }

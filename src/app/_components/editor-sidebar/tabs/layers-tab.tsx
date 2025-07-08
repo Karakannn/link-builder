@@ -6,6 +6,8 @@ import clsx from "clsx";
 import { ChevronDown, ChevronRight, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElements } from "@/providers/editor/editor-elements-provider";
+import { useSelectedElementId } from "@/providers/editor/editor-elements-provider";
 
 // Map element types to friendly names and colors
 const elementTypeInfo: Record<string, { name: string; color: string }> = {
@@ -26,15 +28,15 @@ const elementTypeInfo: Record<string, { name: string; color: string }> = {
 // This is a complete implementation of the layers tab that shows elements in a hierarchical tree view
 // with expand/collapse functionality, visual indicators, and synchronization with the editor's selected element.
 const LayersTab = () => {
-    const { state } = useEditor();
     const { selectElement } = useElementActions();
     const [expandedLayers, setExpandedLayers] = React.useState<Record<string, boolean>>({
         __body: true, // Body is expanded by default
     });
-
+    const elements = useElements();
+    const selectedElementId = useSelectedElementId();
     // Auto-expand parents when an element is selected
     useEffect(() => {
-        if (state.editor.selectedElement.id) {
+        if (selectedElementId) {
             // Find path to selected element
             const findPathToElement = (elements: EditorElement[], targetId: string, path: string[] = []): string[] | null => {
                 for (const element of elements) {
@@ -50,7 +52,7 @@ const LayersTab = () => {
                 return null;
             };
 
-            const path = findPathToElement(state.editor.elements, state.editor.selectedElement.id);
+            const path = findPathToElement(elements, selectedElementId);
 
             if (path) {
                 // Expand all parents
@@ -63,7 +65,7 @@ const LayersTab = () => {
                 });
             }
         }
-    }, [state.editor.selectedElement.id]);
+    }, [selectedElementId]);
 
     const toggleLayer = (id: string) => {
         setExpandedLayers((prev) => ({
@@ -84,7 +86,7 @@ const LayersTab = () => {
     const renderElement = (element: EditorElement, depth: number = 0) => {
         const hasChildren = Array.isArray(element.content) && element.content.length > 0;
         const isExpanded = expandedLayers[element.id] || false;
-        const isSelected = state.editor.selectedElement.id === element.id;
+        const isSelected = selectedElementId === element.id;
         const typeInfo = getTypeInfo(element.type);
 
         return (
@@ -154,11 +156,11 @@ const LayersTab = () => {
                 <Layers size={16} />
                 <h2 className="text-sm font-medium">Layers</h2>
                 <Badge variant="outline" className="ml-auto text-xs">
-                    {countElements(state.editor.elements)}
+                    {countElements(elements)}
                 </Badge>
             </div>
 
-            <div className="flex-1 overflow-auto pr-2">{state.editor.elements.map((element) => renderElement(element))}</div>
+            <div className="flex-1 overflow-auto pr-2">{elements.map((element) => renderElement(element))}</div>
         </div>
     );
 };

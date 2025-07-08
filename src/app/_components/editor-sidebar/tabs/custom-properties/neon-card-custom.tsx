@@ -7,20 +7,19 @@ import { Slider } from "@/components/ui/slider";
 import { ColorPicker, ColorPickerSelection, ColorPickerHue, ColorPickerAlpha, ColorPickerOutput, ColorPickerFormat } from "@/components/ui/color-picker";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { Palette, Settings, Clock, Image, Type, FileText, Link2, ImageIcon } from "lucide-react";
-import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
-import { useEditor } from "@/providers/editor/editor-provider";
+import { Palette, Settings, Clock, Type, Link2, ImageIcon } from "lucide-react";
+import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";  
 import { LogoSelectionModal } from "@/components/global/logo-selection-modal";
 import Color from "color";
-import { useEditorActions } from "@/providers/editor/editör-actions-provider";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useSelectedElement } from "@/providers/editor/editor-elements-provider";
 
 const presetColors = ["#eb0a82", "#00FFF1", "#bcc388", "#fb7c28", "#45B7D1", "#0d92bf", "#0aa947", "#f1db4b", "#db0000", "#960aa9"];
 
 const SponsorNeonCardCustomProperties = () => {
     const { handleOnChanges, getCurrentStyles } = useEditorSidebar();
-    const { state } = useEditor();
     const { updateElement } = useElementActions();
+    const selectedElement = useSelectedElement();
     const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
 
     // Parent element (neon card) styles
@@ -31,7 +30,7 @@ const SponsorNeonCardCustomProperties = () => {
     const animationDelay = currentStyles.animationDelay || 0;
 
     // Child elementleri bul
-    const element = state.editor.selectedElement;
+    const element = selectedElement;
     const childElements = Array.isArray(element.content) ? element.content : [];
 
     const findInContent = (content: any[], type: string, nameContains?: string): any => {

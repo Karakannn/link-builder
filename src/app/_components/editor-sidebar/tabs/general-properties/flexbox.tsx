@@ -5,7 +5,6 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { supportsLayout } from "@/lib/constants";
 import {
     AlignHorizontalSpaceBetween,
@@ -21,13 +20,15 @@ import {
 } from "lucide-react";
 import React from "react";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useEditorElements, useSelectedElement } from "@/providers/editor/editor-elements-provider";
 
 type Props = {};
 
 const FlexboxProperties = (props: Props) => {
     const { getCurrentStyles, handleOnChanges, activeDevice } = useEditorSidebar();
-    const { state } = useEditor();
+    
     const { updateElement } = useElementActions();
+    const selectedElement = useSelectedElement();
 
     const currentStyles = getCurrentStyles();
     const isFlexEnabled = currentStyles.display === "flex";
@@ -105,24 +106,24 @@ const FlexboxProperties = (props: Props) => {
             handleFlexToggle(true);
         }
 
-        if (supportsLayout(state.editor.selectedElement.type)) {
+        if (supportsLayout(selectedElement.type)) {
             const layout = direction === "row" ? "horizontal" : "vertical";
 
             // Layout destekleyen elementler için hem flexDirection hem de layout'u güncelle
             if (activeDevice === "Desktop") {
                 updateElement({
-                    ...state.editor.selectedElement,
+                    ...selectedElement,
                     styles: {
-                        ...state.editor.selectedElement.styles,
+                        ...selectedElement.styles,
                         flexDirection: direction as any,
                     },
                     layout: layout,
                 });
             } else {
                 // Responsive styles için
-                const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
+                const currentResponsiveStyles = selectedElement.responsiveStyles || {};
                 updateElement({
-                    ...state.editor.selectedElement,
+                    ...selectedElement,
                     responsiveStyles: {
                         ...currentResponsiveStyles,
                         [activeDevice]: {
@@ -362,7 +363,7 @@ const FlexboxProperties = (props: Props) => {
                         </TabsTrigger>
                     </TabsList>
                 </Tabs>
-                {supportsLayout(state.editor.selectedElement.type) && (
+                {supportsLayout(selectedElement.type) && (
                     <div className="text-xs text-muted-foreground mt-2 p-2 bg-blue-50 rounded dark:bg-blue-950/20">
                         💡 Layout kontrolü: Column = Vertical, Row = Horizontal
                     </div>

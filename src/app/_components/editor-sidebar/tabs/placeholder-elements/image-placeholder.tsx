@@ -1,11 +1,12 @@
 "use client";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { useDraggable } from "@dnd-kit/core";
 import { Image as ImageIcon } from "lucide-react";
 import React from "react";
+import { useLiveMode } from "@/providers/editor/editor-ui-context";
 
 const ImagePlaceholder = () => {
-    const { state } = useEditor();
+    
+    const liveMode = useLiveMode();     
 
     const draggable = useDraggable({
         id: "image",
@@ -15,7 +16,7 @@ const ImagePlaceholder = () => {
             isSidebarElement: true,
             isEditorElement: false,
         },
-        disabled: state.editor.liveMode,
+        disabled: liveMode,
     });
 
     return (

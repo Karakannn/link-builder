@@ -2,12 +2,12 @@
 
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { X } from "lucide-react";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import Recursive from "@/app/_components/editor/_components-editor/recursive";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
+import { useElements } from "@/providers/editor/editor-elements-provider";
 
 interface LandingModalProps {
     isOpen: boolean;
@@ -17,9 +17,9 @@ interface LandingModalProps {
 }
 
 export function LandingModal({ isOpen, onClose, modalContent, isPreview = false }: LandingModalProps) {
-    const { state } = useEditor();
-    const { toggleLiveMode } = useUIActions();
 
+    const { toggleLiveMode } = useUIActions();
+    const editorElements = useElements();
     // Update modal when modal opens to force re-render
     useEffect(() => {
         if (isOpen) {
@@ -28,7 +28,7 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
     }, [isOpen, toggleLiveMode]);
 
     // Use modalContent prop if available, otherwise fall back to editor state
-    const elements = modalContent || state.editor.elements;
+    const elements = modalContent || editorElements;
 
     // Filter out __body and get actual content elements
     const contentElements = elements.filter((element: EditorElement) => element.type !== "__body");

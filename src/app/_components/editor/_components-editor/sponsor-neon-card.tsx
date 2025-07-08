@@ -16,6 +16,8 @@ import { useElementActions } from "@/hooks/editor-actions/use-element-actions"
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { cn } from "@/lib/utils"
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider"
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context"
 
 interface Props {
   element: EditorElement
@@ -23,12 +25,15 @@ interface Props {
 }
 
 const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
-  const { state } = useEditor()
   const { id, styles, content, type } = element
   const [showSpacingGuides, setShowSpacingGuides] = useState(false)
   const { selectElement } = useElementActions()
   const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element)
+  const isElementSelected = useIsElementSelected(id)
 
+  const device = useDevice();
+  const liveMode = useLiveMode();
+  
   const sortable = useSortable({
     id: id,
     data: {
@@ -39,11 +44,11 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
       isSidebarElement: false,
       isEditorElement: true,
     },
-    disabled: state.editor.liveMode,
+    disabled: liveMode,
   })
 
   const computedStyles = {
-    ...getElementStyles(element, state.editor.device),
+    ...getElementStyles(element, device),
     transform: CSS.Transform.toString(sortable.transform),
     transition: sortable.transition,
   } as any;
@@ -64,9 +69,9 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
 
   useEffect(() => {
     setShowSpacingGuides(
-      state.editor.selectedElement.id === id && !state.editor.liveMode
+      isElementSelected && !liveMode
     )
-  }, [state.editor.selectedElement.id, id, state.editor.liveMode])
+  }, [isElementSelected, id, liveMode])
 
   if (sortable.isDragging) return null
 
@@ -85,8 +90,8 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         data-element-id={id}
-        {...(!state.editor.liveMode ? sortable.listeners : {})}
-        {...(!state.editor.liveMode ? sortable.attributes : {})}
+        {...(!liveMode ? sortable.listeners : {})}
+        {...(!liveMode ? sortable.attributes : {})}
       >
         {showSpacingGuides && (
           <SpacingVisualizer styles={computedStyles} />

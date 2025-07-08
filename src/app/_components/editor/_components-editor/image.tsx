@@ -1,29 +1,28 @@
 "use client";
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement } from "@/providers/editor/editor-provider";
 import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { Image as ImageIcon, Upload, AlertCircle } from "lucide-react";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 
 type Props = {
     element: EditorElement;
 };
 
 const ImageComponent = ({ element }: Props) => {
-    const { state } = useEditor();
     const { id } = element;
     const [isLoading, setIsLoading] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
     const { selectElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
+    const isElementSelected = useIsElementSelected(id);
 
     const previewMode = usePreviewMode();
     const liveMode = useLiveMode();
@@ -162,7 +161,7 @@ const ImageComponent = ({ element }: Props) => {
                     </>
                 )}
 
-                {state.editor.selectedElement.id === id && !liveMode && <DeleteElementButton element={element} />}
+                {isElementSelected && !liveMode && <DeleteElementButton element={element} />}
             </div>
         </EditorElementWrapper>
     );

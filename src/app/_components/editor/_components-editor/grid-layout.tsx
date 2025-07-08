@@ -1,7 +1,6 @@
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { getElementContent, getElementStyles } from "@/lib/utils";
+import { EditorElement } from "@/providers/editor/editor-provider";
+import { getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
-import React, { useState, useEffect } from "react";
 import { ColumnComponent } from "./column";
 import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -13,6 +12,7 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 
 type Props = {
     element: EditorElement;
@@ -20,10 +20,10 @@ type Props = {
 
 export const GridLayoutComponent = ({ element }: Props) => {
     const { id, name, type, content } = element;
-    const { state } = useEditor();
     const { selectElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     const [measureRef, containerHeight] = useElementHeight(false);
+    const isElementSelected = useIsElementSelected(id);
 
     const previewMode = usePreviewMode();
     const liveMode = useLiveMode();
@@ -116,7 +116,7 @@ export const GridLayoutComponent = ({ element }: Props) => {
                 <DeleteElementButton element={element} />
 
                 {/* Spacing Visualizer - only in edit mode and when selected */}
-                {!previewMode && !liveMode && state.editor.selectedElement.id === id && <SpacingVisualizer styles={computedStyles} />}
+                {!previewMode && !liveMode && isElementSelected && <SpacingVisualizer styles={computedStyles} />}
             </div>
         </EditorElementWrapper>
     );

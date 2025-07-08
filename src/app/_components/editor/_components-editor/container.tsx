@@ -14,6 +14,7 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useLayout, Layout } from "@/hooks/use-layout";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
   element: EditorElement;
@@ -22,12 +23,13 @@ type Props = {
 
 export const Container = ({ element, layout = 'vertical' }: Props) => {
   const { id, name, type, styles, content } = element;
-  const { state } = useEditor();
   const { selectElement } = useElementActions();
   const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
   const [measureRef, containerHeight] = useElementHeight(false);
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { getLayoutStyles } = useLayout();
+  const liveMode = useLiveMode();
+  const device = useDevice();
 
   const sortable = useSortable({
     id: id,
@@ -39,7 +41,7 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
       isSidebarElement: false,
       isEditorElement: true,
     },
-    disabled: type === "__body" || state.editor.liveMode,
+    disabled: type === "__body" || liveMode,
   });
 
   const handleContainerClick = (e: React.MouseEvent) => {
@@ -49,7 +51,7 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
   };
 
   const computedStyles = expandSpacingShorthand({
-    ...getElementStyles(element, state.editor.device),
+    ...getElementStyles(element, device),
     transform: CSS.Transform.toString(sortable.transform),
     transition: sortable.transition,
   });
@@ -60,9 +62,9 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
   };
 
   useEffect(() => {
-    const shouldShowGuides = isSelected && !state.editor.liveMode;
+    const shouldShowGuides = isSelected && !liveMode;
     setShowSpacingGuides(shouldShowGuides);
-  }, [isSelected, state.editor.liveMode, type]);
+  }, [isSelected, liveMode, type]);
 
   if (sortable.isDragging) {
     return (
@@ -93,8 +95,8 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         data-element-id={id}
-        {...(type !== "__body" && !state.editor.liveMode ? sortable.listeners : {})}
-        {...(type !== "__body" && !state.editor.liveMode ? sortable.attributes : {})}
+        {...(type !== "__body" && !liveMode ? sortable.listeners : {})}
+        {...(type !== "__body" && !liveMode ? sortable.attributes : {})}
       >
         {showSpacingGuides && (
           <SpacingVisualizer styles={computedStyles} />

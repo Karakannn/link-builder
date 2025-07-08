@@ -3,13 +3,13 @@
 import React, { memo, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { Page } from "@prisma/client";
 import { upsertPage } from "@/actions/page";
 import { saveLandingModalContent } from "@/actions/landing-modal";
 import { saveLiveStreamCardContent } from "@/actions/live-stream-card";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
+import { useElements } from "@/providers/editor/editor-elements-provider";
 
 interface SaveButtonProps {
     pageDetails: Page;
@@ -17,11 +17,11 @@ interface SaveButtonProps {
 }
 
 export const SaveButton = memo(({ pageDetails, onSaveSuccess }: SaveButtonProps) => {
-    const { state } = useEditor(); // Sadece elements için
+  
     const pathname = usePathname();
     const [isSaving, setIsSaving] = useState(false);
-
-    // Check page types
+    const elements = useElements();
+   
     const isLandingModalPage = pathname?.includes("landing-modal");
     const isLiveStreamCardPage = pathname?.includes("live-stream-cards");
 
@@ -29,7 +29,7 @@ export const SaveButton = memo(({ pageDetails, onSaveSuccess }: SaveButtonProps)
         if (isSaving) return;
 
         setIsSaving(true);
-        const content = JSON.stringify(state.editor.elements);
+        const content = JSON.stringify(elements);
 
         try {
             let response;
@@ -68,7 +68,7 @@ export const SaveButton = memo(({ pageDetails, onSaveSuccess }: SaveButtonProps)
         } finally {
             setIsSaving(false);
         }
-    }, [isSaving, state.editor.elements, isLandingModalPage, isLiveStreamCardPage, pageDetails, onSaveSuccess]);
+    }, [isSaving, elements, isLandingModalPage, isLiveStreamCardPage, pageDetails, onSaveSuccess]);
 
     return (
         <Button onClick={handleOnSave} disabled={isSaving}>

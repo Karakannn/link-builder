@@ -10,17 +10,21 @@ import { useDropHere } from "@/hooks/use-drop-here";
 import { DropHere } from "@/components/global/drop-here";
 import { DropIndicator } from "@/components/global/drop-indicator";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElements } from "./editor/editor-elements-provider";
+import { useLiveMode } from "./editor/editor-ui-context";
 
 type DndContextProviderProps = {
     children: React.ReactNode;
 };
 
 export const DndContextProvider = ({ children }: DndContextProviderProps) => {
-
-    const { state } = useEditor();
+    
     const { selectElement, moveElement, insertElement, updateElement, reorderElement, addElement } = useElementActions();
     const { createElement } = useEditorUtilities();
     const { handleContainerDrop } = useDrops();
+
+    const elements = useElements();
+    const liveMode = useLiveMode();
 
     const { indicatorState, updateIndicatorFromDragOver, updateIndicatorFromDragMove, handleDragEndInsert, clearIndicator } = useDropIndicator();
     const { dropHereState, updateDropHereFromDragOver, updateDropHereFromDragMove, clearDropHere } = useDropHere();
@@ -50,7 +54,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
 
         if (activeId === overId) return;
 
-        const gridInfo = findGridLayoutAndColumns(state.editor.elements);
+        const gridInfo = findGridLayoutAndColumns(elements);
         if (!gridInfo) return;
 
         const { gridLayout, columns } = gridInfo;
@@ -64,8 +68,8 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     };
 
     const handleDragMove = (event: DragMoveEvent) => {
-        updateIndicatorFromDragMove(event, state.editor.elements);
-        updateDropHereFromDragMove(event, state.editor.elements);
+        updateIndicatorFromDragMove(event, elements);
+        updateDropHereFromDragMove(event, elements);
     };
 
     const handleDragOver = (event: DragOverEvent) => {
@@ -79,8 +83,8 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             handleColumnReordering(active, over);
         }
 
-        updateIndicatorFromDragOver(event, state.editor.elements);
-        updateDropHereFromDragOver(event, state.editor.elements);
+        updateIndicatorFromDragOver(event, elements);
+        updateDropHereFromDragOver(event, elements);
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -99,7 +103,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
         const overId = over.id as string;
 
         // Önce mathematical positioning'i kontrol et
-        const insertInfo = handleDragEndInsert(event, state.editor.elements);
+        const insertInfo = handleDragEndInsert(event, elements);
 
         if (insertInfo) {
             const { containerId, insertIndex } = insertInfo;
@@ -158,7 +162,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     const handleDragStart = ({ active }: DragStartEvent) => {
         if (!active.data.current) return;
 
-        if (!state.editor.liveMode && active.data.current.isEditorElement) {
+        if (!liveMode && active.data.current.isEditorElement) {
             selectElement(active.data.current.element);
         }
     };
@@ -179,7 +183,7 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             onDragEnd={handleDragEnd}
             sensors={sensors}
         >
-            <SortableContext items={state.editor.elements.map((child) => child.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext items={elements.map((child) => child.id)} strategy={verticalListSortingStrategy}>
                 {children}
             </SortableContext>
             <DropIndicator state={indicatorState} />

@@ -1,25 +1,28 @@
 "use client";
 
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement} from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import React, { useEffect } from "react";
 import Recursive from "@/app/_components/editor/_components-editor/recursive";
 import { useDataActions } from "@/hooks/editor-actions/use-data-actions";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useDevice, useLiveMode, usePreviewMode } from "@/providers/editor/editor-ui-context";
+import { useElements } from "@/providers/editor/editor-elements-provider";
 
 type Props = {
     pageDetails: EditorElement[];
 };
 
 export const LiveStreamCardEditorWrapper = ({ pageDetails }: Props) => {
-    const { state } = useEditor();
+
     const { loadData } = useDataActions();
     const { selectElement } = useElementActions();
+
     const device = useDevice();
     const previewMode = usePreviewMode();
     const liveMode = useLiveMode();
-
+    const elements = useElements();
+    
     useEffect(() => {
         loadData(pageDetails, false);
     }, [pageDetails]);
@@ -29,8 +32,6 @@ export const LiveStreamCardEditorWrapper = ({ pageDetails }: Props) => {
             selectElement();
         }
     };
-
-    console.log("🔴 LiveStreamCardEditorWrapper current state.editor.elements:", state.editor.elements);
 
     return (
         <div
@@ -43,12 +44,10 @@ export const LiveStreamCardEditorWrapper = ({ pageDetails }: Props) => {
             })}
             onClick={handleClick}
         >
-            {/* Stream Card Editor Container - Full width/height with centered card */}
             <div className="w-full h-full flex items-center justify-center p-8 bg-muted/20">
-                {/* Stream Card Preview Area - Now editable container */}
                 <div className="relative min-w-[300px] min-h-[200px] max-w-[90vw] max-h-[90vh] overflow-hidden">
-                    {Array.isArray(state.editor.elements) &&
-                        state.editor.elements.map((childElement) => {
+                    {Array.isArray(elements) &&
+                        elements.map((childElement) => {
                             console.log("🔴 Rendering element in stream card:", childElement);
                             return <Recursive key={childElement.id} element={childElement} />;
                         })}
