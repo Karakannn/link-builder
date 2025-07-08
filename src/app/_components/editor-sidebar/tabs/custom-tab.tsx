@@ -12,6 +12,7 @@ import NeonCardCustomProperties from "./custom-properties/neon-card-custom";
 import ImageCustom from "./custom-properties/image-custom";
 import PulsatingButtonCustomProperties from "./custom-properties/pulsating-button-custom";
 import TextCustomProperties from "./custom-properties/text-custom";
+import AnimatedTextCustomProperties from "./custom-properties/animated-text-custom";
 
 type CustomElementType =
   | "link"
@@ -23,6 +24,7 @@ type CustomElementType =
   | "image"
   | "pulsatingButton"
   | "text"
+  | "animatedText"
   | "__body";
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
@@ -34,6 +36,7 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   image: ImageCustom,
   pulsatingButton: PulsatingButtonCustomProperties,
   text: TextCustomProperties,
+  animatedText: AnimatedTextCustomProperties,
   column: () => <div className="px-6 text-muted-foreground">Column properties managed by Grid Layout</div>,
   __body: BodyCustomProperties,
 };

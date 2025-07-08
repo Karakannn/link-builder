@@ -20,6 +20,7 @@ export type EditorBtns =
   | "retroGrid"
   | "dotPattern"
   | "pulsatingButton"
+  | "animatedText"
   | null;
 
 // Elements that support layout functionality (horizontal/vertical)
@@ -164,4 +165,29 @@ export const pulsatingButtonDefaultStyles: React.CSSProperties = {
   fontSize: "16px",
   minHeight: "40px",
   minWidth: "120px",
+};
+
+// Specific default styles for animated text components
+export const animatedTextDefaultStyles: React.CSSProperties = {
+  ...defaultStyles,
+  margin: "0px",
+  padding: "20px",
+  marginTop: "0px",
+  marginRight: "0px",
+  marginBottom: "0px",
+  marginLeft: "0px",
+  paddingTop: "20px",
+  paddingRight: "20px",
+  paddingBottom: "20px",
+  paddingLeft: "20px",
+  fontSize: "24px",
+  minHeight: "60px",
+  textAlign: "center",
+  fontWeight: "600",
+  fontStyle: "italic",
+  textTransform: "uppercase",
+  lineHeight: "1.2",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
 };

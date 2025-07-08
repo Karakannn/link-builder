@@ -5,6 +5,7 @@ import {
   containerDefaultStyles,
   closableContainerDefaultStyles,
   pulsatingButtonDefaultStyles,
+  animatedTextDefaultStyles,
   supportsLayout
 } from '@/lib/constants';
 import { EditorElement, EditorState } from '@/providers/editor/editor-provider';
@@ -359,6 +360,19 @@ export const useEditorUtilities = () => {
           } as any,
           styles: { ...pulsatingButtonDefaultStyles } as React.CSSProperties,
           type: "pulsatingButton",
+        } as EditorElement;
+
+      case "animatedText":
+        return {
+          ...baseElement,
+          name: "Animated Text",
+          content: {
+            innerText: "ANIMATED TEXT",
+            neonTextColor: "#00ff00",
+            neonBorderColor: "#00ff00",
+          },
+          styles: { ...animatedTextDefaultStyles } as React.CSSProperties,
+          type: "animatedText",
         } as EditorElement;
 
       default:

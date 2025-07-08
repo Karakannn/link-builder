@@ -16,6 +16,7 @@ const MarqueeComponent = React.lazy(() => import("./marquee"));
 const Column = React.lazy(() => import("./column").then((m) => ({ default: m.ColumnComponent })));
 const GifComponent = React.lazy(() => import("./gif"));
 const ImageComponent = React.lazy(() => import("./image"));
+const AnimatedTextComponent = React.lazy(() => import("./animated-text"));
 
 type Props = {
     element: EditorElement;
@@ -73,6 +74,8 @@ const Recursive = memo(({ element, containerId, index = 0, layout }: Props) => {
                 return <GifComponent element={element} />;
             case "image":
                 return <ImageComponent element={element} />;
+            case "animatedText":
+                return <AnimatedTextComponent element={element} />;
             default:
                 console.warn(`❓ Unknown element type: ${element.type} for ${element.id}`);
                 return null;

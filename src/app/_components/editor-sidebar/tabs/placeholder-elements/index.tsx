@@ -26,6 +26,9 @@ import SponsorNeonCardPlaceholder from "./sponsor-neon-card-placeholder";
 // Pulsating Button component
 import PulsatingButtonPlaceholder from "./pulsating-button-placeholder";
 
+// Animated Text component
+import AnimatedTextPlaceholder from "./animated-text-placeholder";
+
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
@@ -70,6 +73,12 @@ const ComponentsTab = () => {
             Component: <LinkPlaceholder />,
             label: "Link",
             id: "link",
+            category: "text",
+        },
+        {
+            Component: <AnimatedTextPlaceholder />,
+            label: "Animated Text",
+            id: "animatedText",
             category: "text",
         },
         
