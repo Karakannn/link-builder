@@ -32,7 +32,6 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
     const isEditMode = useIsEditMode();
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
 
-    const { selectElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(liveElement);
     const [measureRef, containerHeight] = useElementHeight(false);
     const { getLayoutStyles } = useLayout();
@@ -66,17 +65,15 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
             ...getLayoutStyles(layout),
         });
     }, [liveElement, transform, transition, layout, getLayoutStyles]);
-    const handleContainerClick = useCallback(
-        (e: React.MouseEvent) => {
-            e.stopPropagation();
 
-            if (isEditMode) {
-                console.log("🔧 Container clicked:", { id, name, type, styles });
-                selectElement(liveElement);
-            }
-        },
-        [isEditMode, selectElement, liveElement, id, name, type, styles]
-    );
+    // Placeholder styles without transform - stays in place
+    const placeholderStyles = useMemo(() => {
+        const baseStyles = getElementStyles(liveElement, device);
+        return expandSpacingShorthand({
+            ...baseStyles,
+            ...getLayoutStyles(layout),
+        });
+    }, [liveElement, layout, getLayoutStyles]);
 
     const setNodeRef = useCallback(
         (node: HTMLDivElement | null) => {
@@ -123,7 +120,7 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
     );
 
     if (isDragging) {
-        return <DragPlaceholder style={computedStyles} height={containerHeight} />;
+        return <DragPlaceholder style={placeholderStyles} height={containerHeight} />;
     }
 
     return (

@@ -13,6 +13,7 @@ import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-hig
 import { PulsatingButton } from "@/components/ui/pulsating-button";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -22,7 +23,8 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     const { id, styles, content, type } = element;
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { selectElement, updateElement } = useElementActions();
+    const { updateElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     const isElementSelected = useIsElementSelected(id);
     const device = useDevice();
@@ -64,7 +66,7 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (!liveMode) {
             e.stopPropagation();
-            selectElement(element);
+            handleSelectElement(e);
         } else {
             // Live mode'da link açma işlevi
             const contentData = Array.isArray(content) ? {} : content;
@@ -100,7 +102,7 @@ const PulsatingButtonComponent = ({ element }: Props) => {
                 ref={sortable.setNodeRef}
                 style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
                 className={clsx("relative group", getBorderClasses(), sortable.isDragging && "opacity-50")}
-                onClick={() => selectElement(element)}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}

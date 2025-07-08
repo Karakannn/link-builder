@@ -85,7 +85,7 @@ export const useDropIndicator = () => {
     }, []);
 
     const updateIndicator = useCallback((event: any, elements: EditorElement[]) => {
-        const { over } = event;
+        const { over, active } = event;
 
         if (!over?.data?.current?.isEditorElement) {
             setIndicatorState(prev => ({ ...prev, isVisible: false }));
@@ -94,9 +94,20 @@ export const useDropIndicator = () => {
 
         const targetId = over.id as string;
         const overType = over.data?.current?.type;
-        
-        // Exclude columns from drop indicators - they have their own reordering logic
+        const draggedType = active.data?.current?.type;
+
+        console.log('🔥 DropIndicator - draggedType:', draggedType, 'overType:', overType);
+
+        // Column drag işlemlerini tamamen engelle - artık overlay handle ediyor
+        if (draggedType === 'column') {
+            console.log('🔥 Column drag detected - hiding drop indicator');
+            setIndicatorState(prev => ({ ...prev, isVisible: false }));
+            return;
+        }
+
+        // Column'lara drop yapmayı da engelle
         if (overType === 'column') {
+            console.log('🔥 Dropping on column detected - hiding drop indicator');
             setIndicatorState(prev => ({ ...prev, isVisible: false }));
             return;
         }
@@ -112,7 +123,7 @@ export const useDropIndicator = () => {
             return;
         }
 
-
+        console.log('🔥 Showing drop indicator for non-column element');
 
         setIndicatorState({
             isVisible: true,
@@ -125,24 +136,27 @@ export const useDropIndicator = () => {
         });
     }, [calculatePosition, findContainerInfo]);
 
+    // handleDragEndInsert metodunu da güncelle
     const handleDragEndInsert = useCallback((event: any, elements: EditorElement[]) => {
         const { active, over } = event;
-
 
         if (!over?.data?.current?.isEditorElement) {
             return null;
         }
 
         const overType = over.data?.current?.type;
-        
-        // Exclude columns from drop indicator insert logic - they have their own reordering
-        if (overType === 'column') {
+        const draggedType = active.data?.current?.type;
+
+        console.log('🔥 DragEndInsert - draggedType:', draggedType, 'overType:', overType);
+
+        // Column işlemlerini tamamen engelle
+        if (draggedType === 'column' || overType === 'column') {
+            console.log('🔥 Column operation detected - blocking drag end insert');
             return null;
         }
 
         const targetId = over.id as string;
         const positionData = calculatePosition(event, targetId);
-
 
         if (!positionData) {
             return null;
@@ -154,7 +168,6 @@ export const useDropIndicator = () => {
         }
 
         const containerInfo = findContainerInfo(elements, targetId);
-
 
         if (!containerInfo) {
             return null;
@@ -169,9 +182,10 @@ export const useDropIndicator = () => {
             insertIndex: positionData.position === 'before' ? containerInfo.index : containerInfo.index + 1,
         };
 
-
+        console.log('🔥 Drag end insert result:', result);
         return result;
     }, [calculatePosition, findContainerInfo]);
+
 
     const clearIndicator = useCallback(() => {
         setIndicatorState(initialState);

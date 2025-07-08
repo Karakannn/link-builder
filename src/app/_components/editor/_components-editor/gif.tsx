@@ -12,6 +12,7 @@ import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useDevice, useLiveMode, usePreviewMode } from "@/providers/editor/editor-ui-context";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -23,7 +24,7 @@ const GifComponent = ({ element }: Props) => {
     const [showOverlay, setShowOverlay] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [hasError, setHasError] = useState(false);
-    const { selectElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     const isElementSelected = useIsElementSelected(id);
 
@@ -71,7 +72,7 @@ const GifComponent = ({ element }: Props) => {
                 ref={sortable.setNodeRef}
                 style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
                 className={clsx("relative group", getBorderClasses(), sortable.isDragging && "opacity-50")}
-                onClick={() => selectElement(element)}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}

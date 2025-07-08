@@ -11,6 +11,7 @@ import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -20,7 +21,7 @@ const ImageComponent = ({ element }: Props) => {
     const { id } = element;
     const [isLoading, setIsLoading] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
-    const { selectElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
     const isElementSelected = useIsElementSelected(id);
 
@@ -109,7 +110,7 @@ const ImageComponent = ({ element }: Props) => {
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
-                onClick={() => selectElement(element)}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}

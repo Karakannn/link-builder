@@ -15,6 +15,7 @@ import { useLayout, Layout } from "@/hooks/use-layout";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 interface ClosableContainerProps {
     element: EditorElement;
@@ -25,7 +26,8 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
     const [mounted, setMounted] = useState(false);
     const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
     const { getLayoutStyles } = useLayout();
-    const { selectElement, deleteElement } = useElementActions();
+    const { deleteElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     // Add droppable functionality
     const droppable = useDroppable({
         id: `droppable-${element.id}`,
@@ -52,11 +54,6 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
     const handleClose = (e: React.MouseEvent) => {
         e.stopPropagation();
         deleteElement(element);
-    };
-
-    const handleClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        selectElement(element);
     };
 
     const isSelected = useIsElementSelected(element.id);
@@ -116,7 +113,7 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
                     maxWidth: "100%",
                     maxHeight: "100%",
                 }}
-                onClick={handleClick}
+                onClick={handleSelectElement}
             >
                 {/* Close button - show in both edit and live mode */}
                 {(isSelected || isPreviewMode) && (
@@ -188,7 +185,7 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
                 droppable.isOver && !isPreviewMode && "!border-green-500 !border-2 !bg-green-50/50"
             )}
             style={computedStyles} // Custom CSS buraya uygulanıyor
-            onClick={handleClick}
+            onClick={handleSelectElement}
         >
             {/* Close button - show in both edit and live mode */}
             {(isSelected || isPreviewMode) && (
@@ -214,11 +211,30 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
                 </div>
             )}
 
-            {/* Spacing Visualizer - only in edit mode */}
-            {!isPreviewMode && <SpacingVisualizer styles={computedStyles} />}
-
             {/* Container content */}
-            {containerContent}
+            <div
+                style={{
+                    position: "relative",
+                    top: "auto",
+                    left: "auto",
+                    right: "auto",
+                    bottom: "auto",
+                    zIndex: "auto",
+                    width: "100%",
+                    maxWidth: "100%",
+                }}
+                className={cn("min-h-[50px] min-w-[100px]", isSelected && !isPreviewMode && "outline-dashed outline-2 outline-blue-500")}
+            >
+                {Array.isArray(element.content) && element.content.length > 0 && (
+                    element.content.map((childElement) => (
+                        <Recursive key={childElement.id} element={childElement} />
+                    ))
+                )}
+
+                {Array.isArray(element.content) && element.content.length === 0 && (
+                    <div className="min-h-[50px] text-gray-400 text-center py-4">Drop elements here</div>
+                )}
+            </div>
         </div>
     );
 };

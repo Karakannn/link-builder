@@ -2,11 +2,7 @@ import { EditorElement } from "@/providers/editor/editor-provider";
 import { getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import { ColumnComponent } from "./column";
-import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
 import { useElementHeight } from "@/hooks/editor/use-element-height";
-import { DragPlaceholder } from "./drag-placeholder";
-import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
@@ -14,6 +10,8 @@ import { EditorElementWrapper } from "@/components/global/editor-element/editor-
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import React, { useEffect } from "react";
+import { useDndContext } from "@dnd-kit/core";
 
 type Props = {
     element: EditorElement;
@@ -21,32 +19,17 @@ type Props = {
 
 export const GridLayoutComponent = ({ element }: Props) => {
     const { id, name, type, content } = element;
-    const { selectElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-    const [measureRef, containerHeight] = useElementHeight(false);
+    const [measureRef] = useElementHeight(false);
     const isElementSelected = useIsElementSelected(id);
     const { handleSelectElement } = useElementSelection(element);
     const previewMode = usePreviewMode();
     const liveMode = useLiveMode();
     const device = useDevice();
-
-    const sortable = useSortable({
-        id: id,
-        data: {
-            type,
-            name,
-            element,
-            elementId: id,
-            isSidebarElement: false,
-            isEditorElement: true,
-        },
-        disabled: liveMode,
-    });
+    const { active, over } = useDndContext();
 
     const computedStyles = {
         ...getElementStyles(element, device),
-        transform: CSS.Translate.toString(sortable.transform),
-        transition: sortable.transition,
     };
 
     const gridColumns = Array.isArray(content) ? content : [];
@@ -72,13 +55,27 @@ export const GridLayoutComponent = ({ element }: Props) => {
     };
 
     const setNodeRef = (node: HTMLDivElement | null) => {
-        sortable.setNodeRef(node);
         measureRef(node);
     };
 
-    if (sortable.isDragging) {
-        return <DragPlaceholder style={finalGridStyles} height={containerHeight} />;
-    }
+    // Drag end eventi dinle - sadece column drag'i için
+    useEffect(() => {
+        // Drag bittiğinde ve over var ise kontrol et
+        if (!active && over) {
+            console.log('🔥 Drag ended with over:', over.id);
+            return;
+        }
+
+        // Aktif drag varsa ve column ise ve bu grid'e ait ise
+        if (active?.data?.current?.type === 'column' &&
+            gridColumns.some(col => col.id === active.id) &&
+            over?.id &&
+            gridColumns.some(col => col.id === over.id) &&
+            active.id !== over.id) {
+
+            console.log('🔥 Valid column drop detected, will reorder on drag end');
+        }
+    }, [active, over, gridColumns]);
 
     return (
         <EditorElementWrapper element={element}>
@@ -86,32 +83,27 @@ export const GridLayoutComponent = ({ element }: Props) => {
                 ref={setNodeRef}
                 style={finalGridStyles}
                 className={clsx("relative", getBorderClasses(), {
-                    "cursor-grabbing": sortable.isDragging,
-                    "opacity-50": sortable.isDragging,
+                    "cursor-pointer": !liveMode,
                 })}
                 onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
-                {...(!liveMode ? sortable.listeners : {})}
-                {...(!liveMode ? sortable.attributes : {})}
             >
                 {Array.isArray(content) && content.length > 0 && (
-                    <SortableContext items={gridColumns.map((item) => item.id)} strategy={horizontalListSortingStrategy}>
-                        {gridColumns.map((columnElement, index) => {
-                            const columnSpan = columnSpans[index] || defaultSpan;
+                    gridColumns.map((columnElement, index) => {
+                        const columnSpan = columnSpans[index] || defaultSpan;
 
-                            return (
-                                <ColumnComponent
-                                    key={columnElement.id}
-                                    element={columnElement}
-                                    gridSpan={columnSpan}
-                                    totalGridColumns={totalGridColumns}
-                                    isPreviewMode={previewMode || liveMode}
-                                />
-                            );
-                        })}
-                    </SortableContext>
+                        return (
+                            <ColumnComponent
+                                key={columnElement.id}
+                                element={columnElement}
+                                gridSpan={columnSpan}
+                                totalGridColumns={totalGridColumns}
+                                isPreviewMode={previewMode || liveMode}
+                            />
+                        );
+                    })
                 )}
 
                 <DeleteElementButton element={element} />

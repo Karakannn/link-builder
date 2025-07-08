@@ -41,66 +41,57 @@ const areElementsEqual = (prevProps: Props, nextProps: Props) => {
 };
 
 const Recursive = memo(({ element, containerId, index = 0, layout }: Props) => {
+    const { getElementLayout } = useLayout();
 
-    try {
-        const { getElementLayout } = useLayout();
+    const elementLayout = layout || getElementLayout(element);
 
-        const elementLayout = layout || getElementLayout(element);
+    const renderElement = () => {
+        switch (element.type) {
+            case "text":
+                return <TextComponent element={element} />;
+            case "container":
+                return <Container element={element} layout={elementLayout} />;
+            case "closableContainer":
+                return <ClosableContainer element={element} layout={elementLayout} />;
+            case "video":
+                return <VideoComponent element={element} />;
+            case "2Col":
+                return <TwoColumns element={element} layout={elementLayout} />;
+            case "__body":
+                return <Body element={element} />;
+            case "link":
+                return <LinkComponent element={element} />;
+            case "sponsorNeonCard":
+                return <SponsorNeonCardComponent element={element} layout={elementLayout} />;
+            case "marquee":
+                return <MarqueeComponent element={element} layout={elementLayout} />;
+            case "gridLayout":
+                return <GridLayout element={element} />;
+            case "column":
+                return <Column element={element} />;
+            case "gif":
+                return <GifComponent element={element} />;
+            case "image":
+                return <ImageComponent element={element} />;
+            default:
+                console.warn(`❓ Unknown element type: ${element.type} for ${element.id}`);
+                return null;
+        }
+    };
 
-        const renderElement = () => {
+    const fallbackComponent = (
+        <div
+            className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded min-h-[32px] flex items-center justify-center text-xs text-gray-500"
+            style={{
+                width: element.styles?.width || "100%",
+                height: element.styles?.height || "32px",
+            }}
+        >
+            Loading {element.type}...
+        </div>
+    );
 
-            switch (element.type) {
-                case "text":
-                    return <TextComponent element={element} />;
-                case "container":
-                    return <Container element={element} layout={elementLayout} />;
-                case "closableContainer":
-                    return <ClosableContainer element={element} layout={elementLayout} />;
-                case "video":
-                    return <VideoComponent element={element} />;
-                case "2Col":
-                    return <TwoColumns element={element} layout={elementLayout} />;
-                case "__body":
-                    return <Body element={element} />;
-                case "link":
-                    return <LinkComponent element={element} />;
-                case "sponsorNeonCard":
-                    return <SponsorNeonCardComponent element={element} layout={elementLayout} />;
-                case "marquee":
-                    return <MarqueeComponent element={element} layout={elementLayout} />;
-                case "gridLayout":
-                    return <GridLayout element={element} />;
-                case "column":
-                    return <Column element={element} />;
-                case "gif":
-                    return <GifComponent element={element} />;
-                case "image":
-                    return <ImageComponent element={element} />;
-                default:
-                    console.warn(`❓ Unknown element type: ${element.type} for ${element.id}`);
-                    return null;
-            }
-        };
-
-        const fallbackComponent = (
-            <div
-                className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded min-h-[32px] flex items-center justify-center text-xs text-gray-500"
-                style={{
-                    width: element.styles?.width || "100%",
-                    height: element.styles?.height || "32px",
-                }}
-            >
-                Loading {element.type}...
-            </div>
-        );
-
-
-        return <Suspense fallback={fallbackComponent}>{renderElement()}</Suspense>;
-    } catch (error) {
-        console.error(`❌ ERROR in Recursive for ${element.type} - ${element.id}:`, error);
-        throw error;
-    }
+    return <Suspense fallback={fallbackComponent}>{renderElement()}</Suspense>;
 }, areElementsEqual);
-
 
 export default Recursive;

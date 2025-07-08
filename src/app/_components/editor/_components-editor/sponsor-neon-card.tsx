@@ -29,160 +29,135 @@ interface Props {
 }
 
 const SponsorNeonCardComponent = memo(({ element, layout = "vertical" }: Props) => {
+    const { id, styles, content, type } = element;
 
-    try {
-        const { id, styles, content, type } = element;
+    const isSelected = useIsElementSelected(id);
+    const isEditMode = useIsEditMode();
+    const device = useDevice();
 
-        const isSelected = useIsElementSelected(id);
-        const isEditMode = useIsEditMode();
-        const device = useDevice();
+    const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
+    const { handleSelectElement } = useElementSelection(element);
 
-        const { selectElement } = useElementActions();
-        const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-        const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
-        const { handleSelectElement } = useElementSelection(element);
-
-        const sortableConfig = useMemo(() => {
-            return {
-                id: id,
-                data: {
-                    type,
-                    name: "Sponsor Neon Card",
-                    element,
-                    elementId: id,
-                    isSidebarElement: false,
-                    isEditorElement: true,
-                },
-                disabled: !isEditMode,
-            };
-        }, [id, type, element, isEditMode]);
-
-        const sortable = useSortable(sortableConfig);
-
-        // 🚀 REACT 19: Memoized styles computation
-        const computedStyles = useMemo(() => {
-            return {
-                ...getElementStyles(element, device),
-                transform: CSS.Transform.toString(sortable.transform),
-                transition: sortable.transition,
-            };
-        }, [element, device, sortable.transform, sortable.transition]) as any;
-
-        // 🚀 REACT 19: Memoized style extraction
-        const cardProps = useMemo(() => {
-            const borderSize = computedStyles.borderSize || 2;
-            const borderRadius = computedStyles.borderRadius;
-            const neonColor = computedStyles.neonColor || "#ff00aa";
-            const animationDelay = computedStyles.animationDelay || 0;
-            const animationType = computedStyles.animationType || "blink";
-            const href = computedStyles.href || "";
-
-            let parsedBorderRadius = 12;
-            if (typeof borderRadius === "string") {
-                parsedBorderRadius = parseInt(borderRadius.replace("px", "")) || 12;
-            } else if (typeof borderRadius === "number") {
-                parsedBorderRadius = borderRadius;
-            }
-
-            return {
-                borderSize,
-                borderRadius: parsedBorderRadius,
-                neonColor,
-                animationDelay: animationDelay as number,
-                animationType,
-                href,
-            };
-        }, [computedStyles]);
-
-        // 🚀 REACT 19: Memoized child items
-        const childItems = useMemo(() => {
-            return Array.isArray(content) ? content.map((child) => child.id) : [];
-        }, [content]);
-
-        // 🚀 REACT 19: Optimized click handler
-        const handleClick = useCallback(
-            (e: React.MouseEvent) => {
-                console.log(`👆 Click handler for ${id}`);
-                e.stopPropagation();
-                if (isEditMode) {
-                    selectElement(element);
-                }
+    const sortableConfig = useMemo(() => {
+        return {
+            id: id,
+            data: {
+                type,
+                name: "Sponsor Neon Card",
+                element,
+                elementId: id,
+                isSidebarElement: false,
+                isEditorElement: true,
             },
-            [isEditMode, selectElement, element]
-        );
+            disabled: !isEditMode,
+        };
+    }, [id, type, element, isEditMode]);
 
-        // 🚀 REACT 19: Effect for spacing guides
-        useEffect(() => {
-            setShowSpacingGuides(isSelected && isEditMode);
-        }, [isSelected, isEditMode]);
+    const sortable = useSortable(sortableConfig);
 
+    const computedStyles = useMemo(() => {
+        return {
+            ...getElementStyles(element, device),
+            transform: CSS.Transform.toString(sortable.transform),
+            transition: sortable.transition,
+        };
+    }, [element, device, sortable.transform, sortable.transition]) as any;
 
-        // 🚀 REACT 19: Early return for dragging state
-        if (sortable.isDragging) {
+    const cardProps = useMemo(() => {
+        const borderSize = computedStyles.borderSize || 2;
+        const borderRadius = computedStyles.borderRadius;
+        const neonColor = computedStyles.neonColor || "#ff00aa";
+        const animationDelay = computedStyles.animationDelay || 0;
+        const animationType = computedStyles.animationType || "blink";
+        const href = computedStyles.href || "";
+
+        let parsedBorderRadius = 12;
+        if (typeof borderRadius === "string") {
+            parsedBorderRadius = parseInt(borderRadius.replace("px", "")) || 12;
+        } else if (typeof borderRadius === "number") {
+            parsedBorderRadius = borderRadius;
+        }
+
+        return {
+            borderSize,
+            borderRadius: parsedBorderRadius,
+            neonColor,
+            animationDelay: animationDelay as number,
+            animationType,
+            href,
+        };
+    }, [computedStyles]);
+
+    const childItems = useMemo(() => {
+        return Array.isArray(content) ? content.map((child) => child.id) : [];
+    }, [content]);
+
+    // 🚀 REACT 19: Effect for spacing guides
+    useEffect(() => {
+        setShowSpacingGuides(isSelected && isEditMode);
+    }, [isSelected, isEditMode]);
+
+    // 🚀 REACT 19: Memoized container classes
+    const containerClasses = useMemo(() => {
+        return clsx("relative z-10", getBorderClasses(), {
+            "cursor-grabbing": sortable.isDragging,
+            "opacity-50": sortable.isDragging,
+        });
+    }, [getBorderClasses, sortable.isDragging]);
+
+    // 🚀 REACT 19: Memoized child content
+    const childContent = useMemo(() => {
+        if (!Array.isArray(content) || content.length === 0) {
             return null;
         }
 
-        // 🚀 REACT 19: Memoized container classes
-        const containerClasses = useMemo(() => {
-            return clsx("relative z-10", getBorderClasses(), {
-                "cursor-grabbing": sortable.isDragging,
-                "opacity-50": sortable.isDragging,
-            });
-        }, [getBorderClasses, sortable.isDragging]);
-
-        // 🚀 REACT 19: Memoized child content
-        const childContent = useMemo(() => {
-
-            if (!Array.isArray(content) || content.length === 0) {
-                return null;
-            }
-
-            return (
-                content.map((childElement, index) => {
-                    return <Recursive key={childElement.id} element={childElement} containerId={id} index={index} layout={layout} />;
-                })
-            );
-        }, [content, childItems, id, layout]);
-
-
         return (
-            <ElementContextMenu element={element}>
-                <div
-                    ref={sortable.setNodeRef}
-                    style={computedStyles}
-                    className={containerClasses}
-                    onClick={handleSelectElement}
-                    onMouseEnter={handleMouseEnter}
-                    onMouseLeave={handleMouseLeave}
-                    data-element-id={id}
-                    {...(isEditMode ? sortable.listeners : {})}
-                    {...(isEditMode ? sortable.attributes : {})}
-                >
-                    {/* Spacing Visualizer */}
-                    {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
-
-                    {/* Sponsor Neon Card UI */}
-                    <SponsorNeonCard
-                        borderSize={cardProps.borderSize}
-                        borderRadius={cardProps.borderRadius}
-                        neonColor={cardProps.neonColor}
-                        animationDelay={cardProps.animationDelay}
-                        animationType={cardProps.animationType}
-                        href={cardProps.href}
-                        className="w-full min-h-[100px]"
-                    >
-                        {childContent}
-                    </SponsorNeonCard>
-
-                    {/* Delete Button */}
-                    {isSelected && isEditMode && <DeleteElementButton element={element} />}
-                </div>
-            </ElementContextMenu>
+            content.map((childElement, index) => {
+                return <Recursive key={childElement.id} element={childElement} containerId={id} index={index} layout={layout} />;
+            })
         );
-    } catch (error) {
-        console.error(`❌ ERROR in SponsorNeonCard for ${element.id}:`, error);
-        throw error;
+    }, [content, childItems, id, layout]);
+
+    // 🚀 REACT 19: Early return for dragging state - moved after all hooks
+    if (sortable.isDragging) {
+        return null;
     }
+
+    return (
+        <ElementContextMenu element={element}>
+            <div
+                ref={sortable.setNodeRef}
+                style={computedStyles}
+                className={containerClasses}
+                onClick={handleSelectElement}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                data-element-id={id}
+                {...(isEditMode ? sortable.listeners : {})}
+                {...(isEditMode ? sortable.attributes : {})}
+            >
+                {/* Spacing Visualizer */}
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
+
+                {/* Sponsor Neon Card UI */}
+                <SponsorNeonCard
+                    borderSize={cardProps.borderSize}
+                    borderRadius={cardProps.borderRadius}
+                    neonColor={cardProps.neonColor}
+                    animationDelay={cardProps.animationDelay}
+                    animationType={cardProps.animationType}
+                    href={cardProps.href}
+                    className="w-full min-h-[100px]"
+                >
+                    {childContent}
+                </SponsorNeonCard>
+
+                {/* Delete Button */}
+                {isSelected && isEditMode && <DeleteElementButton element={element} />}
+            </div>
+        </ElementContextMenu>
+    );
 });
 
 SponsorNeonCardComponent.displayName = "OptimizedSponsorNeonCardComponent";

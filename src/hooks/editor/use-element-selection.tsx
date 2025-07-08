@@ -4,18 +4,19 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { useCallback, useState } from "react";
 import { useSmartSelection } from "./use-smart-selection";
+import { useIsEditMode } from "@/providers/editor/editor-ui-context";
 
 export const useElementSelection = (element: EditorElement) => {
     const { handleSmartSelection } = useSmartSelection();
     const [isHovered, setIsHovered] = useState(false);
+    const isEditMode = useIsEditMode();
 
-    // Smart selection handler - event'i pass et
     const handleSelectElement = useCallback((e: React.MouseEvent) => {
-        console.log("sa");
-        
         e.stopPropagation();
-        handleSmartSelection(e, element); // Event'i geç
-    }, [handleSmartSelection, element]);
+        if (isEditMode) {
+            handleSmartSelection(e, element);
+        }
+    }, [handleSmartSelection, element, isEditMode]);
 
     return {
         handleSelectElement,

@@ -9,6 +9,7 @@ import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useLiveMode, usePreviewMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 interface BodyContainerProps {
     element: EditorElement;
@@ -17,7 +18,7 @@ interface BodyContainerProps {
 export const BodyContainer = ({ element }: BodyContainerProps) => {
 
     const { id, name, type, content, styles } = element;
-    const { selectElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
 
     const previewMode = usePreviewMode();
@@ -45,7 +46,7 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
         <div
             ref={droppable.setNodeRef}
             className={finalClassName}
-            onClick={() => selectElement(element)}
+            onClick={handleSelectElement}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             data-element-id={id}

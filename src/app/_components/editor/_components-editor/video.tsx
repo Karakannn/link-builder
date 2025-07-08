@@ -11,6 +11,7 @@ import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -19,7 +20,7 @@ type Props = {
 const VideoComponent = ({ element }: Props) => {
     const { id, name, type, styles, content } = element;
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { selectElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     const isElementSelected = useIsElementSelected(id);
     const device = useDevice();
@@ -56,7 +57,7 @@ const VideoComponent = ({ element }: Props) => {
             ref={sortable.setNodeRef}
             style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
             className={clsx("relative group", getBorderClasses(), sortable.isDragging && "opacity-50")}
-            onClick={() => selectElement(element)}
+            onClick={handleSelectElement}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             data-element-id={id}

@@ -12,6 +12,7 @@ import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
 import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
@@ -21,7 +22,8 @@ const LinkComponent = ({ element }: Props) => {
     const { id, styles, content, type } = element;
     const linkRef = useRef<HTMLAnchorElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { selectElement, updateElement } = useElementActions();
+    const { updateElement } = useElementActions();
+    const { handleSelectElement } = useElementSelection(element);
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     const isElementSelected = useIsElementSelected(id);
     const device = useDevice();
@@ -78,7 +80,7 @@ const LinkComponent = ({ element }: Props) => {
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
-                onClick={() => selectElement(element)}
+                onClick={handleSelectElement}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
@@ -98,7 +100,7 @@ const LinkComponent = ({ element }: Props) => {
                     onClick={(e) => {
                         if (!liveMode) {
                             e.stopPropagation();
-                            selectElement(element);
+                            handleSelectElement(e);
                         }
                     }}
                 />
