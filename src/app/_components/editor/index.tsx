@@ -8,6 +8,7 @@ import Recursive from "./_components-editor/recursive";
 import { useDataActions } from "@/hooks/editor-actions/use-data-actions";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useDevice, usePreviewMode, useLiveMode, useLayerSidebarCollapsed } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     pageDetails: EditorElement[];
@@ -20,6 +21,14 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
     const { loadData } = useDataActions();
     const { toggleLiveMode, togglePreviewMode } = useUIActions();
     const { selectElement } = useElementActions();
+
+    const device = useDevice();
+    const previewMode = usePreviewMode();
+    const editorLiveMode = useLiveMode();
+    const layerSidebarCollapsed = useLayerSidebarCollapsed();
+
+    console.log("previewMode", previewMode);
+    console.log("liveMode", liveMode);
 
     useEffect(() => {
         if (liveMode) {
@@ -42,26 +51,24 @@ const FunnelEditor = ({ pageDetails, liveMode, layout = "vertical" }: Props) => 
         toggleLiveMode();
     };
 
-    // Check if we're in live mode (live preview or custom domain)
-    const isLiveMode = state.editor.liveMode || liveMode;
+    const isLiveMode = editorLiveMode || liveMode;
 
     return (
-        /*   <><Pages layout={Layout.Horizontal} /></> */
         <div
             data-editor-container="true"
             className={clsx("use-automation-zoom-in overflow-hidden overflow-y-auto mr-[385px] bg-background transition-all rounded-md", {
-                "ml-80": !state.editor.layerSidebarCollapsed,
-                "ml-16": state.editor.layerSidebarCollapsed,
-                "!p-0 !mr-0 !ml-0": state.editor.previewMode === true || state.editor.liveMode === true,
+                "ml-80": !layerSidebarCollapsed,
+                "ml-16": layerSidebarCollapsed,
+                "!p-0 !mr-0 !ml-0": previewMode === true || liveMode === true,
                 "h-[calc(100vh_-_97px)]": !isLiveMode,
                 // Device-based widths only apply in edit mode, not in live mode
-                "!w-[850px]": !isLiveMode && state.editor.device === "Tablet",
-                "!w-[420px]": !isLiveMode && state.editor.device === "Mobile",
-                "w-full": isLiveMode || state.editor.device === "Desktop",
+                "!w-[850px]": !isLiveMode && device === "Tablet",
+                "!w-[420px]": !isLiveMode && device === "Mobile",
+                "w-full": isLiveMode || device === "Desktop",
             })}
             onClick={handleClick}
         >
-            {state.editor.previewMode && state.editor.liveMode && (
+            {previewMode && (
                 <Button variant={"ghost"} size={"icon"} className="w-6 h-6 bg-slate-600 p-[2px] fixed top-0 left-0 z-[100]" onClick={handleUnPreview}>
                     <EyeOff />
                 </Button>

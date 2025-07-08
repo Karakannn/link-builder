@@ -13,6 +13,7 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useLayout, Layout } from "@/hooks/use-layout";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 
 interface ClosableContainerProps {
     element: EditorElement;
@@ -33,6 +34,10 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
             containerId: element.id,
         },
     });
+
+    const previewMode = usePreviewMode();
+    const liveMode = useLiveMode();
+    const device = useDevice();
 
     useEffect(() => {
         setMounted(true);
@@ -56,10 +61,10 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
 
     const isSelected = state.editor.selectedElement.id === element.id;
     const isAbsolute = element.styles.position === "absolute";
-    const isPreviewMode = state.editor.previewMode || state.editor.liveMode;
+    const isPreviewMode = previewMode || liveMode;
 
     // Get computed styles with custom CSS and responsive styles
-    const computedStyles = getElementStyles(element, state.editor.device);
+    const computedStyles = getElementStyles(element, device);
 
     // Container content without custom styles (only layout styles)
     const containerContent = (

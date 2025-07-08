@@ -2,7 +2,6 @@
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { useEditor } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -15,6 +14,7 @@ import EditorSidebarProvider from "@/providers/editor/editor-sidebar-provider";
 import { CustomTab } from "./tabs/custom-tab";
 import { CustomCSSTab } from "./tabs/custom-css-tab";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
+import { useLayerSidebarCollapsed, usePreviewMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     userId: string;
@@ -22,23 +22,25 @@ type Props = {
 
 const FunnelEditorSidebar = ({ userId }: Props) => {
 
-    const { state } = useEditor();
     const { toggleLayerSidebar } = useUIActions();
+    
+    const previewMode = usePreviewMode();
+    const layerSidebarCollapsed = useLayerSidebarCollapsed();
 
     return (
         <>
             <div
                 className={clsx("fixed left-0 mt-[97px] z-[40] shadow-none bg-background border-r border-border transition-all overflow-hidden", {
-                    "w-80": !state.editor.layerSidebarCollapsed,
-                    "w-16": state.editor.layerSidebarCollapsed,
-                    hidden: state.editor.previewMode,
+                    "w-80": !layerSidebarCollapsed,
+                    "w-16": layerSidebarCollapsed,
+                    hidden: previewMode,
                 })}
                 onClick={(e) => {
                     e.stopPropagation();
                 }}
             >
                 <div className="h-[calc(100vh_-_97px)] overflow-y-auto overflow-x-hidden no-scrollbar flex flex-col">
-                    {!state.editor.layerSidebarCollapsed ? (
+                    {!layerSidebarCollapsed ? (
                         <>
                             <div className="text-left p-6">
                                 <h2 className="text-lg font-semibold text-foreground">Layers</h2>
@@ -58,9 +60,9 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                         <button
                             onClick={toggleLayerSidebar}
                             className="p-2 hover:bg-accent rounded-md transition-colors bg-background shadow-sm border border-border"
-                            title={state.editor.layerSidebarCollapsed ? "Expand Layers" : "Collapse Layers"}
+                            title={layerSidebarCollapsed ? "Expand Layers" : "Collapse Layers"}
                         >
-                            {state.editor.layerSidebarCollapsed ? (
+                            {layerSidebarCollapsed ? (
                                 <ChevronRight size={18} className="text-muted-foreground" />
                             ) : (
                                 <ChevronLeft size={18} className="text-muted-foreground" />
@@ -75,7 +77,7 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                     <SheetContent
                         side={"right"}
                         className={clsx("mt-[97px] w-16 z-[80] shadow-none p-0 focus:border-none transition-all overflow-hidden", {
-                            hidden: state.editor.previewMode,
+                            hidden: previewMode,
                         })}
                     >
                         <TabList />
@@ -83,7 +85,7 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                     <SheetContent
                         side={"right"}
                         className={clsx("mt-[97px] w-80 z-[40] shadow-none p-0 mr-16 focus:border-none transition-all overflow-hidden", {
-                            hidden: state.editor.previewMode,
+                            hidden: previewMode,
                         })}
                         onClick={(e) => {
                             e.stopPropagation();

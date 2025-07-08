@@ -7,6 +7,7 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { EditorActionsProvider } from "./editör-actions-provider";
 import { LandingModalProvider } from "../landing-modal-provider";
 import { EditorHistoryProvider } from "./editor-history-context";
+import { EditorUIProvider } from "./editor-ui-context";
 
 export type DeviceTypes = "Desktop" | "Mobile" | "Tablet";
 
@@ -892,7 +893,14 @@ const EditorProvider = (props: EditorProps) => {
         >
             <EditorActionsProvider dispatch={dispatch}>
                 <EditorHistoryProvider currentIndex={state.history.currentIndex} historyLength={state.history.history.length}>
-                    <LandingModalProvider>{props.children}</LandingModalProvider>
+                    <EditorUIProvider
+                        device={state.editor.device}
+                        previewMode={state.editor.previewMode}
+                        liveMode={state.editor.liveMode}
+                        layerSidebarCollapsed={state.editor.layerSidebarCollapsed}
+                    >
+                        <LandingModalProvider>{props.children}</LandingModalProvider>
+                    </EditorUIProvider>
                 </EditorHistoryProvider>
             </EditorActionsProvider>
         </EditorContext.Provider>

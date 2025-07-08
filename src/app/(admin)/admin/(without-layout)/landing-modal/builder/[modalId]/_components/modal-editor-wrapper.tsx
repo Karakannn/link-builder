@@ -6,6 +6,7 @@ import React, { useEffect } from "react";
 import Recursive from "@/app/_components/editor/_components-editor/recursive";
 import { useDataActions } from "@/hooks/editor-actions/use-data-actions";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useDevice, useEditorUI, usePreviewMode } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     pageDetails: EditorElement[];
@@ -13,34 +14,32 @@ type Props = {
 
 export const ModalEditorWrapper = ({ pageDetails }: Props) => {
     const { state } = useEditor();
+
+    const device = useDevice();
+    const previewMode = usePreviewMode();
+
     const { loadData } = useDataActions();
     const { selectElement } = useElementActions();
 
-    console.log("�� ModalEditorWrapper rendering with pageDetails:", pageDetails);
-
-    // Load data when component mounts
     useEffect(() => {
         loadData(pageDetails, false);
     }, [pageDetails]);
 
     const handleClick = (e: React.MouseEvent) => {
-        // Only clear selection if clicking on the background area, not on elements or sidebar
         if (e.target === e.currentTarget) {
             console.log("🖱️ Background clicked, clearing selection");
             selectElement();
         }
     };
 
-    console.log("🎭 ModalEditorWrapper current state.editor.elements:", state.editor.elements);
-
     return (
         <div
             data-editor-container="true"
             className={clsx("use-automation-zoom-in h-[calc(100vh_-_97px)] overflow-auto bg-background transition-all rounded-md", {
-                "!p-0 !mr-0 !ml-0": state.editor.previewMode === true || state.editor.liveMode === true,
-                "!w-[850px]": state.editor.device === "Tablet",
-                "!w-[420px]": state.editor.device === "Mobile",
-                "w-full": state.editor.device === "Desktop",
+                "!p-0 !mr-0 !ml-0": previewMode === true || state.editor.liveMode === true,
+                "!w-[850px]": device === "Tablet",
+                "!w-[420px]": device === "Mobile",
+                "w-full": device === "Desktop",
             })}
             onClick={handleClick}
         >

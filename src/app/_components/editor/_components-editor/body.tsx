@@ -1,6 +1,6 @@
 "use client";
 
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
+import { EditorElement } from "@/providers/editor/editor-provider";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { cn } from "@/lib/utils";
 import Recursive from "./recursive";
@@ -8,16 +8,20 @@ import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useLiveMode, usePreviewMode } from "@/providers/editor/editor-ui-context";
 
 interface BodyContainerProps {
     element: EditorElement;
 }
 
 export const BodyContainer = ({ element }: BodyContainerProps) => {
-    const { state } = useEditor();
+
     const { id, name, type, content, styles } = element;
     const { selectElement } = useElementActions();
-    const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
+
+    const previewMode = usePreviewMode();
+    const liveMode = useLiveMode();
 
     const droppable = useDroppable({
         id: id,
@@ -27,7 +31,7 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
         },
     });
 
-    const isPreviewMode = state.editor.previewMode || state.editor.liveMode;
+    const isPreviewMode = previewMode || liveMode;
 
     const childItems = Array.isArray(content) ? content.map((child) => child.id) : [];
 

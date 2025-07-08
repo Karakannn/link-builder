@@ -16,6 +16,7 @@ import { HistoryControls } from "./history-controls";
 import { PreviewControls } from "./preview-controls";
 import { SaveButton } from "./save-button";
 import { LastUpdatedInfo } from "./last-updated-info";
+import { usePreviewMode } from "@/providers/editor/editor-ui-context";
 
 interface Props {
     user: User;
@@ -23,10 +24,13 @@ interface Props {
 }
 
 const FunnelEditorNavigation: React.FC<Props> = memo(({ user, pageDetails }) => {
+
     const pathname = usePathname();
-    const { state } = useEditor();
+    
     const { setPageId } = useDataActions();
+    
     const [lastUpdated, setLastUpdated] = useState<Date>(pageDetails.updatedAt || new Date());
+    const previewMode = usePreviewMode();
 
     const isLandingModalPage = pathname?.includes("landing-modal");
     const isLiveStreamCardPage = pathname?.includes("live-stream-cards");
@@ -45,7 +49,7 @@ const FunnelEditorNavigation: React.FC<Props> = memo(({ user, pageDetails }) => 
         <TooltipProvider>
             <nav
                 className={clsx(`border-b flex items-center justify-between p-6 gap-2 transition-all`, {
-                    "!h-0 !p-0 !overflow-hidden": state.editor.previewMode,
+                    "!h-0 !p-0 !overflow-hidden": previewMode,
                 })}
             >
                 <aside className="flex items-center gap-4 max-w-[260px] w-[300px]">

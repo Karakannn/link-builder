@@ -11,6 +11,7 @@ import { EditorElementWrapper } from "@/components/global/editor-element/editor-
 import { Image as ImageIcon, Upload, AlertCircle } from "lucide-react";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
+import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 
 type Props = {
     element: EditorElement;
@@ -22,10 +23,14 @@ const ImageComponent = ({ element }: Props) => {
     const [isLoading, setIsLoading] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
     const { selectElement } = useElementActions();
-    const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
 
-    const computedStyles = getElementStyles(element, state.editor.device);
-    const computedContent = getElementContent(element, state.editor.device);
+    const previewMode = usePreviewMode();
+    const liveMode = useLiveMode();
+    const device = useDevice();
+
+    const computedStyles = getElementStyles(element, device);
+    const computedContent = getElementContent(element, device);
 
     const placeholderImage =
         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%239ca3af'%3EPlaceholder Image%3C/text%3E%3C/svg%3E";
@@ -39,7 +44,7 @@ const ImageComponent = ({ element }: Props) => {
             isSidebarElement: false,
             isEditorElement: true,
         },
-        disabled: state.editor.liveMode,
+        disabled: liveMode,
     });
 
     const imageProps = !Array.isArray(computedContent) ? computedContent : {};
@@ -109,8 +114,8 @@ const ImageComponent = ({ element }: Props) => {
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
-                {...(!state.editor.liveMode ? sortable.listeners : {})}
-                {...(!state.editor.liveMode ? sortable.attributes : {})}
+                {...(!liveMode ? sortable.listeners : {})}
+                {...(!liveMode ? sortable.attributes : {})}
             >
                 {src ? (
                     <>
@@ -118,7 +123,7 @@ const ImageComponent = ({ element }: Props) => {
                             ref={imgRef}
                             src={src}
                             className={clsx("max-w-full h-auto transition-all duration-300", getShadowClass(), getFilterClass(), {
-                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                                "pointer-events-none": !liveMode && !previewMode,
                             })}
                             style={{
                                 width: computedStyles.width || "auto",
@@ -143,7 +148,7 @@ const ImageComponent = ({ element }: Props) => {
                             src={placeholderImage}
                             alt="Placeholder"
                             className={clsx("max-w-full h-auto transition-all duration-300", getShadowClass(), getFilterClass(), {
-                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                                "pointer-events-none": !liveMode && !previewMode,
                             })}
                             style={{
                                 width: computedStyles.width || "auto",
@@ -157,7 +162,7 @@ const ImageComponent = ({ element }: Props) => {
                     </>
                 )}
 
-                {state.editor.selectedElement.id === id && !state.editor.liveMode && <DeleteElementButton element={element} />}
+                {state.editor.selectedElement.id === id && !liveMode && <DeleteElementButton element={element} />}
             </div>
         </EditorElementWrapper>
     );
