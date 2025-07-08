@@ -1,125 +1,149 @@
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { getElementContent, getElementStyles } from "@/lib/utils";
+import React, { memo, useMemo, useCallback, useEffect, useState } from "react";
 import clsx from "clsx";
-import React, { useEffect, useState } from "react";
-import Recursive from "./recursive";
-import { expandSpacingShorthand } from "@/lib/utils";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
+
+import type { EditorElement } from "@/providers/editor/editor-provider";
+import { getElementStyles, expandSpacingShorthand } from "@/lib/utils";
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
-import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
-import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { useLayout, Layout } from "@/hooks/use-layout";
-import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import Recursive from "./recursive";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementById, useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useDevice, useIsEditMode } from "@/providers/editor/editor-ui-context";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 
 type Props = {
-  element: EditorElement;
-  layout?: Layout;
+    element: EditorElement;
+    layout?: Layout;
 };
 
-export const Container = ({ element, layout = 'vertical' }: Props) => {
-  const { id, name, type, styles, content } = element;
-  const { selectElement } = useElementActions();
-  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-  const [measureRef, containerHeight] = useElementHeight(false);
-  const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-  const { getLayoutStyles } = useLayout();
-  const liveMode = useLiveMode();
-  const device = useDevice();
+export const Container = memo(({ element: initialElement, layout = "vertical" }: Props) => {
+    const liveElement = useElementById(initialElement.id) || initialElement;
+    const { id, name, type, styles, content } = liveElement;
 
-  const sortable = useSortable({
-    id: id,
-    data: {
-      type,
-      name,
-      element,
-      elementId: id,
-      isSidebarElement: false,
-      isEditorElement: true,
-    },
-    disabled: type === "__body" || liveMode,
-  });
+    const device = useDevice();
+    const isSelected = useIsElementSelected(id);
+    const isEditMode = useIsEditMode();
+    const [showSpacingGuides, setShowSpacingGuides] = useState(false);
 
-  const handleContainerClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    console.log("🔧 Container clicked:", { id, name, type, styles });
-    selectElement(element);
-  };
+    const { selectElement } = useElementActions();
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(liveElement);
+    const [measureRef, containerHeight] = useElementHeight(false);
+    const { getLayoutStyles } = useLayout();
 
-  const computedStyles = expandSpacingShorthand({
-    ...getElementStyles(element, device),
-    transform: CSS.Transform.toString(sortable.transform),
-    transition: sortable.transition,
-  });
-
-  const setNodeRef = (node: HTMLDivElement | null) => {
-    sortable.setNodeRef(node);
-    measureRef(node);
-  };
-
-  useEffect(() => {
-    const shouldShowGuides = isSelected && !liveMode;
-    setShowSpacingGuides(shouldShowGuides);
-  }, [isSelected, liveMode, type]);
-
-  if (sortable.isDragging) {
-    return (
-      <DragPlaceholder
-        style={computedStyles}
-        height={containerHeight}
-      />
+    const sortable = useMemo(
+        () => ({
+            id: id,
+            data: {
+                type,
+                name,
+                element: liveElement,
+                elementId: id,
+                isSidebarElement: false,
+                isEditorElement: true,
+            },
+            disabled: type === "__body" || !isEditMode,
+        }),
+        [id, type, name, liveElement, isEditMode]
     );
-  }
 
-  return (
-    <EditorElementWrapper element={element}>
-      <div
-        ref={setNodeRef}
-        style={{
-          ...computedStyles,
-          ...getLayoutStyles(layout),
-        }}
-        className={clsx("relative group", getBorderClasses(), {
-          "max-w-full w-full": type === "container" || type === "2Col",
-          "h-fit": type === "container",
-          "h-full": type === "__body",
-          "overflow-y-auto": type === "__body",
-          "cursor-grabbing": sortable.isDragging,
-          "opacity-50": sortable.isDragging,
-        })}
-        onClick={handleContainerClick}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        data-element-id={id}
-        {...(type !== "__body" && !liveMode ? sortable.listeners : {})}
-        {...(type !== "__body" && !liveMode ? sortable.attributes : {})}
-      >
-        {showSpacingGuides && (
-          <SpacingVisualizer styles={computedStyles} />
-        )}
+    const { attributes, listeners, setNodeRef: setSortableRef, transform, transition, isDragging } = useSortable(sortable);
 
-        {Array.isArray(content) && content.length > 0 && content.map((childElement, index) => (
-          <Recursive
-            key={childElement.id}
-            element={childElement}
-            containerId={id}
-            index={index}
-            layout={layout}
-          />
-        ))}
+    const computedStyles = useMemo(() => {
+        const baseStyles = getElementStyles(liveElement, device);
 
-        {Array.isArray(content) && content.length === 0 && (
-          <div className="min-h-[50px] text-gray-400 text-center py-4">
-            {type === "__body" ? "Page Body - Drop elements here" : "Empty Container"}
-          </div>
-        )}
+        return expandSpacingShorthand({
+            ...baseStyles,
+            transform: CSS.Transform.toString(transform),
+            transition,
+            ...getLayoutStyles(layout),
+        });
+    }, [liveElement, transform, transition, layout, getLayoutStyles]);
 
-        <DeleteElementButton element={element} />
-      </div>
-    </EditorElementWrapper>
-  );
-};
+    const handleContainerClick = useCallback(
+        (e: React.MouseEvent) => {
+            e.stopPropagation();
+
+            if (isEditMode) {
+                console.log("🔧 Container clicked:", { id, name, type, styles });
+                selectElement(liveElement);
+            }
+        },
+        [isEditMode, selectElement, liveElement, id, name, type, styles]
+    );
+
+    const setNodeRef = useCallback(
+        (node: HTMLDivElement | null) => {
+            setSortableRef(node);
+            measureRef(node);
+        },
+        [setSortableRef, measureRef]
+    );
+
+    useEffect(() => {
+        const shouldShowGuides = isSelected && isEditMode;
+        if (showSpacingGuides !== shouldShowGuides) {
+            setShowSpacingGuides(shouldShowGuides);
+        }
+    }, [isSelected, isEditMode, showSpacingGuides]);
+
+    const childContent = useMemo(() => {
+        if (!Array.isArray(content)) return;
+
+        if (content.length === 0) {
+            return (
+                <div className="min-h-[50px] text-gray-400 text-center py-4">{type === "__body" ? "Page Body - Drop elements here" : "Empty Container"}</div>
+            );
+        }
+
+        return content.map((childElement, index) => {
+            return <Recursive key={childElement.id} element={childElement} containerId={id} index={index} layout={layout} />;
+        });
+    }, [content, type, id, layout]);
+
+    const containerClasses = useMemo(
+        () =>
+            clsx("relative group", getBorderClasses(), {
+                "max-w-full w-full": type === "container" || type === "2Col",
+                "h-fit": type === "container",
+                "h-full": type === "__body",
+                "overflow-y-auto": type === "__body",
+                "cursor-grabbing": isDragging,
+                "opacity-50": isDragging,
+                "outline-dashed outline-2 outline-blue-500": isSelected && isEditMode,
+                "ring-2 ring-blue-500 ring-offset-2": isSelected && isEditMode && type !== "__body",
+            }),
+        [type, isDragging, isSelected, isEditMode]
+    );
+
+    if (isDragging) {
+        return <DragPlaceholder style={computedStyles} height={containerHeight} />;
+    }
+
+    return (
+        <EditorElementWrapper element={liveElement}>
+            <div
+                ref={setNodeRef}
+                style={computedStyles}
+                className={containerClasses}
+                onClick={handleContainerClick}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                data-element-id={id}
+                {...(type !== "__body" && isEditMode ? listeners : {})}
+                {...(type !== "__body" && isEditMode ? attributes : {})}
+            >
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
+                {childContent}
+                {isSelected && isEditMode && type !== "__body" && <DeleteElementButton element={liveElement} />}
+            </div>
+        </EditorElementWrapper>
+    );
+});
+
+export default Container;

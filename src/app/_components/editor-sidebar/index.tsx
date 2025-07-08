@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import ComponentsTab from "./tabs/placeholder-elements";
 import TabList from "./tabs";
 import MediaBucketTab from "./tabs/media-bucket-tab";
-import LayersTab from "./tabs/layers-tab";
+import LayersTab from "../layers-tab/layers-tab";
 import { SettingsTab } from "./tabs/settings-tab";
 import EditorSidebarProvider from "@/providers/editor/editor-sidebar-provider";
 import { CustomTab } from "./tabs/custom-tab";
