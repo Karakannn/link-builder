@@ -1,7 +1,7 @@
 import { getAuthUserDetails, onAdminUser } from "@/actions/auth";
 import { getPageById, adminGetPageById } from "@/actions/page";
 import FunnelEditor from "@/app/_components/editor";
-import FunnelEditorNavigation from "@/app/_components/editor-navigation";
+import FunnelEditorNavigation from "@/app/_components/editor-navigation/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
 import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeholder-elements/drag-overlay-wrapper";
 import { DndContextProvider } from "@/providers/dnd-context-provider";
