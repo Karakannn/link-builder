@@ -1,7 +1,8 @@
 // src/app/_components/editor/_components-editor/recursive.tsx
-import React, { Suspense, memo } from "react";
+import React, { Profiler, Suspense, memo } from "react";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import { useLayout, Layout } from "@/hooks/use-layout";
+import { onRenderCallback } from "@/lib/utils";
 
 const TextComponent = React.lazy(() => import("./text"));
 const Container = React.lazy(() => import("./container").then(m => ({ default: m.Container })));
@@ -29,19 +30,19 @@ type Props = {
 const areElementsEqual = (prevProps: Props, nextProps: Props) => {
   // Element ID'si değişmişse re-render
   if (prevProps.element.id !== nextProps.element.id) return false;
-  
+
   // Styles değişmişse re-render
   if (JSON.stringify(prevProps.element.styles) !== JSON.stringify(nextProps.element.styles)) return false;
-  
+
   // Content değişmişse re-render
   if (JSON.stringify(prevProps.element.content) !== JSON.stringify(nextProps.element.content)) return false;
-  
+
   // Layout değişmişse re-render
   if (prevProps.layout !== nextProps.layout) return false;
-  
+
   // Type değişmişse re-render
   if (prevProps.element.type !== nextProps.element.type) return false;
-  
+
   return true;
 };
 
@@ -85,8 +86,9 @@ const Recursive = memo(({ element, containerId, index = 0, layout }: Props) => {
   };
 
   return (
+
     <Suspense fallback={<div className="animate-pulse bg-gray-200 h-8 rounded" />}>
-      {renderElement()}
+      <Profiler id={`Recursive-${element.type}`} onRender={onRenderCallback}> {renderElement()} </Profiler>
     </Suspense>
   );
 }, areElementsEqual);

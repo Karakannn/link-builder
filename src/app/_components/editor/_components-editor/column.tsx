@@ -4,13 +4,13 @@ import clsx from "clsx";
 import React, { useEffect, useState } from "react";
 import Recursive from "./recursive";
 import { CSS } from '@dnd-kit/utilities';
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { GripVertical } from "lucide-react";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { usePerformance } from "@/hooks/use-performance-hooks";
 
 type Props = {
   element: EditorElement;
@@ -28,13 +28,8 @@ export const ColumnComponent = ({
   
   const { id, name, type, content } = element;
   const { state } = useEditor();
-  const { handleSelectElement } = useElementSelection(element);
-  const { 
-    getBorderClasses, 
-    handleMouseEnter, 
-    handleMouseLeave,
-    isSelected 
-  } = useElementBorderHighlight(element);
+  const { selectElement } = useElementActions();
+  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
 
   const sortable = useSortable({
     id: id,
@@ -69,7 +64,6 @@ export const ColumnComponent = ({
   const childItems = Array.isArray(content) ? content.map(child => child.id) : [];
   
 
-  usePerformance('ColumnComponent');
   return (
     <EditorElementWrapper element={element}>
       <div
@@ -79,7 +73,7 @@ export const ColumnComponent = ({
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
-        onClick={handleSelectElement}
+        onClick={() => selectElement(element)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         data-element-id={id}

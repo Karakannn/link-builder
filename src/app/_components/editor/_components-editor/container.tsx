@@ -8,7 +8,8 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -22,13 +23,8 @@ type Props = {
 export const Container = ({ element, layout = 'vertical' }: Props) => {
   const { id, name, type, styles, content } = element;
   const { state } = useEditor();
-  const { handleSelectElement } = useElementSelection(element);
-  const { 
-    getBorderClasses, 
-    handleMouseEnter, 
-    handleMouseLeave,
-    isSelected 
-  } = useElementBorderHighlight(element);
+  const { selectElement } = useElementActions();
+  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
   const [measureRef, containerHeight] = useElementHeight(false);
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { getLayoutStyles } = useLayout();
@@ -49,7 +45,7 @@ export const Container = ({ element, layout = 'vertical' }: Props) => {
   const handleContainerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     console.log("🔧 Container clicked:", { id, name, type, styles });
-    handleSelectElement(e);
+    selectElement(element);
   };
 
   const computedStyles = expandSpacingShorthand({

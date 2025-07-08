@@ -1,4 +1,5 @@
 "use client";
+
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useEditor } from "@/providers/editor/editor-provider";
@@ -13,25 +14,19 @@ import { SettingsTab } from "./tabs/settings-tab";
 import EditorSidebarProvider from "@/providers/editor/editor-sidebar-provider";
 import { CustomTab } from "./tabs/custom-tab";
 import { CustomCSSTab } from "./tabs/custom-css-tab";
+import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
 
 type Props = {
     userId: string;
 };
 
 const FunnelEditorSidebar = ({ userId }: Props) => {
-    const { state, dispatch } = useEditor();
 
-    const handleToggleLayerSidebar = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        console.log("🔧 Toggle Layer Sidebar clicked, current state:", state.editor.layerSidebarCollapsed);
-        dispatch({
-            type: "TOGGLE_LAYER_SIDEBAR",
-        });
-    };
+    const { state } = useEditor();
+    const { toggleLayerSidebar } = useUIActions();
 
     return (
         <>
-            {/* Sol Sidebar - Layers Panel */}
             <div
                 className={clsx("fixed left-0 mt-[97px] z-[40] shadow-none bg-background border-r border-border transition-all overflow-hidden", {
                     "w-80": !state.editor.layerSidebarCollapsed,
@@ -53,20 +48,15 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                         </>
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full">
-                            <button
-                                onClick={handleToggleLayerSidebar}
-                                className="p-2 hover:bg-accent rounded-md transition-colors"
-                                title="Expand Layers"
-                            >
+                            <button onClick={toggleLayerSidebar} className="p-2 hover:bg-accent rounded-md transition-colors" title="Expand Layers">
                                 <ChevronRight size={20} className="text-muted-foreground" />
                             </button>
                         </div>
                     )}
-                    
-                    {/* Toggle Button - Always visible */}
+
                     <div className="absolute top-4 right-2 z-[9999]">
                         <button
-                            onClick={handleToggleLayerSidebar}
+                            onClick={toggleLayerSidebar}
                             className="p-2 hover:bg-accent rounded-md transition-colors bg-background shadow-sm border border-border"
                             title={state.editor.layerSidebarCollapsed ? "Expand Layers" : "Collapse Layers"}
                         >
@@ -80,7 +70,6 @@ const FunnelEditorSidebar = ({ userId }: Props) => {
                 </div>
             </div>
 
-            {/* Sağ Sidebar - Ana Panel */}
             <Sheet open={true} modal={false}>
                 <Tabs className="w-full" defaultValue="Settings">
                     <SheetContent

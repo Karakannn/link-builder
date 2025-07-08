@@ -3,6 +3,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, C
 import { Copy, Trash2, Eye, EyeOff, Settings, CopyIcon } from "lucide-react";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { v4 } from "uuid";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 
 interface ElementContextMenuProps {
   element: EditorElement;
@@ -11,6 +12,7 @@ interface ElementContextMenuProps {
 
 const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
   const { state, dispatch } = useEditor();
+  const { selectElement } = useElementActions();
 
   // Element'in parent container'ını ve index'ini bul
   const findParentContainer = (targetElementId: string, elements: EditorElement[]): { containerId: string; index: number } | null => {
@@ -150,10 +152,7 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
   };
 
   const handleOpenSettings = () => {
-    dispatch({
-      type: "CHANGE_CLICKED_ELEMENT",
-      payload: { elementDetails: element },
-    });
+    selectElement(element);
   };
 
   const isHidden = element.styles.display === "none";

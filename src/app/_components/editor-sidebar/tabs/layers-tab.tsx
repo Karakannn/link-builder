@@ -5,6 +5,7 @@ import React, { useEffect } from "react";
 import clsx from "clsx";
 import { ChevronDown, ChevronRight, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 
 // Map element types to friendly names and colors
 const elementTypeInfo: Record<string, { name: string; color: string }> = {
@@ -25,11 +26,12 @@ const elementTypeInfo: Record<string, { name: string; color: string }> = {
 // This is a complete implementation of the layers tab that shows elements in a hierarchical tree view
 // with expand/collapse functionality, visual indicators, and synchronization with the editor's selected element.
 const LayersTab = () => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
+    const { selectElement } = useElementActions();
     const [expandedLayers, setExpandedLayers] = React.useState<Record<string, boolean>>({
         __body: true, // Body is expanded by default
     });
-    
+
     // Auto-expand parents when an element is selected
     useEffect(() => {
         if (state.editor.selectedElement.id) {
@@ -39,7 +41,7 @@ const LayersTab = () => {
                     if (element.id === targetId) {
                         return [...path, element.id];
                     }
-                    
+
                     if (Array.isArray(element.content)) {
                         const result = findPathToElement(element.content, targetId, [...path, element.id]);
                         if (result) return result;
@@ -47,14 +49,14 @@ const LayersTab = () => {
                 }
                 return null;
             };
-            
+
             const path = findPathToElement(state.editor.elements, state.editor.selectedElement.id);
-            
+
             if (path) {
                 // Expand all parents
-                setExpandedLayers(prev => {
+                setExpandedLayers((prev) => {
                     const newState = { ...prev };
-                    path.forEach(id => {
+                    path.forEach((id) => {
                         newState[id] = true;
                     });
                     return newState;
@@ -71,12 +73,7 @@ const LayersTab = () => {
     };
 
     const handleElementClick = (element: EditorElement) => {
-        dispatch({
-            type: "CHANGE_CLICKED_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
+        selectElement(element);
     };
 
     const getTypeInfo = (type: string | null) => {
@@ -92,7 +89,7 @@ const LayersTab = () => {
 
         return (
             <div key={element.id} className="relative">
-                <div 
+                <div
                     className={clsx(
                         "flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer rounded-md transition-colors my-0.5 group",
                         {
@@ -103,14 +100,11 @@ const LayersTab = () => {
                     onClick={() => handleElementClick(element)}
                 >
                     {/* Element type indicator bar */}
-                    <div 
-                        className={clsx("absolute left-1 h-4 w-1 rounded-full opacity-70", typeInfo.color)}
-                        style={{ left: `${depth * 10 + 3}px` }}
-                    />
-                    
+                    <div className={clsx("absolute left-1 h-4 w-1 rounded-full opacity-70", typeInfo.color)} style={{ left: `${depth * 10 + 3}px` }} />
+
                     {/* Expand/collapse button */}
                     {hasChildren && (
-                        <button 
+                        <button
                             className="mr-1 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500"
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -121,40 +115,33 @@ const LayersTab = () => {
                         </button>
                     )}
                     {!hasChildren && <div className="w-4 h-4" />}
-                    
+
                     {/* Element type icon and name */}
-                    <span 
+                    <span
                         className={clsx("truncate text-xs flex-1", {
-                            "font-medium": isSelected
+                            "font-medium": isSelected,
                         })}
                     >
                         {element.name}
                     </span>
-                    
+
                     {/* Element type badge */}
-                    <span className={clsx(
-                        "text-xs text-white rounded px-1 py-0.5 ml-1 opacity-80 whitespace-nowrap", 
-                        typeInfo.color
-                    )}>
-                        {typeInfo.name}
-                    </span>
+                    <span className={clsx("text-xs text-white rounded px-1 py-0.5 ml-1 opacity-80 whitespace-nowrap", typeInfo.color)}>{typeInfo.name}</span>
                 </div>
-                
+
                 {/* Child elements */}
                 {hasChildren && isExpanded && (
                     <div className="relative">
                         {/* Vertical guide line */}
-                        <div 
+                        <div
                             className="absolute w-px bg-gray-300 dark:bg-gray-700"
-                            style={{ 
+                            style={{
                                 left: `${depth * 10 + 15}px`,
-                                top: '0px',
-                                height: '100%'
+                                top: "0px",
+                                height: "100%",
                             }}
                         />
-                        <div>
-                            {Array.isArray(element.content) && element.content.map((child: EditorElement) => renderElement(child, depth + 1))}
-                        </div>
+                        <div>{Array.isArray(element.content) && element.content.map((child: EditorElement) => renderElement(child, depth + 1))}</div>
                     </div>
                 )}
             </div>
@@ -170,10 +157,8 @@ const LayersTab = () => {
                     {countElements(state.editor.elements)}
                 </Badge>
             </div>
-            
-            <div className="flex-1 overflow-auto pr-2">
-                {state.editor.elements.map((element) => renderElement(element))}
-            </div>
+
+            <div className="flex-1 overflow-auto pr-2">{state.editor.elements.map((element) => renderElement(element))}</div>
         </div>
     );
 };
@@ -181,14 +166,14 @@ const LayersTab = () => {
 // Helper to count total elements
 function countElements(elements: EditorElement[]): number {
     let count = elements.length;
-    
+
     for (const element of elements) {
         if (Array.isArray(element.content)) {
             count += countElements(element.content);
         }
     }
-    
+
     return count;
 }
 
-export default LayersTab; 
+export default LayersTab;

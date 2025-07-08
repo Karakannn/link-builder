@@ -9,9 +9,11 @@ import Image from "next/image";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useLayout, Layout } from "@/hooks/use-layout";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { cn } from "@/lib/utils";
 
 type Props = {
   element: EditorElement;
@@ -30,8 +32,8 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
   const { state } = useEditor();
   const { id, name, type, styles, content } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-  const { handleSelectElement } = useElementSelection(element);
-  const { getBorderClasses } = useElementBorderHighlight(element);
+  const { selectElement } = useElementActions();
+  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
 
   // Get computed styles based on current device
   const computedStyles = getElementStyles(element, state.editor.device);
@@ -102,19 +104,16 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
     <ElementContextMenu element={element}>
     <div
       ref={sortable.setNodeRef}
-      style={{
-        ...computedStyles,
-        transform: CSS.Transform.toString(sortable.transform),
-        transition: sortable.transition,
-      }}
-      className={clsx("relative", getBorderClasses(), {
-        "cursor-grabbing": sortable.isDragging,
-        "opacity-50": sortable.isDragging,
-      })}
-      onClick={handleSelectElement}
+      style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
+      className={cn(
+        "relative group",
+        getBorderClasses(),
+        sortable.isDragging && "opacity-50"
+      )}
+      onClick={() => selectElement(element)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       data-element-id={id}
-      {...(!state.editor.liveMode ? sortable.listeners : {})}
-      {...(!state.editor.liveMode ? sortable.attributes : {})}
     >
         {showSpacingGuides && (
           <SpacingVisualizer styles={computedStyles} />

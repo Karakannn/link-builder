@@ -10,6 +10,7 @@ import { OverlayProvider } from "@/providers/overlay-provider";
 import { getSiteOverlaySettings } from "@/actions/landing-modal";
 import { ResponsiveDeviceDetector } from "@/components/global/responsive-device-detector";
 import { GoogleAnalytics } from "@/app/custom-domain/[domain]/_components/google-analytics";
+import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
 
 interface LivePreviewWrapperProps {
     pageContent: EditorElement[];
@@ -22,27 +23,32 @@ interface LivePreviewWrapperProps {
 }
 
 export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }: LivePreviewWrapperProps) {
-    const { dispatch, state } = useEditor();
+    
+    const {  state } = useEditor();
+    
+    const { toggleLiveMode, togglePreviewMode } = useUIActions();
     const [overlaySettings, setOverlaySettings] = useState<{
         enableOverlay: boolean;
-        overlayType: 'LANDING_MODAL' | 'LIVE_STREAM_CARD';
+        overlayType: "LANDING_MODAL" | "LIVE_STREAM_CARD";
         selectedModalId: string | null;
         liveStreamLink?: string | null;
         googleAnalyticsId?: string | null;
-    } | null>(initialModalSettings ? {
-        enableOverlay: initialModalSettings.enableLandingModal,
-        overlayType: 'LANDING_MODAL',
-        selectedModalId: initialModalSettings.selectedModalId,
-        liveStreamLink: null,
-        googleAnalyticsId: initialModalSettings.googleAnalyticsId
-    } : null);
+    } | null>(
+        initialModalSettings
+            ? {
+                  enableOverlay: initialModalSettings.enableLandingModal,
+                  overlayType: "LANDING_MODAL",
+                  selectedModalId: initialModalSettings.selectedModalId,
+                  liveStreamLink: null,
+                  googleAnalyticsId: initialModalSettings.googleAnalyticsId,
+              }
+            : null
+    );
 
     useEffect(() => {
-        // Live mode'u aktif et
-        dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: true } });
-        // Preview mode'u aktif et
-        dispatch({ type: "TOGGLE_PREVIEW_MODE" });
-        
+        toggleLiveMode(true);
+        togglePreviewMode();
+
         // Eğer initialModalSettings yoksa, client-side'da yükle
         if (!initialModalSettings) {
             const loadOverlaySettings = async () => {
@@ -54,7 +60,7 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
                             overlayType: result.settings.overlayType,
                             selectedModalId: result.settings.selectedModalId,
                             liveStreamLink: result.settings.liveStreamLink,
-                            googleAnalyticsId: result.settings.googleAnalyticsId
+                            googleAnalyticsId: result.settings.googleAnalyticsId,
                         });
                     }
                 } catch (error) {
@@ -69,10 +75,10 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
         window.close();
     };
 
-    const shouldShowOverlay = overlaySettings?.enableOverlay && (
-        (overlaySettings?.overlayType === 'LANDING_MODAL' && overlaySettings?.selectedModalId) ||
-        (overlaySettings?.overlayType === 'LIVE_STREAM_CARD' && overlaySettings?.liveStreamLink)
-    );
+    const shouldShowOverlay =
+        overlaySettings?.enableOverlay &&
+        ((overlaySettings?.overlayType === "LANDING_MODAL" && overlaySettings?.selectedModalId) ||
+            (overlaySettings?.overlayType === "LIVE_STREAM_CARD" && overlaySettings?.liveStreamLink));
 
     // Device icon component
     const getDeviceIcon = () => {
@@ -95,18 +101,11 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
                         {/* Device indicator */}
                         <div className="flex items-center gap-2 px-3 py-2 bg-background/80 backdrop-blur-sm rounded-lg border border-border shadow-sm">
                             {getDeviceIcon()}
-                            <span className="text-sm font-medium text-foreground">
-                                {state.editor.device}
-                            </span>
+                            <span className="text-sm font-medium text-foreground">{state.editor.device}</span>
                         </div>
-                        
+
                         {/* Close button */}
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={handleClose}
-                            className="gap-2"
-                        >
+                        <Button variant="secondary" size="sm" onClick={handleClose} className="gap-2">
                             <X className="h-4 w-4" />
                             Kapat
                         </Button>
@@ -114,20 +113,13 @@ export function LivePreviewWrapper({ pageContent, siteId, initialModalSettings }
 
                     {/* Live preview */}
                     <div className="w-full h-full">
-                        <FunnelEditor 
-                            pageDetails={pageContent} 
-                            liveMode={true}
-                        />
+                        <FunnelEditor pageDetails={pageContent} liveMode={true} />
                     </div>
 
                     {/* Google Analytics - sadece gerekirse render et */}
-                    {overlaySettings?.googleAnalyticsId && (
-                        <GoogleAnalytics 
-                            googleAnalyticsId={overlaySettings.googleAnalyticsId}
-                        />
-                    )}
+                    {overlaySettings?.googleAnalyticsId && <GoogleAnalytics googleAnalyticsId={overlaySettings.googleAnalyticsId} />}
                 </div>
             </ResponsiveDeviceDetector>
         </OverlayProvider>
     );
-} 
+}

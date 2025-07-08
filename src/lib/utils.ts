@@ -189,3 +189,19 @@ export const getIcon = (iconName: string) => {
   }
   return icons[iconName as keyof typeof icons]
 }
+
+export const onRenderCallback = (
+  id: string, // Profiler tree'nin "id" prop'u 
+  phase: string, // "mount" (ilk render) veya "update" (re-render) 
+  actualDuration: number, // Bu update'i render etmek için harcanan süre 
+  baseDuration: number, // Optimize olmadan render süresi 
+  startTime: number, // React bu update'i render etmeye başladığı zaman 
+  commitTime: number, // React bu update'i commit ettiği zaman 
+) => {
+
+  console.log(`🔍 Profiler [${id}]:`, { phase, actualDuration: `${actualDuration.toFixed(2)}ms`, baseDuration: `${baseDuration.toFixed(2)}ms`, startTime: `${startTime.toFixed(2)}ms`, commitTime: `${commitTime.toFixed(2)}ms`, }); // Yavaş render'ları yakala 
+  if (actualDuration > 16) {
+    // 60fps için 16ms limit 
+    console.warn(`⚠️ Slow render detected in ${id}: ${actualDuration.toFixed(2)}ms`);
+  }
+};

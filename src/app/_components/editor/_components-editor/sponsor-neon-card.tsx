@@ -12,8 +12,10 @@ import DeleteElementButton from "@/components/global/editor-element/delete-eleme
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer"
 import { SponsorNeonCard } from "@/components/ui/sponsor-neon-card"
 import clsx from "clsx"
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection"
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions"
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight"
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable"
+import { cn } from "@/lib/utils"
 
 interface Props {
   element: EditorElement
@@ -24,10 +26,8 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
   const { state } = useEditor()
   const { id, styles, content, type } = element
   const [showSpacingGuides, setShowSpacingGuides] = useState(false)
-  const { handleSelectElement } = useElementSelection(element)
+  const { selectElement } = useElementActions()
   const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element)
-
-
 
   const sortable = useSortable({
     id: id,
@@ -62,8 +62,6 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
     parsedBorderRadius = borderRadius;
   }
 
-
-
   useEffect(() => {
     setShowSpacingGuides(
       state.editor.selectedElement.id === id && !state.editor.liveMode
@@ -83,7 +81,7 @@ const SponsorNeonCardComponent = ({ element, layout = 'vertical' }: Props) => {
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
-        onClick={handleSelectElement}
+        onClick={() => selectElement(element)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         data-element-id={id}

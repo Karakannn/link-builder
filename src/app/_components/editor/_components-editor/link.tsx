@@ -8,7 +8,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 
 type Props = {
     element: EditorElement;
@@ -19,8 +20,8 @@ const LinkComponent = ({ element }: Props) => {
     const { id, styles, content, type } = element;
     const linkRef = useRef<HTMLAnchorElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { handleSelectElement } = useElementSelection(element);
-    const { getBorderClasses } = useElementBorderHighlight(element);
+    const { selectElement } = useElementActions();
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -81,7 +82,9 @@ const LinkComponent = ({ element }: Props) => {
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
-                onClick={handleSelectElement}
+                onClick={() => selectElement(element)}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 data-element-id={id}
                 {...(!state.editor.liveMode ? sortable.listeners : {})}
                 {...(!state.editor.liveMode ? sortable.attributes : {})}
@@ -101,7 +104,7 @@ const LinkComponent = ({ element }: Props) => {
                     onClick={(e) => {
                         if (!state.editor.liveMode) {
                             e.stopPropagation();
-                            handleSelectElement(e as any);
+                            selectElement(element);
                         }
                     }}
                 />

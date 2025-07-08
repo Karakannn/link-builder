@@ -7,7 +7,8 @@ import { CSS } from '@dnd-kit/utilities';
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 
 type Props = {
     element: EditorElement;
@@ -19,7 +20,7 @@ const TextComponent = ({ element }: Props) => {
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { handleSelectElement } = useElementSelection(element);
+    const { selectElement } = useElementActions();
     const { 
         getBorderClasses, 
         handleMouseEnter, 
@@ -92,7 +93,7 @@ const TextComponent = ({ element }: Props) => {
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
                 })}
-                onClick={handleSelectElement}
+                onClick={() => selectElement(element)}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
@@ -114,7 +115,7 @@ const TextComponent = ({ element }: Props) => {
                     onClick={(e) => {
                         if (!state.editor.liveMode) {
                             e.stopPropagation();
-                            handleSelectElement(e as any);
+                            selectElement(element);
                         }
                     }}
                 />

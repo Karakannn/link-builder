@@ -9,7 +9,8 @@ import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
 import { Play, Pause, Video as VideoIcon } from "lucide-react";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 
 type Props = {
     element: EditorElement;
@@ -19,8 +20,8 @@ const VideoComponent = ({ element }: Props) => {
     const { state, dispatch } = useEditor();
     const { id, name, type, styles, content } = element;
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { handleSelectElement } = useElementSelection(element);
-    const { getBorderClasses } = useElementBorderHighlight(element);
+    const { selectElement } = useElementActions();
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
     
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
@@ -53,19 +54,16 @@ const VideoComponent = ({ element }: Props) => {
     return (
         <div
             ref={sortable.setNodeRef}
-            style={{
-                ...computedStyles,
-                transform: CSS.Transform.toString(sortable.transform),
-                transition: sortable.transition,
-            }}
-            className={clsx("relative", getBorderClasses(), {
-                "cursor-grabbing": sortable.isDragging,
-                "opacity-50": sortable.isDragging,
-            })}
-            onClick={handleSelectElement}
+            style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
+            className={clsx(
+                "relative group",
+                getBorderClasses(),
+                sortable.isDragging && "opacity-50"
+            )}
+            onClick={() => selectElement(element)}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
             data-element-id={id}
-            {...(!state.editor.liveMode ? sortable.listeners : {})}
-            {...(!state.editor.liveMode ? sortable.attributes : {})}
         >
             {showSpacingGuides && (
                 <SpacingVisualizer styles={computedStyles} />

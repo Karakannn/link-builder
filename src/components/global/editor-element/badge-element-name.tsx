@@ -1,6 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import React from "react";
 import { Type, Square, Grid3X3, Image, Link, Video, FileImage, CreditCard, ArrowRight } from "lucide-react";
 

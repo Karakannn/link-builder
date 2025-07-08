@@ -7,7 +7,8 @@ import { SortableContext, horizontalListSortingStrategy, useSortable } from "@dn
 import { CSS } from '@dnd-kit/utilities';
 import { useElementHeight } from "@/hooks/editor/use-element-height";
 import { DragPlaceholder } from "./drag-placeholder";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -19,8 +20,8 @@ type Props = {
 export const GridLayoutComponent = ({ element }: Props) => {
   const { id, name, type, content } = element;
   const { state } = useEditor();
-  const { handleSelectElement } = useElementSelection(element);
-  const { getBorderClasses } = useElementBorderHighlight(element);
+  const { selectElement } = useElementActions();
+  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
   const [measureRef, containerHeight] = useElementHeight(false);
 
   const sortable = useSortable({
@@ -87,7 +88,9 @@ export const GridLayoutComponent = ({ element }: Props) => {
           "cursor-grabbing": sortable.isDragging,
           "opacity-50": sortable.isDragging,
         })}
-        onClick={handleSelectElement}
+        onClick={() => selectElement(element)}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         data-element-id={id}
         {...(!state.editor.liveMode ? sortable.listeners : {})}
         {...(!state.editor.liveMode ? sortable.attributes : {})}
