@@ -1,8 +1,6 @@
 "use client";
 
 import { EditorElement } from "@/providers/editor/editor-provider";
-import { useEditor } from "@/providers/editor/editor-provider";
-import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import { cn } from "@/lib/utils";
 import { getElementStyles } from "@/lib/utils";
 import { X } from "lucide-react";
@@ -10,12 +8,11 @@ import Recursive from "@/app/_components/editor/_components-editor/recursive";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { useLayout, Layout } from "@/hooks/use-layout";
 import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 import { usePreviewMode, useLiveMode, useDevice } from "@/providers/editor/editor-ui-context";
 import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
-import { useElementSelection } from "@/hooks/editor/use-element-selection";
+import { useElementBorderHighlight, useElementSelection } from "@/hooks/editor/use-element-selection";
 
 interface ClosableContainerProps {
     element: EditorElement;
@@ -25,10 +22,10 @@ interface ClosableContainerProps {
 export const ClosableContainer = ({ element, layout = "vertical" }: ClosableContainerProps) => {
     const [mounted, setMounted] = useState(false);
     const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
-    const { getLayoutStyles } = useLayout();
     const { deleteElement } = useElementActions();
     const { handleSelectElement } = useElementSelection(element);
-    // Add droppable functionality
+    const { handleMouseEnter, handleMouseLeave } = useElementBorderHighlight(element);
+
     const droppable = useDroppable({
         id: `droppable-${element.id}`,
         data: {
@@ -43,7 +40,6 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
 
     useEffect(() => {
         setMounted(true);
-        // Find the editor body container for absolute positioning
         const bodyContainer = document.querySelector('[data-body-container="true"]');
 
         if (bodyContainer) {
@@ -60,35 +56,13 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
     const isAbsolute = element.styles.position === "absolute";
     const isPreviewMode = previewMode || liveMode;
 
-    // Get computed styles with custom CSS and responsive styles
     const computedStyles = getElementStyles(element, device);
 
-    // Container content without custom styles (only layout styles)
-    const containerContent = (
-        <div
-            style={{
-                maxWidth: isPreviewMode ? "none" : isAbsolute ? "calc(100vw - 400px)" : computedStyles.maxWidth,
-                maxHeight: isPreviewMode ? "none" : isAbsolute ? "calc(100vh - 200px)" : computedStyles.maxHeight,
-                position: isAbsolute ? "absolute" : computedStyles.position,
-                top: computedStyles.top,
-                left: computedStyles.left,
-                right: computedStyles.right,
-                bottom: computedStyles.bottom,
-                zIndex: computedStyles.zIndex || (isAbsolute ? 10 : "auto"),
-                ...getLayoutStyles(layout), // Layout stillerini ekle
-            }}
-            className={cn("min-h-[50px] min-w-[100px]", isSelected && !isPreviewMode && "outline-dashed outline-2 outline-blue-500")}
-        >
-            {Array.isArray(element.content) && element.content.map((childElement) => <Recursive key={childElement.id} element={childElement} />)}
-        </div>
-    );
-
-    // For absolute positioning, use portal to render at editor body container level
     if (isAbsolute && mounted && portalContainer) {
-        const childItems = Array.isArray(element.content) ? element.content.map((child) => child.id) : [];
 
         const portalContent = (
             <div
+
                 ref={droppable.setNodeRef}
                 className={cn(
                     "group relative",
@@ -102,7 +76,7 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
                     droppable.isOver && !isPreviewMode && "!border-green-500 !border-2 !bg-green-50/50"
                 )}
                 style={{
-                    ...computedStyles, // Custom CSS buraya uygulanıyor
+                    ...computedStyles,
                     position: "absolute",
                     top: computedStyles.top,
                     left: computedStyles.left,
@@ -114,6 +88,9 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
                     maxHeight: "100%",
                 }}
                 onClick={handleSelectElement}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                data-element-id={element.id}
             >
                 {/* Close button - show in both edit and live mode */}
                 {(isSelected || isPreviewMode) && (
@@ -186,6 +163,9 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
             )}
             style={computedStyles} // Custom CSS buraya uygulanıyor
             onClick={handleSelectElement}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+            data-element-id={element.id}
         >
             {/* Close button - show in both edit and live mode */}
             {(isSelected || isPreviewMode) && (

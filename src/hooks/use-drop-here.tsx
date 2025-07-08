@@ -87,6 +87,12 @@ export const useDropHere = () => {
             return;
         }
 
+        // Don't show global drop here for closableContainer since it has its own drop indicator
+       /*  if (overType === 'closableContainer') {
+            setDropHereState(initialDropHereState);
+            return;
+        } */
+
         const draggedElementId = active.data?.current?.elementId || active.id;
         const cleanDraggedId = String(draggedElementId).replace('draggable-', '');
         const zoneData = analyzeDropZone(event, targetId);
