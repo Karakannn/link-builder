@@ -157,11 +157,9 @@ export const ClosableContainer = ({ element, layout = "vertical" }: ClosableCont
                     className={cn("min-h-[50px] min-w-[100px]", isSelected && !isPreviewMode && "outline-dashed outline-2 outline-blue-500")}
                 >
                     {Array.isArray(element.content) && element.content.length > 0 && (
-                        <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
-                            {element.content.map((childElement) => (
-                                <Recursive key={childElement.id} element={childElement} />
-                            ))}
-                        </SortableContext>
+                        element.content.map((childElement) => (
+                            <Recursive key={childElement.id} element={childElement} />
+                        ))
                     )}
 
                     {Array.isArray(element.content) && element.content.length === 0 && (

@@ -90,11 +90,9 @@ export const ColumnComponent = ({ element, gridSpan = 1, totalGridColumns = 12, 
                 )}
 
                 {Array.isArray(content) && content.length > 0 && (
-                    <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
-                        {content.map((childElement, index) => (
-                            <Recursive key={childElement.id} element={childElement} />
-                        ))}
-                    </SortableContext>
+                    content.map((childElement, index) => (
+                        <Recursive key={childElement.id} element={childElement} />
+                    ))
                 )}
 
                 <DeleteElementButton element={element} />

@@ -168,12 +168,10 @@ const SponsorNeonCardComponent = memo(({ element, layout = "vertical" }: Props) 
 
             console.log(`✅ Rendering ${content.length} children for ${id}`);
             return (
-                <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
-                    {content.map((childElement, index) => {
-                        console.log(`🔄 Rendering child ${index}: ${childElement.type} - ${childElement.id}`);
-                        return <Recursive key={childElement.id} element={childElement} containerId={id} index={index} layout={layout} />;
-                    })}
-                </SortableContext>
+                content.map((childElement, index) => {
+                    console.log(`🔄 Rendering child ${index}: ${childElement.type} - ${childElement.id}`);
+                    return <Recursive key={childElement.id} element={childElement} containerId={id} index={index} layout={layout} />;
+                })
             );
         }, [content, childItems, id, layout]);
 

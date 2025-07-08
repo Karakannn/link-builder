@@ -74,11 +74,9 @@ export const BodyContainer = ({ element }: BodyContainerProps) => {
 
             {/* Content */}
             {Array.isArray(content) && content.length > 0 && (
-                <SortableContext items={childItems} strategy={verticalListSortingStrategy}>
-                    {content.map((childElement) => (
-                        <Recursive key={childElement.id} element={childElement} />
-                    ))}
-                </SortableContext>
+                content.map((childElement) => (
+                    <Recursive key={childElement.id} element={childElement} />
+                ))
             )}
 
             {Array.isArray(content) && content.length === 0 && <div className="min-h-[50px] text-gray-400 text-center py-4">Drop elements here</div>}
