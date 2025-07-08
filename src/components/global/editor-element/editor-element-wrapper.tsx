@@ -4,6 +4,7 @@ import React from "react";
 import { useEditor } from "@/providers/editor/editor-provider";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { useLiveMode } from "@/providers/editor/editor-ui-context";
 
 interface EditorElementWrapperProps {
     element: EditorElement;
@@ -11,9 +12,10 @@ interface EditorElementWrapperProps {
 }
 
 export function EditorElementWrapper({ element, children }: EditorElementWrapperProps) {
-    const { state } = useEditor();
 
-    if (state.editor.liveMode) {
+    const liveMode = useLiveMode();
+
+    if (liveMode) {
         return <>{children}</>;
     }
 

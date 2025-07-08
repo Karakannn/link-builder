@@ -2,20 +2,22 @@
 
 import { useEffect } from "react";
 import { useEditor } from "@/providers/editor/editor-provider";
+import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
+import { useDevice } from "@/providers/editor/editor-ui-context";
 
 interface ResponsiveDeviceDetectorProps {
     children: React.ReactNode;
 }
 
 export function ResponsiveDeviceDetector({ children }: ResponsiveDeviceDetectorProps) {
-    const { dispatch, state } = useEditor();
+    const { changeDevice } = useUIActions();
+    const device = useDevice();
 
-    // Responsive device detection for live preview and custom domain pages
     useEffect(() => {
         const updateDeviceBasedOnWindowSize = () => {
             const windowWidth = window.innerWidth;
             let newDevice: "Desktop" | "Tablet" | "Mobile" = "Desktop";
-            
+
             if (windowWidth <= 768) {
                 newDevice = "Mobile";
             } else if (windowWidth <= 1024) {
@@ -23,24 +25,21 @@ export function ResponsiveDeviceDetector({ children }: ResponsiveDeviceDetectorP
             } else {
                 newDevice = "Desktop";
             }
-            
-            // Only update if device changed
-            if (state.editor.device !== newDevice) {
-                dispatch({ type: "CHANGE_DEVICE", payload: { device: newDevice } });
+
+            if (device !== newDevice) {
+                changeDevice;
+                newDevice;
             }
         };
 
-        // Initial device detection
         updateDeviceBasedOnWindowSize();
 
-        // Listen for window resize events
-        window.addEventListener('resize', updateDeviceBasedOnWindowSize);
-        
-        // Cleanup
+        window.addEventListener("resize", updateDeviceBasedOnWindowSize);
+
         return () => {
-            window.removeEventListener('resize', updateDeviceBasedOnWindowSize);
+            window.removeEventListener("resize", updateDeviceBasedOnWindowSize);
         };
-    }, [dispatch, state.editor.device]);
+    }, [changeDevice, device]);
 
     return <>{children}</>;
-} 
+}

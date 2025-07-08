@@ -1,85 +1,85 @@
-import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
-import { getElementStyles, getElementContent } from "@/lib/utils";
-import clsx from "clsx";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
+import clsx from "clsx";
+
+import type { EditorElement } from "@/providers/editor/editor-provider";
+import { getElementStyles, getElementContent } from "@/lib/utils";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useIsEditMode, useDevice } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
 };
 
-const TextComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+const TextComponent = memo(({ element }: Props) => {
     const { id, styles, content, type } = element;
+
+    const isSelected = useIsElementSelected(id);
+    const isEditMode = useIsEditMode();
+    const device = useDevice();
+    const { updateElement } = useElementActions();
+
     const spanRef = useRef<HTMLSpanElement | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { handleSelectElement } = useElementSelection(element);
-    const { 
-        getBorderClasses, 
-        handleMouseEnter, 
-        handleMouseLeave,
-        isSelected 
-    } = useElementBorderHighlight(element);
-    
-    // Get computed content based on current device
-    const computedContent = getElementContent(element, state.editor.device);
-    
+
+    const sortableConfig = useMemo(() => {
+        return {
+            id: id,
+            data: {
+                type: type,
+                elementId: id,
+                name: "Text",
+                isSidebarElement: false,
+                isEditorElement: true,
+            },
+            disabled: !isEditMode,
+        };
+    }, [id, type, isEditMode]);
+
     // dnd-kit sortable
-    const sortable = useSortable({
-        id: id,
-        data: {
-            type: type,
-            elementId: id,
-            name: "Text",
-            isSidebarElement: false,
-            isEditorElement: true,
-        },
-        disabled: state.editor.liveMode,
-    });
+    const sortable = useSortable(sortableConfig);
 
-    // Get computed styles based on current device
-    const computedStyles = {
-        ...getElementStyles(element, state.editor.device),
-        transform: CSS.Transform.toString(sortable.transform),
-        transition: sortable.transition,
-    };
+    const computedContent = useMemo(() => {
+        return getElementContent(element, device);
+    }, [element, device]);
 
-    const handleBlurElement = () => {
-        if (spanRef.current) {
-            dispatch({
-                type: "UPDATE_ELEMENT",
-                payload: {
-                    elementDetails: {
-                        ...element,
-                        content: {
-                            ...computedContent,
-                            innerText: spanRef.current.innerText,
-                        },
-                    },
+    const computedStyles = useMemo(() => {
+        return {
+            ...getElementStyles(element, device),
+            transform: CSS.Transform.toString(sortable.transform),
+            transition: sortable.transition,
+        };
+    }, [element, device, sortable.transform, sortable.transition]);
+
+    const handleBlurElement = useCallback(() => {
+        if (spanRef.current && isEditMode) {
+            updateElement({
+                ...element,
+                content: {
+                    ...computedContent,
+                    innerText: spanRef.current.innerText,
                 },
             });
         }
-    };
+    }, [updateElement, element, computedContent, isEditMode]);
 
     useEffect(() => {
         if (spanRef.current && !Array.isArray(computedContent)) {
             spanRef.current.innerText = computedContent.innerText as string;
         }
-    }, [computedContent]);
+    }, [computedContent, id]);
 
     useEffect(() => {
-        setShowSpacingGuides(
-            isSelected && !state.editor.liveMode
-        );
-    }, [isSelected, state.editor.liveMode]);
+        setShowSpacingGuides(isSelected && isEditMode);
+    }, [isSelected, isEditMode]);
 
-    // Extract text properties from content
     const textProps = !Array.isArray(computedContent) ? computedContent : {};
     const innerText = textProps.innerText || "Sponsor Title";
 
@@ -88,42 +88,34 @@ const TextComponent = ({ element }: Props) => {
             <div
                 ref={sortable.setNodeRef}
                 style={computedStyles}
-                className={clsx("relative", getBorderClasses(), {
+                className={clsx("relative", {
                     "cursor-grabbing": sortable.isDragging,
                     "opacity-50": sortable.isDragging,
+                    "outline-dashed outline-2 outline-blue-500": isSelected && isEditMode,
                 })}
                 onClick={handleSelectElement}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
                 data-element-id={id}
-                {...(!state.editor.liveMode ? sortable.listeners : {})}
-                {...(!state.editor.liveMode ? sortable.attributes : {})}
+                {...(isEditMode ? sortable.listeners : {})}
+                {...(isEditMode ? sortable.attributes : {})}
             >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
-                <span 
-                    ref={spanRef} 
-                    suppressHydrationWarning={true} 
-                    contentEditable={!state.editor.liveMode} 
+                <span
+                    ref={spanRef}
+                    suppressHydrationWarning={true}
+                    contentEditable={isEditMode && isSelected}
                     onBlur={handleBlurElement}
                     className={clsx("title", {
                         "select-none": !isSelected,
                     })}
-                    onClick={(e) => {
-                        if (!state.editor.liveMode) {
-                            e.stopPropagation();
-                            handleSelectElement(e as any);
-                        }
-                    }}
+                    onClick={handleSelectElement}
                 />
-                
-                {/* Badge ve Delete button artık kendi görünürlük logic'ini kullanıyor */}
-                <DeleteElementButton element={element} />
+
+                {isSelected && isEditMode && <DeleteElementButton element={element} />}
             </div>
         </EditorElementWrapper>
     );
-};
+});
+
 
 export default TextComponent;

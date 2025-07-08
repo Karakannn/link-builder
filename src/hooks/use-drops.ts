@@ -1,16 +1,13 @@
-import { useEditor } from "@/providers/editor/editor-provider";
 import { Active, Over } from "@dnd-kit/core";
 import { useEditorUtilities } from "./use-editor-utilities";
-
+import { useElementActions } from "./editor-actions/use-element-actions";
 
 export const useDrops = () => {
-
-    const { state, dispatch } = useEditor();
-    const { createElement } = useEditorUtilities()
+    const { addElement, moveElement } = useElementActions();
+    const { createElement } = useEditorUtilities();
 
     const handleContainerDrop = (active: Active, over: Over) => {
-
-        if (!over || !active) return
+        if (!over || !active) return;
 
         const draggedType = active.data?.current?.type;
         const isFromSidebar = active.data?.current?.isSidebarElement;
@@ -19,56 +16,31 @@ export const useDrops = () => {
 
         const containerId = over.data.current?.elementId;
 
-        // Handle sidebar elements (creating new elements)
         if (isFromSidebar) {
             console.log("\n🆕 Adding new element to container end");
 
             const newElement = createElement(draggedType);
             if (newElement) {
-                console.log("🚀 Dispatching ADD_ELEMENT action:");
-                dispatch({
-                    type: "ADD_ELEMENT",
-                    payload: {
-                        containerId,
-                        elementDetails: newElement,
-                    },
-                });
-
+                addElement(containerId, newElement);
                 console.log("✅ ADD_ELEMENT dispatched successfully");
             } else {
                 console.error("❌ Failed to create new element");
             }
-        }
-        // Handle existing editor elements (moving to different container)
-        else if (isFromEditor && elementId) {
-            console.log("\n🔄 Moving existing element to different container");
-
-            // Check if trying to move element to itself
+        } else if (isFromEditor && elementId) {
             if (elementId === containerId) {
                 console.warn("⚠️ Cannot move element to itself, aborting");
                 return;
             }
 
-            console.log("🚀 Dispatching MOVE_ELEMENT action:");
-            dispatch({
-                type: "MOVE_ELEMENT",
-                payload: {
-                    elementId,
-                    targetContainerId: containerId,
-                },
-            });
+            moveElement(elementId, containerId);
 
             console.log("✅ MOVE_ELEMENT dispatched successfully");
         } else {
             console.warn("⚠️ CONTAINER operation but no valid source detected");
         }
-    }
+    };
 
     return {
-        handleContainerDrop
-    }
-}
-
-
-
-
+        handleContainerDrop,
+    };
+};

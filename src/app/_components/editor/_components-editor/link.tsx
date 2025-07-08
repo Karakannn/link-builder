@@ -4,26 +4,32 @@ import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
     element: EditorElement;
 };
 
 const LinkComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
     const { id, styles, content, type } = element;
     const linkRef = useRef<HTMLAnchorElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
+    const { updateElement } = useElementActions();
     const { handleSelectElement } = useElementSelection(element);
-    const { getBorderClasses } = useElementBorderHighlight(element);
-    
-    // Get computed styles based on current device
-    const computedStyles = getElementStyles(element, state.editor.device);
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+    const isElementSelected = useIsElementSelected(id);
+    const device = useDevice();
+    const liveMode = useLiveMode();
+   
+    const computedStyles = getElementStyles(element, device);
 
     // dnd-kit sortable
     const sortable = useSortable({
@@ -35,21 +41,16 @@ const LinkComponent = ({ element }: Props) => {
             isSidebarElement: false,
             isEditorElement: true,
         },
-        disabled: state.editor.liveMode,
+        disabled: liveMode,
     });
 
     const handleBlurElement = () => {
         if (linkRef.current) {
-            dispatch({
-                type: "UPDATE_ELEMENT",
-                payload: {
-                    elementDetails: {
-                        ...element,
-                        content: {
-                            innerText: linkRef.current.innerText,
-                            href: linkRef.current.href,
-                        },
-                    },
+            updateElement({
+                ...element,
+                content: {
+                    innerText: linkRef.current.innerText,
+                    href: linkRef.current.href,
                 },
             });
         }
@@ -63,10 +64,8 @@ const LinkComponent = ({ element }: Props) => {
     }, [content]);
 
     useEffect(() => {
-        setShowSpacingGuides(
-            state.editor.selectedElement.id === id && !state.editor.liveMode
-        );
-    }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+        setShowSpacingGuides(isElementSelected && !liveMode);
+    }, [isElementSelected, id, liveMode]);
 
     return (
         <EditorElementWrapper element={element}>
@@ -82,26 +81,26 @@ const LinkComponent = ({ element }: Props) => {
                     "opacity-50": sortable.isDragging,
                 })}
                 onClick={handleSelectElement}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
                 data-element-id={id}
-                {...(!state.editor.liveMode ? sortable.listeners : {})}
-                {...(!state.editor.liveMode ? sortable.attributes : {})}
+                {...(!liveMode ? sortable.listeners : {})}
+                {...(!liveMode ? sortable.attributes : {})}
             >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
-                <a 
-                    ref={linkRef} 
-                    suppressHydrationWarning={true} 
-                    contentEditable={!state.editor.liveMode} 
+                <a
+                    ref={linkRef}
+                    suppressHydrationWarning={true}
+                    contentEditable={!liveMode}
                     onBlur={handleBlurElement}
                     className={clsx({
-                        "select-none": state.editor.selectedElement.id !== id,
+                        "select-none": !isElementSelected,
                     })}
                     onClick={(e) => {
-                        if (!state.editor.liveMode) {
+                        if (!liveMode) {
                             e.stopPropagation();
-                            handleSelectElement(e as any);
+                            handleSelectElement(e);
                         }
                     }}
                 />

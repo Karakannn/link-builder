@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useEditor } from "@/providers/editor/editor-provider";
+import { useSelectedElement } from "@/providers/editor/editor-elements-provider";
 
 import LinkCustomProperties from "./custom-properties/link-custom";
 import GridLayoutCustomProperties from "./custom-properties/grid-layout-custom";
@@ -11,6 +11,7 @@ import BodyCustomProperties from "./custom-properties/body-custom";
 import NeonCardCustomProperties from "./custom-properties/neon-card-custom";
 import ImageCustom from "./custom-properties/image-custom";
 import PulsatingButtonCustomProperties from "./custom-properties/pulsating-button-custom";
+import TextCustomProperties from "./custom-properties/text-custom";
 
 type CustomElementType =
   | "link"
@@ -21,6 +22,7 @@ type CustomElementType =
   | "gif"
   | "image"
   | "pulsatingButton"
+  | "text"
   | "__body";
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
@@ -31,14 +33,14 @@ const customElementComponentMap: Record<CustomElementType, React.FC> = {
   gif: GifCustomProperties,
   image: ImageCustom,
   pulsatingButton: PulsatingButtonCustomProperties,
+  text: TextCustomProperties,
   column: () => <div className="px-6 text-muted-foreground">Column properties managed by Grid Layout</div>,
   __body: BodyCustomProperties,
 };
 
 export const CustomTab = () => {
-  const { state } = useEditor();
 
-  const selectedElement = state.editor.selectedElement;
+  const selectedElement = useSelectedElement();
   const elementType = selectedElement?.type as CustomElementType;
 
   if (!elementType || !customElementComponentMap[elementType]) {

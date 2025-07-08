@@ -1,6 +1,6 @@
 import { getLiveStreamCardContent } from "@/actions/live-stream-card";
 import FunnelEditor from "@/app/_components/editor";
-import FunnelEditorNavigation from "@/app/_components/editor-navigation";
+import FunnelEditorNavigation from "@/app/_components/editor-navigation/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
 import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeholder-elements/drag-overlay-wrapper";
 import { DndContextProvider } from "@/providers/dnd-context-provider";

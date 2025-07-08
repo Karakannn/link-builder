@@ -1,71 +1,48 @@
+// src/hooks/editor/use-element-selection.tsx
+"use client";
+
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { useCallback, useState } from "react";
+import { useSmartSelection } from "./use-smart-selection";
+import { useIsEditMode } from "@/providers/editor/editor-ui-context";
 
 export const useElementSelection = (element: EditorElement) => {
-    const { dispatch } = useEditor();
+    const { handleSmartSelection } = useSmartSelection();
+    const [isHovered, setIsHovered] = useState(false);
+    const isEditMode = useIsEditMode();
 
     const handleSelectElement = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
-        dispatch({
-            type: "CHANGE_CLICKED_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
-    }, [dispatch, element]);
+        if (isEditMode) {
+            handleSmartSelection(e, element);
+        }
+    }, [handleSmartSelection, element, isEditMode]);
 
     return {
         handleSelectElement,
+        isHovered,
+        setIsHovered,
     };
 };
 
 export const useElementBorderHighlight = (element: EditorElement) => {
     const { state } = useEditor();
     const [isHovered, setIsHovered] = useState(false);
+    const [hoveredEvent, setHoveredEvent] = useState<React.MouseEvent | null>(null);
 
     const isSelected = state.editor.selectedElement.id === element.id;
-
-    const hasSelectedParent = (elementId: string, selectedId: string): boolean => {
-        // Seçili element yoksa false döndür
-        if (!selectedId || selectedId === "") return false;
-
-        if (elementId === selectedId) return true;
-
-        // Seçili element'in alt elementlerini kontrol et
-        const selectedElement = state.editor.selectedElement;
-        if (selectedElement.id && selectedElement.content) {
-            const checkInContent = (content: any[]): boolean => {
-                for (const child of content) {
-                    if (child.id === elementId) return true;
-                    if (Array.isArray(child.content)) {
-                        if (checkInContent(child.content)) return true;
-                    }
-                }
-                return false;
-            };
-
-            if (Array.isArray(selectedElement.content)) {
-                return checkInContent(selectedElement.content);
-            }
-        }
-
-        return false;
-    };
-
-    const isChildOfSelected = hasSelectedParent(element.id, state.editor.selectedElement.id);
-
-    const alwaysShowBorderTypes = ["container", "gridLayout", "column", "__body"];
-    const shouldAlwaysShowBorder = alwaysShowBorderTypes.includes(element.type || "");
 
     const handleMouseEnter = useCallback((e: React.MouseEvent) => {
         e.stopPropagation();
         if (!state.editor.liveMode) {
             setIsHovered(true);
+            setHoveredEvent(e); // Event'i kaydet preview için
         }
     }, [state.editor.liveMode]);
 
     const handleMouseLeave = useCallback(() => {
         setIsHovered(false);
+        setHoveredEvent(null);
     }, []);
 
     const getBorderClasses = () => {
@@ -75,23 +52,16 @@ export const useElementBorderHighlight = (element: EditorElement) => {
             return baseClasses;
         }
 
-        if (shouldAlwaysShowBorder) {
-            if (isSelected) {
-                return `${baseClasses} !border-blue-500 !border-1`;
-            }
-            if (isHovered) {
-                return `${baseClasses} border-solid border-[1px] border-blue-400`;
-            }
-            return `${baseClasses} border-dashed border-[0.5px] border-slate-100/40`;
-        }
-
+        // Seçili element - kalın mavi border
         if (isSelected) {
-            return `${baseClasses} !border-blue-500 !border-1`;
+            return `${baseClasses} ring-2 ring-blue-500 ring-offset-1`;
         }
 
+        // Normal hover - ince border
         if (isHovered) {
-            return `${baseClasses} !border-blue-300 !border-dashed !border-1`;
+            return `${baseClasses} ring-1 ring-blue-200`;
         }
+
         return baseClasses;
     };
 
@@ -101,7 +71,7 @@ export const useElementBorderHighlight = (element: EditorElement) => {
     return {
         isSelected,
         isHovered,
-        isChildOfSelected,
+        hoveredEvent, // Event'i expose et
         getBorderClasses,
         shouldShowBadge,
         shouldShowDeleteButton,

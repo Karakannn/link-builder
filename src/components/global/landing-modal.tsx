@@ -2,11 +2,12 @@
 
 import { useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { useEditor } from "@/providers/editor/editor-provider";
 import { X } from "lucide-react";
 import { EditorElement } from "@/providers/editor/editor-provider";
 import Recursive from "@/app/_components/editor/_components-editor/recursive";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
+import { useElements } from "@/providers/editor/editor-elements-provider";
 
 interface LandingModalProps {
     isOpen: boolean;
@@ -16,21 +17,21 @@ interface LandingModalProps {
 }
 
 export function LandingModal({ isOpen, onClose, modalContent, isPreview = false }: LandingModalProps) {
-    const { state, dispatch } = useEditor();
 
+    const { toggleLiveMode } = useUIActions();
+    const editorElements = useElements();
     // Update modal when modal opens to force re-render
     useEffect(() => {
         if (isOpen) {
-            // Enable live mode when modal opens
-            dispatch({ type: "TOGGLE_LIVE_MODE", payload: { value: true } });
+            toggleLiveMode(true);
         }
-    }, [isOpen, dispatch]);
+    }, [isOpen, toggleLiveMode]);
 
     // Use modalContent prop if available, otherwise fall back to editor state
-    const elements = modalContent || state.editor.elements;
-    
+    const elements = modalContent || editorElements;
+
     // Filter out __body and get actual content elements
-    const contentElements = elements.filter((element: EditorElement) => element.type !== '__body');
+    const contentElements = elements.filter((element: EditorElement) => element.type !== "__body");
 
     // Live preview için sadece modal içeriği göster
     if (!isPreview) {
@@ -50,16 +51,13 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
                                 <X className="w-4 h-4 text-foreground" />
                             </button>
                         </div>
-                        
+
                         {/* Modal Content Only - No padding, no container */}
                         <div className="w-full h-full">
                             {contentElements.length > 0 ? (
                                 <div>
                                     {contentElements.map((element) => (
-                                        <Recursive
-                                            key={element.id}
-                                            element={element}
-                                        />
+                                        <Recursive key={element.id} element={element} />
                                     ))}
                                 </div>
                             ) : (
@@ -88,39 +86,33 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
                     {/* Header */}
                     <div className="flex items-center justify-between p-4 border-b bg-muted">
                         <h2 className="text-lg font-semibold text-foreground">Modal Önizle</h2>
-                        <button
-                            onClick={onClose}
-                            className="p-2 hover:bg-muted rounded-full transition-colors"
-                        >
+                        <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
                             <X className="w-4 h-4 text-muted-foreground" />
                         </button>
                     </div>
-                    
+
                     {/* Preview Area */}
                     <div className="flex-1 p-6 bg-muted/20">
                         <div className="max-w-md mx-auto">
                             {/* Modal Container */}
-                                {/* Modal Content */}
-                                <div className="p-6 min-h-[300px]">
-                                    {contentElements.length > 0 ? (
+                            {/* Modal Content */}
+                            <div className="p-6 min-h-[300px]">
+                                {contentElements.length > 0 ? (
+                                    <div>
+                                        {contentElements.map((element) => (
+                                            <Recursive key={element.id} element={element} />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-center h-48 text-muted-foreground text-center">
                                         <div>
-                                            {contentElements.map((element) => (
-                                                <Recursive
-                                                    key={element.id}
-                                                    element={element}
-                                                />
-                                            ))}
+                                            <p className="mb-2">Henüz içerik eklenmedi</p>
+                                            <p className="text-sm">Modalınızın nasıl görüneceğini görmek için bazı elementler ekleyin</p>
                                         </div>
-                                    ) : (
-                                        <div className="flex items-center justify-center h-48 text-muted-foreground text-center">
-                                            <div>
-                                                <p className="mb-2">Henüz içerik eklenmedi</p>
-                                                <p className="text-sm">Modalınızın nasıl görüneceğini görmek için bazı elementler ekleyin</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Instructions */}
                             <div className="mt-4 text-center text-sm text-muted-foreground">
                                 <p>Bu, ziyaretçilerinize görünecek landing modal'ınızdır</p>
@@ -132,4 +124,4 @@ export function LandingModal({ isOpen, onClose, modalContent, isPreview = false 
             </DialogContent>
         </Dialog>
     );
-} 
+}

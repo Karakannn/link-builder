@@ -9,9 +9,14 @@ import Image from "next/image";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
-import { useElementSelection, useElementBorderHighlight } from "@/hooks/editor/use-element-selection";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
+import { useElementBorderHighlight } from "@/hooks/editor/use-element-border-highlight";
 import { useLayout, Layout } from "@/hooks/use-layout";
 import ElementContextMenu from "@/providers/editor/editor-contex-menu";
+import { cn } from "@/lib/utils";
+import { useIsElementSelected } from "@/providers/editor/editor-elements-provider";
+import { useDevice, useLiveMode } from "@/providers/editor/editor-ui-context";
+import { useElementSelection } from "@/hooks/editor/use-element-selection";
 
 type Props = {
   element: EditorElement;
@@ -27,17 +32,18 @@ interface MarqueeItemData {
 }
 
 const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
-  const { state } = useEditor();
   const { id, name, type, styles, content } = element;
   const [showSpacingGuides, setShowSpacingGuides] = useState(false);
   const { handleSelectElement } = useElementSelection(element);
-  const { getBorderClasses } = useElementBorderHighlight(element);
-
+  const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+  const isElementSelected = useIsElementSelected(id);
+  const device = useDevice();
+  const liveMode = useLiveMode();
   // Get computed styles based on current device
-  const computedStyles = getElementStyles(element, state.editor.device);
+  const computedStyles = getElementStyles(element, device);
 
   // Get computed content based on current device
-  const computedContent = getElementContent(element, state.editor.device);
+  const computedContent = getElementContent(element, device);
 
   // dnd-kit sortable
   const sortable = useSortable({
@@ -49,14 +55,14 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
       isSidebarElement: false,
       isEditorElement: true,
     },
-    disabled: state.editor.liveMode,
+    disabled: liveMode,
   });
 
   useEffect(() => {
     setShowSpacingGuides(
-      state.editor.selectedElement.id === id && !state.editor.liveMode
+      isElementSelected && !liveMode
     );
-  }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
+  }, [isElementSelected, id, liveMode]);
 
   // Extract marquee specific props from content with defaults
   const marqueeProps = !Array.isArray(computedContent) ? computedContent : {};
@@ -102,19 +108,16 @@ const MarqueeComponent = ({ element, layout = 'vertical' }: Props) => {
     <ElementContextMenu element={element}>
     <div
       ref={sortable.setNodeRef}
-      style={{
-        ...computedStyles,
-        transform: CSS.Transform.toString(sortable.transform),
-        transition: sortable.transition,
-      }}
-      className={clsx("relative", getBorderClasses(), {
-        "cursor-grabbing": sortable.isDragging,
-        "opacity-50": sortable.isDragging,
-      })}
+      style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
+      className={cn(
+        "relative group",
+        getBorderClasses(),
+        sortable.isDragging && "opacity-50"
+      )}
       onClick={handleSelectElement}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
       data-element-id={id}
-      {...(!state.editor.liveMode ? sortable.listeners : {})}
-      {...(!state.editor.liveMode ? sortable.attributes : {})}
     >
         {showSpacingGuides && (
           <SpacingVisualizer styles={computedStyles} />
