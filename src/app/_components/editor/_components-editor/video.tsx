@@ -4,7 +4,7 @@ import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -17,20 +17,20 @@ type Props = {
 };
 
 const VideoComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
     const { id, name, type, styles, content } = element;
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
     const { selectElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-    
+
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
-    
+
     // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
 
     // Extract video source from content
-    const videoSrc = !Array.isArray(computedContent) ? computedContent.src || '' : '';
+    const videoSrc = !Array.isArray(computedContent) ? computedContent.src || "" : "";
 
     // dnd-kit sortable
     const sortable = useSortable({
@@ -46,28 +46,20 @@ const VideoComponent = ({ element }: Props) => {
     });
 
     useEffect(() => {
-        setShowSpacingGuides(
-            state.editor.selectedElement.id === id && !state.editor.liveMode
-        );
+        setShowSpacingGuides(state.editor.selectedElement.id === id && !state.editor.liveMode);
     }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
     return (
         <div
             ref={sortable.setNodeRef}
             style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
-            className={clsx(
-                "relative group",
-                getBorderClasses(),
-                sortable.isDragging && "opacity-50"
-            )}
+            className={clsx("relative group", getBorderClasses(), sortable.isDragging && "opacity-50")}
             onClick={() => selectElement(element)}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             data-element-id={id}
         >
-            {showSpacingGuides && (
-                <SpacingVisualizer styles={computedStyles} />
-            )}
+            {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
             <iframe
                 src={videoSrc}

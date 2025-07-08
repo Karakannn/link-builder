@@ -4,7 +4,7 @@ import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -17,7 +17,7 @@ type Props = {
 };
 
 const ImageComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
     const { id } = element;
     const [isLoading, setIsLoading] = useState(true);
     const imgRef = useRef<HTMLImageElement>(null);
@@ -27,7 +27,8 @@ const ImageComponent = ({ element }: Props) => {
     const computedStyles = getElementStyles(element, state.editor.device);
     const computedContent = getElementContent(element, state.editor.device);
 
-    const placeholderImage = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%239ca3af'%3EPlaceholder Image%3C/text%3E%3C/svg%3E";
+    const placeholderImage =
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300' viewBox='0 0 400 300'%3E%3Crect width='400' height='300' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='16' fill='%239ca3af'%3EPlaceholder Image%3C/text%3E%3C/svg%3E";
 
     const sortable = useSortable({
         id: id,
@@ -42,11 +43,11 @@ const ImageComponent = ({ element }: Props) => {
     });
 
     const imageProps = !Array.isArray(computedContent) ? computedContent : {};
-    const src = imageProps.src || '';
-    const objectFit = imageProps.objectFit || 'contain';
+    const src = imageProps.src || "";
+    const objectFit = imageProps.objectFit || "contain";
     const borderRadius = imageProps.borderRadius || 0;
-    const shadow = imageProps.shadow || 'none';
-    const filter = imageProps.filter || 'none';
+    const shadow = imageProps.shadow || "none";
+    const filter = imageProps.filter || "none";
     const opacity = imageProps.opacity || 1;
 
     const handleImageLoad = () => {
@@ -59,23 +60,35 @@ const ImageComponent = ({ element }: Props) => {
 
     const getShadowClass = () => {
         switch (shadow) {
-            case 'small': return 'shadow-sm';
-            case 'medium': return 'shadow-md';
-            case 'large': return 'shadow-lg';
-            case 'xl': return 'shadow-xl';
-            case '2xl': return 'shadow-2xl';
-            default: return '';
+            case "small":
+                return "shadow-sm";
+            case "medium":
+                return "shadow-md";
+            case "large":
+                return "shadow-lg";
+            case "xl":
+                return "shadow-xl";
+            case "2xl":
+                return "shadow-2xl";
+            default:
+                return "";
         }
     };
 
     const getFilterClass = () => {
         switch (filter) {
-            case 'grayscale': return 'grayscale';
-            case 'sepia': return 'sepia';
-            case 'blur': return 'blur-sm';
-            case 'brightness': return 'brightness-110';
-            case 'contrast': return 'contrast-125';
-            default: return '';
+            case "grayscale":
+                return "grayscale";
+            case "sepia":
+                return "sepia";
+            case "blur":
+                return "blur-sm";
+            case "brightness":
+                return "brightness-110";
+            case "contrast":
+                return "contrast-125";
+            default:
+                return "";
         }
     };
 
@@ -104,17 +117,12 @@ const ImageComponent = ({ element }: Props) => {
                         <img
                             ref={imgRef}
                             src={src}
-                            className={clsx(
-                                "max-w-full h-auto transition-all duration-300",
-                                getShadowClass(),
-                                getFilterClass(),
-                                {
-                                    "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
-                                }
-                            )}
+                            className={clsx("max-w-full h-auto transition-all duration-300", getShadowClass(), getFilterClass(), {
+                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                            })}
                             style={{
-                                width: computedStyles.width || 'auto',
-                                height: computedStyles.height || 'auto',
+                                width: computedStyles.width || "auto",
+                                height: computedStyles.height || "auto",
                                 objectFit: objectFit as any,
                                 borderRadius: `${borderRadius}px`,
                                 opacity: opacity,
@@ -134,18 +142,13 @@ const ImageComponent = ({ element }: Props) => {
                         <img
                             src={placeholderImage}
                             alt="Placeholder"
-                            className={clsx(
-                                "max-w-full h-auto transition-all duration-300",
-                                getShadowClass(),
-                                getFilterClass(),
-                                {
-                                    "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
-                                }
-                            )}
+                            className={clsx("max-w-full h-auto transition-all duration-300", getShadowClass(), getFilterClass(), {
+                                "pointer-events-none": !state.editor.liveMode && !state.editor.previewMode,
+                            })}
                             style={{
-                                width: computedStyles.width || 'auto',
-                                height: computedStyles.height || 'auto',
-                                maxWidth: computedStyles.maxWidth || '80%',
+                                width: computedStyles.width || "auto",
+                                height: computedStyles.height || "auto",
+                                maxWidth: computedStyles.maxWidth || "80%",
                                 objectFit: objectFit as any,
                                 borderRadius: `${borderRadius}px`,
                                 opacity: opacity,
@@ -154,9 +157,7 @@ const ImageComponent = ({ element }: Props) => {
                     </>
                 )}
 
-                {state.editor.selectedElement.id === id && !state.editor.liveMode && (
-                    <DeleteElementButton element={element} />
-                )}
+                {state.editor.selectedElement.id === id && !state.editor.liveMode && <DeleteElementButton element={element} />}
             </div>
         </EditorElementWrapper>
     );

@@ -3,7 +3,7 @@ import { getElementStyles, getElementContent } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useRef, useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -15,22 +15,17 @@ type Props = {
 };
 
 const TextComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
     const { id, styles, content, type } = element;
     const spanRef = useRef<HTMLSpanElement | null>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { selectElement } = useElementActions();
-    const { 
-        getBorderClasses, 
-        handleMouseEnter, 
-        handleMouseLeave,
-        isSelected 
-    } = useElementBorderHighlight(element);
-    
+    const { selectElement, updateElement } = useElementActions();
+    const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
+
     // Get computed content based on current device
     const computedContent = getElementContent(element, state.editor.device);
-    
+
     // dnd-kit sortable
     const sortable = useSortable({
         id: id,
@@ -53,16 +48,11 @@ const TextComponent = ({ element }: Props) => {
 
     const handleBlurElement = () => {
         if (spanRef.current) {
-            dispatch({
-                type: "UPDATE_ELEMENT",
-                payload: {
-                    elementDetails: {
-                        ...element,
-                        content: {
-                            ...computedContent,
-                            innerText: spanRef.current.innerText,
-                        },
-                    },
+            updateElement({
+                ...element,
+                content: {
+                    ...computedContent,
+                    innerText: spanRef.current.innerText,
                 },
             });
         }
@@ -75,9 +65,7 @@ const TextComponent = ({ element }: Props) => {
     }, [computedContent]);
 
     useEffect(() => {
-        setShowSpacingGuides(
-            isSelected && !state.editor.liveMode
-        );
+        setShowSpacingGuides(isSelected && !state.editor.liveMode);
     }, [isSelected, state.editor.liveMode]);
 
     // Extract text properties from content
@@ -100,14 +88,12 @@ const TextComponent = ({ element }: Props) => {
                 {...(!state.editor.liveMode ? sortable.listeners : {})}
                 {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
-                <span 
-                    ref={spanRef} 
-                    suppressHydrationWarning={true} 
-                    contentEditable={!state.editor.liveMode} 
+                <span
+                    ref={spanRef}
+                    suppressHydrationWarning={true}
+                    contentEditable={!state.editor.liveMode}
                     onBlur={handleBlurElement}
                     className={clsx("title", {
                         "select-none": !isSelected,
@@ -119,7 +105,7 @@ const TextComponent = ({ element }: Props) => {
                         }
                     }}
                 />
-                
+
                 {/* Badge ve Delete button artık kendi görünürlük logic'ini kullanıyor */}
                 <DeleteElementButton element={element} />
             </div>

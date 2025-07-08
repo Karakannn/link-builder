@@ -4,7 +4,7 @@ import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -16,13 +16,13 @@ type Props = {
 };
 
 const LinkComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
     const { id, styles, content, type } = element;
     const linkRef = useRef<HTMLAnchorElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { selectElement } = useElementActions();
+    const { selectElement, updateElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-    
+
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
 
@@ -41,16 +41,11 @@ const LinkComponent = ({ element }: Props) => {
 
     const handleBlurElement = () => {
         if (linkRef.current) {
-            dispatch({
-                type: "UPDATE_ELEMENT",
-                payload: {
-                    elementDetails: {
-                        ...element,
-                        content: {
-                            innerText: linkRef.current.innerText,
-                            href: linkRef.current.href,
-                        },
-                    },
+            updateElement({
+                ...element,
+                content: {
+                    innerText: linkRef.current.innerText,
+                    href: linkRef.current.href,
                 },
             });
         }
@@ -64,9 +59,7 @@ const LinkComponent = ({ element }: Props) => {
     }, [content]);
 
     useEffect(() => {
-        setShowSpacingGuides(
-            state.editor.selectedElement.id === id && !state.editor.liveMode
-        );
+        setShowSpacingGuides(state.editor.selectedElement.id === id && !state.editor.liveMode);
     }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
     return (
@@ -89,14 +82,12 @@ const LinkComponent = ({ element }: Props) => {
                 {...(!state.editor.liveMode ? sortable.listeners : {})}
                 {...(!state.editor.liveMode ? sortable.attributes : {})}
             >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
-                <a 
-                    ref={linkRef} 
-                    suppressHydrationWarning={true} 
-                    contentEditable={!state.editor.liveMode} 
+                <a
+                    ref={linkRef}
+                    suppressHydrationWarning={true}
+                    contentEditable={!state.editor.liveMode}
                     onBlur={handleBlurElement}
                     className={clsx({
                         "select-none": state.editor.selectedElement.id !== id,

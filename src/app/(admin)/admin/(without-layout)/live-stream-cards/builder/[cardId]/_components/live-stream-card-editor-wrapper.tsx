@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const LiveStreamCardEditorWrapper = ({ pageDetails }: Props) => {
-    const { dispatch, state } = useEditor();
+    const {  state } = useEditor();
     const { loadData } = useDataActions();
     const { selectElement } = useElementActions();
     console.log("🔴 LiveStreamCardEditorWrapper rendering with pageDetails:", pageDetails);

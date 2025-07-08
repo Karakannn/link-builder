@@ -6,7 +6,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { ModalProvider } from "@/providers/modal-provider";
 import { ReactQueryProvider } from "@/providers/react-query-provider";
 import { Toaster } from "@/components/ui/sonner";
-import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { PerformanceProvider } from "@/providers/performance/performance-provider";
 import { PerformancePanel } from "@/components/performance/performance-dashboard";
 
@@ -37,12 +36,10 @@ export default function RootLayout({
                     <ClerkProvider>
                         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
                             <ModalProvider>
-                                <LandingModalProvider>
-                                    <PerformanceProvider>
-                                        {children}
-                                        {process.env.NODE_ENV === "development" && <PerformancePanel />}
-                                    </PerformanceProvider>
-                                </LandingModalProvider>
+                                <PerformanceProvider>
+                                    {children}
+                                    {process.env.NODE_ENV === "development" && <PerformancePanel />}
+                                </PerformanceProvider>
                             </ModalProvider>
                         </ThemeProvider>
                         <Toaster richColors />

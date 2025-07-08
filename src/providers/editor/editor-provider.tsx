@@ -5,6 +5,7 @@ import { EditorBtns } from "@/lib/constants";
 import { EditorAction } from "./editor-actions";
 import { arrayMove } from "@dnd-kit/sortable";
 import { EditorActionsProvider } from "./editör-actions-provider";
+import { LandingModalProvider } from "../landing-modal-provider";
 
 export type DeviceTypes = "Desktop" | "Mobile" | "Tablet";
 
@@ -863,12 +864,10 @@ export type EditorContextData = {
 
 export const EditorContext = createContext<{
     state: EditorState;
-    dispatch: Dispatch<EditorAction>;
     siteId: string;
     pageDetails: null;
 }>({
     state: initialState,
-    dispatch: () => undefined,
     siteId: "",
     pageDetails: null,
 });
@@ -886,12 +885,13 @@ const EditorProvider = (props: EditorProps) => {
         <EditorContext.Provider
             value={{
                 state,
-                dispatch,
                 siteId: props.siteId,
                 pageDetails: props.pageDetails,
             }}
         >
-            <EditorActionsProvider dispatch={dispatch}>{props.children}</EditorActionsProvider>
+            <EditorActionsProvider dispatch={dispatch}>
+                <LandingModalProvider>{props.children}</LandingModalProvider>
+            </EditorActionsProvider>
         </EditorContext.Provider>
     );
 };

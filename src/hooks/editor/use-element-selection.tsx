@@ -1,23 +1,6 @@
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { useCallback, useState } from "react";
 
-export const useElementSelection = (element: EditorElement) => {
-    const { dispatch } = useEditor();
-
-    const handleSelectElement = useCallback((e: React.MouseEvent) => {
-        e.stopPropagation();
-        dispatch({
-            type: "CHANGE_CLICKED_ELEMENT",
-            payload: {
-                elementDetails: element,
-            },
-        });
-    }, [dispatch, element]);
-
-    return {
-        handleSelectElement,
-    };
-};
 
 export const useElementBorderHighlight = (element: EditorElement) => {
     const { state } = useEditor();

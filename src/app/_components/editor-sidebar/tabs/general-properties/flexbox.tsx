@@ -1,21 +1,33 @@
-import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Button } from '@/components/ui/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { useEditorSidebar } from '@/providers/editor/editor-sidebar-provider'
-import { useEditor } from '@/providers/editor/editor-provider'
-import { supportsLayout } from '@/lib/constants'
-import { AlignHorizontalSpaceBetween, AlignHorizontalSpaceAround, AlignHorizontalJustifyCenterIcon, AlignHorizontalJustifyStart, AlignHorizontalJustifyEndIcon, AlignVerticalJustifyCenter, AlignVerticalJustifyStart, ArrowRight, ArrowDown, AlignVerticalJustifyEnd } from 'lucide-react'
-import React from 'react'
+import { AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useEditorSidebar } from "@/providers/editor/editor-sidebar-provider";
+import { useEditor } from "@/providers/editor/editor-provider";
+import { supportsLayout } from "@/lib/constants";
+import {
+    AlignHorizontalSpaceBetween,
+    AlignHorizontalSpaceAround,
+    AlignHorizontalJustifyCenterIcon,
+    AlignHorizontalJustifyStart,
+    AlignHorizontalJustifyEndIcon,
+    AlignVerticalJustifyCenter,
+    AlignVerticalJustifyStart,
+    ArrowRight,
+    ArrowDown,
+    AlignVerticalJustifyEnd,
+} from "lucide-react";
+import React from "react";
+import { useElementActions } from "@/hooks/editor-actions/use-element-actions";
 
-type Props = {}
+type Props = {};
 
 const FlexboxProperties = (props: Props) => {
-
     const { getCurrentStyles, handleOnChanges, activeDevice } = useEditorSidebar();
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
+    const { updateElement } = useElementActions();
 
     const currentStyles = getCurrentStyles();
     const isFlexEnabled = currentStyles.display === "flex";
@@ -31,15 +43,15 @@ const FlexboxProperties = (props: Props) => {
 
     const handleJustifyContentChange = (value: string) => {
         const currentValue = currentStyles.justifyContent;
-        console.log('JustifyContent Toggle:', { 
-            clickedValue: value, 
-            currentValue: currentValue, 
-            isSame: currentValue === value 
+        console.log("JustifyContent Toggle:", {
+            clickedValue: value,
+            currentValue: currentValue,
+            isSame: currentValue === value,
         });
-        
+
         if (currentValue === value) {
             // Seçili değere tekrar tıklandığında özelliği tamamen kaldır
-            console.log('Removing justifyContent property');
+            console.log("Removing justifyContent property");
             handleOnChanges({
                 target: {
                     id: "justifyContent",
@@ -48,7 +60,7 @@ const FlexboxProperties = (props: Props) => {
             });
         } else {
             // Farklı değere tıklandığında o değeri seç
-            console.log('Setting justifyContent to:', value);
+            console.log("Setting justifyContent to:", value);
             handleOnChanges({
                 target: {
                     id: "justifyContent",
@@ -60,15 +72,15 @@ const FlexboxProperties = (props: Props) => {
 
     const handleAlignItemsChange = (value: string) => {
         const currentValue = currentStyles.alignItems;
-        console.log('AlignItems Toggle:', { 
-            clickedValue: value, 
-            currentValue: currentValue, 
-            isSame: currentValue === value 
+        console.log("AlignItems Toggle:", {
+            clickedValue: value,
+            currentValue: currentValue,
+            isSame: currentValue === value,
         });
-        
+
         if (currentValue === value) {
             // Seçili değere tekrar tıklandığında özelliği tamamen kaldır
-            console.log('Removing alignItems property');
+            console.log("Removing alignItems property");
             handleOnChanges({
                 target: {
                     id: "alignItems",
@@ -77,7 +89,7 @@ const FlexboxProperties = (props: Props) => {
             });
         } else {
             // Farklı değere tıklandığında o değeri seç
-            console.log('Setting alignItems to:', value);
+            console.log("Setting alignItems to:", value);
             handleOnChanges({
                 target: {
                     id: "alignItems",
@@ -95,40 +107,30 @@ const FlexboxProperties = (props: Props) => {
 
         if (supportsLayout(state.editor.selectedElement.type)) {
             const layout = direction === "row" ? "horizontal" : "vertical";
-            
+
             // Layout destekleyen elementler için hem flexDirection hem de layout'u güncelle
             if (activeDevice === "Desktop") {
-                dispatch({
-                    type: "UPDATE_ELEMENT",
-                    payload: {
-                        elementDetails: {
-                            ...state.editor.selectedElement,
-                            styles: {
-                                ...state.editor.selectedElement.styles,
-                                flexDirection: direction as any,
-                            },
-                            layout: layout,
-                        }
-                    }
+                updateElement({
+                    ...state.editor.selectedElement,
+                    styles: {
+                        ...state.editor.selectedElement.styles,
+                        flexDirection: direction as any,
+                    },
+                    layout: layout,
                 });
             } else {
                 // Responsive styles için
                 const currentResponsiveStyles = state.editor.selectedElement.responsiveStyles || {};
-                dispatch({
-                    type: "UPDATE_ELEMENT",
-                    payload: {
-                        elementDetails: {
-                            ...state.editor.selectedElement,
-                            responsiveStyles: {
-                                ...currentResponsiveStyles,
-                                [activeDevice]: {
-                                    ...currentResponsiveStyles[activeDevice],
-                                    flexDirection: direction as any,
-                                },
-                            },
-                            layout: layout,
-                        }
-                    }
+                updateElement({
+                    ...state.editor.selectedElement,
+                    responsiveStyles: {
+                        ...currentResponsiveStyles,
+                        [activeDevice]: {
+                            ...currentResponsiveStyles[activeDevice],
+                            flexDirection: direction as any,
+                        },
+                    },
+                    layout: layout,
                 });
             }
         } else {
@@ -163,13 +165,16 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.justifyContent === "space-between" ? "bg-muted" : ""}`}
                                     onClick={() => handleJustifyContentChange("space-between")}
                                 >
-                                    <AlignHorizontalSpaceBetween size={18} className={currentStyles.justifyContent === "space-between" ? "" : "text-muted-foreground"} />
+                                    <AlignHorizontalSpaceBetween
+                                        size={18}
+                                        className={currentStyles.justifyContent === "space-between" ? "" : "text-muted-foreground"}
+                                    />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -180,13 +185,16 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.justifyContent === "space-evenly" ? "bg-muted" : ""}`}
                                     onClick={() => handleJustifyContentChange("space-evenly")}
                                 >
-                                    <AlignHorizontalSpaceAround size={18} className={currentStyles.justifyContent === "space-evenly" ? "" : "text-muted-foreground"} />
+                                    <AlignHorizontalSpaceAround
+                                        size={18}
+                                        className={currentStyles.justifyContent === "space-evenly" ? "" : "text-muted-foreground"}
+                                    />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -197,13 +205,16 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.justifyContent === "center" ? "bg-muted" : ""}`}
                                     onClick={() => handleJustifyContentChange("center")}
                                 >
-                                    <AlignHorizontalJustifyCenterIcon size={18} className={currentStyles.justifyContent === "center" ? "" : "text-muted-foreground"} />
+                                    <AlignHorizontalJustifyCenterIcon
+                                        size={18}
+                                        className={currentStyles.justifyContent === "center" ? "" : "text-muted-foreground"}
+                                    />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -214,13 +225,16 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.justifyContent === "start" ? "bg-muted" : ""}`}
                                     onClick={() => handleJustifyContentChange("start")}
                                 >
-                                    <AlignHorizontalJustifyStart size={18} className={currentStyles.justifyContent === "start" ? "" : "text-muted-foreground"} />
+                                    <AlignHorizontalJustifyStart
+                                        size={18}
+                                        className={currentStyles.justifyContent === "start" ? "" : "text-muted-foreground"}
+                                    />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -231,13 +245,16 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.justifyContent === "end" ? "bg-muted" : ""}`}
                                     onClick={() => handleJustifyContentChange("end")}
                                 >
-                                    <AlignHorizontalJustifyEndIcon size={18} className={currentStyles.justifyContent === "end" ? "" : "text-muted-foreground"} />
+                                    <AlignHorizontalJustifyEndIcon
+                                        size={18}
+                                        className={currentStyles.justifyContent === "end" ? "" : "text-muted-foreground"}
+                                    />
                                 </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -251,7 +268,7 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.alignItems === "center" ? "bg-muted" : ""}`}
@@ -268,7 +285,7 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.alignItems === "start" ? "bg-muted" : ""}`}
@@ -285,7 +302,7 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.alignItems === "end" ? "bg-muted" : ""}`}
@@ -302,7 +319,7 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.alignItems === "stretch" ? "bg-muted" : ""}`}
@@ -319,7 +336,7 @@ const FlexboxProperties = (props: Props) => {
                     <TooltipProvider>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button 
+                                <Button
                                     variant="ghost"
                                     size="sm"
                                     className={`w-10 h-10 p-0 ${currentStyles.alignItems === "baseline" ? "bg-muted" : ""}`}
@@ -335,10 +352,7 @@ const FlexboxProperties = (props: Props) => {
                     </TooltipProvider>
                 </div>
                 <Label className="text-muted-foreground">Direction</Label>
-                <Tabs
-                    onValueChange={handleFlexDirectionChange}
-                    value={currentStyles.flexDirection}
-                >
+                <Tabs onValueChange={handleFlexDirectionChange} value={currentStyles.flexDirection}>
                     <TabsList className="flex items-center flex-row justify-between border-[1px] rounded-md bg-transparent h-fit gap-4">
                         <TabsTrigger value="row" className="w-10 h-10 p-0 data-[state=active]:bg-muted">
                             <ArrowRight size={18} />
@@ -360,7 +374,7 @@ const FlexboxProperties = (props: Props) => {
                 )}
             </AccordionContent>
         </AccordionItem>
-    )
-}
+    );
+};
 
-export default FlexboxProperties
+export default FlexboxProperties;

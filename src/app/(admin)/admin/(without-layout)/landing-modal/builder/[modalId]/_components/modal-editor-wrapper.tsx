@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const ModalEditorWrapper = ({ pageDetails }: Props) => {
-    const { dispatch, state } = useEditor();
+    const { state } = useEditor();
     const { loadData } = useDataActions();
     const { selectElement } = useElementActions();
 

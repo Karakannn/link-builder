@@ -4,7 +4,7 @@ import { getElementContent, getElementStyles } from "@/lib/utils";
 import clsx from "clsx";
 import React, { useEffect, useState, useRef } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from '@dnd-kit/utilities';
+import { CSS } from "@dnd-kit/utilities";
 import { SpacingVisualizer } from "@/components/global/spacing-visualizer";
 import DeleteElementButton from "@/components/global/editor-element/delete-element-button";
 import { EditorElementWrapper } from "@/components/global/editor-element/editor-element-wrapper";
@@ -17,13 +17,13 @@ type Props = {
 };
 
 const PulsatingButtonComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
     const { id, styles, content, type } = element;
     const buttonRef = useRef<HTMLButtonElement | null>(null);
     const [showSpacingGuides, setShowSpacingGuides] = useState(false);
-    const { selectElement } = useElementActions();
+    const { selectElement, updateElement } = useElementActions();
     const { getBorderClasses, handleMouseEnter, handleMouseLeave, isSelected } = useElementBorderHighlight(element);
-    
+
     // Get computed styles based on current device
     const computedStyles = getElementStyles(element, state.editor.device);
 
@@ -43,22 +43,16 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     const handleBlurElement = () => {
         if (buttonRef.current) {
             const currentContent = Array.isArray(content) ? {} : content;
-            console.log("🔧 PulsatingButton - Blur Element - Current Content:", currentContent);
-            
-            dispatch({
-                type: "UPDATE_ELEMENT",
-                payload: {
-                    elementDetails: {
-                        ...element,
-                        content: {
-                            ...currentContent,
-                            innerText: buttonRef.current.innerText,
-                            pulseColor: (currentContent as any).pulseColor || "#808080",
-                            duration: (currentContent as any).duration || "1.5s",
-                            href: (currentContent as any).href || "",
-                        } as any,
-                    },
-                },
+
+            updateElement({
+                ...element,
+                content: {
+                    ...currentContent,
+                    innerText: buttonRef.current.innerText,
+                    pulseColor: (currentContent as any).pulseColor || "#808080",
+                    duration: (currentContent as any).duration || "1.5s",
+                    href: (currentContent as any).href || "",
+                } as any,
             });
         }
     };
@@ -73,7 +67,7 @@ const PulsatingButtonComponent = ({ element }: Props) => {
             const href = (contentData as any).href;
             if (href && !e.defaultPrevented) {
                 e.preventDefault();
-                window.open(href, '_blank', 'noopener,noreferrer');
+                window.open(href, "_blank", "noopener,noreferrer");
             }
         }
     };
@@ -85,15 +79,13 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     }, [content]);
 
     useEffect(() => {
-        setShowSpacingGuides(
-            state.editor.selectedElement.id === id && !state.editor.liveMode
-        );
+        setShowSpacingGuides(state.editor.selectedElement.id === id && !state.editor.liveMode);
     }, [state.editor.selectedElement.id, id, state.editor.liveMode]);
 
     const contentData = Array.isArray(content) ? {} : content;
     const pulseColor = (contentData as any).pulseColor || "#808080";
     const duration = (contentData as any).duration || "1.5s";
-    
+
     console.log("🔧 PulsatingButton - Render - Content Data:", contentData);
     console.log("🔧 PulsatingButton - Render - Pulse Color:", pulseColor);
     console.log("🔧 PulsatingButton - Render - Duration:", duration);
@@ -103,19 +95,13 @@ const PulsatingButtonComponent = ({ element }: Props) => {
             <div
                 ref={sortable.setNodeRef}
                 style={sortable.transform ? { transform: CSS.Transform.toString(sortable.transform) } : undefined}
-                className={clsx(
-                    "relative group",
-                    getBorderClasses(),
-                    sortable.isDragging && "opacity-50"
-                )}
+                className={clsx("relative group", getBorderClasses(), sortable.isDragging && "opacity-50")}
                 onClick={() => selectElement(element)}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
             >
-                {showSpacingGuides && (
-                    <SpacingVisualizer styles={computedStyles} />
-                )}
+                {showSpacingGuides && <SpacingVisualizer styles={computedStyles} />}
 
                 <PulsatingButton
                     ref={buttonRef}
@@ -137,4 +123,4 @@ const PulsatingButtonComponent = ({ element }: Props) => {
     );
 };
 
-export default PulsatingButtonComponent; 
+export default PulsatingButtonComponent;

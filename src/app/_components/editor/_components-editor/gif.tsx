@@ -17,7 +17,7 @@ type Props = {
 };
 
 const GifComponent = ({ element }: Props) => {
-    const { state, dispatch } = useEditor();
+    const { state } = useEditor();
     const { id, name, type, styles, content } = element;
     const imgRef = useRef<HTMLImageElement>(null);
     const [showOverlay, setShowOverlay] = useState(false);
