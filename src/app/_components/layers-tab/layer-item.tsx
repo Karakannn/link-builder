@@ -1,9 +1,11 @@
 import { EditorElement } from "@/providers/editor/editor-provider";
 import clsx from "clsx";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, GripVertical } from "lucide-react";
 import { memo, useCallback } from "react";
 import LayerItemContainer from "./layer-item-container";
 import { ELEMENT_TYPE_INFO } from "@/constants";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const LayerItem = memo(
     ({
@@ -22,6 +24,28 @@ const LayerItem = memo(
         onSelect: (element: EditorElement) => void;
     }) => {
         if (!element || !element.type) return;
+
+        const {
+            attributes,
+            listeners,
+            setNodeRef,
+            transform,
+            transition,
+            isDragging,
+        } = useSortable({ 
+            id: element.id,
+            data: {
+                type: "layer",
+                isEditorElement: true,
+                element: element,
+                elementId: element.id
+            }
+        });
+
+        const style = {
+            transform: CSS.Transform.toString(transform),
+            transition,
+        };
 
         const hasChildren = Array.isArray(element.content) && element.content.length > 0;
         const typeInfo = ELEMENT_TYPE_INFO[element.type] || { name: element.type, color: "bg-gray-500" };
@@ -44,18 +68,30 @@ const LayerItem = memo(
         );
 
         return (
-            <div className="relative">
+            <div className="relative" ref={setNodeRef} style={style}>
                 <div
                     className={clsx(
                         "flex items-center py-1 px-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer rounded-md transition-colors my-0.5 group",
                         {
                             "bg-blue-100 dark:bg-blue-900/50": isSelected,
+                            "opacity-50": isDragging,
                         }
                     )}
                     style={{ paddingLeft: `${(depth + 1) * 10}px` }}
                     onClick={handleClick}
                 >
                     <div className={clsx("absolute left-1 h-4 w-1 rounded-full opacity-70", typeInfo.color)} style={{ left: `${depth * 10 + 3}px` }} />
+                    
+                    {/* Drag handle - show for all elements */}
+                    <button
+                        {...attributes}
+                        {...listeners}
+                        className="mr-1 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500 opacity-80 hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <GripVertical size={12} />
+                    </button>
+                    
                     {hasChildren && (
                         <button className="mr-1 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-500" onClick={handleToggle}>
                             {isExpanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}

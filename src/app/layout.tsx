@@ -38,7 +38,7 @@ export default function RootLayout({
                             <ModalProvider>
                                 <PerformanceProvider>
                                     {children}
-                                    {process.env.NODE_ENV === "development" && <PerformancePanel />}
+                                   {/*  {process.env.NODE_ENV === "development" && <PerformancePanel />} */}
                                 </PerformanceProvider>
                             </ModalProvider>
                         </ThemeProvider>

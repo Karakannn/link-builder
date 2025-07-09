@@ -8,7 +8,6 @@ import { useIsEditMode } from "@/providers/editor/editor-ui-context";
 
 export const useElementSelection = (element: EditorElement) => {
     const { handleSmartSelection } = useSmartSelection();
-    const [isHovered, setIsHovered] = useState(false);
     const isEditMode = useIsEditMode();
 
     const handleSelectElement = useCallback((e: React.MouseEvent) => {
@@ -18,11 +17,7 @@ export const useElementSelection = (element: EditorElement) => {
         }
     }, [handleSmartSelection, element, isEditMode]);
 
-    return {
-        handleSelectElement,
-        isHovered,
-        setIsHovered,
-    };
+    return { handleSelectElement };
 };
 
 export const useElementBorderHighlight = (element: EditorElement) => {

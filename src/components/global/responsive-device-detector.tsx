@@ -27,8 +27,7 @@ export function ResponsiveDeviceDetector({ children }: ResponsiveDeviceDetectorP
             }
 
             if (device !== newDevice) {
-                changeDevice;
-                newDevice;
+                changeDevice(newDevice);
             }
         };
 

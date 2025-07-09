@@ -65,6 +65,16 @@ export const useElementActions = () => {
         [dispatch]
     );
 
+    const reorderLayers = useCallback(
+        (activeId: string, overId: string) => {
+            dispatch({
+                type: "REORDER_LAYERS",
+                payload: { activeId, overId },
+            });
+        },
+        [dispatch]
+    );
+
     const selectElement = useCallback(
         (elementDetails?: EditorElement) => {
             dispatch({
@@ -83,8 +93,9 @@ export const useElementActions = () => {
             moveElement,
             insertElement,
             reorderElement,
+            reorderLayers,
             selectElement,
         }),
-        [addElement, updateElement, deleteElement, moveElement, insertElement, reorderElement, selectElement]
+        [addElement, updateElement, deleteElement, moveElement, insertElement, reorderElement, reorderLayers, selectElement]
     );
 };

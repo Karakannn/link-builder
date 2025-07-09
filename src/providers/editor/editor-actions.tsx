@@ -51,6 +51,13 @@ export type EditorAction =
       };
     }
   | {
+      type: "REORDER_LAYERS";
+      payload: {
+        activeId: string;
+        overId: string;
+      };
+    }
+  | {
       type: "CHANGE_CLICKED_ELEMENT";
       payload: {
         elementDetails?:
