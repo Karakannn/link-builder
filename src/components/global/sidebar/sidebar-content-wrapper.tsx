@@ -36,6 +36,11 @@ const SidebarContentWrapper = async (props: Props) => {
             url: "/admin/live-stream-cards",
             icon: "video",
         },
+        {
+            title: "Overlays",
+            url: "/admin/overlay",
+            icon: "layers",
+        }
     ];
 
     const adminNavMain = [
@@ -54,6 +59,11 @@ const SidebarContentWrapper = async (props: Props) => {
             url: "/admin/all-domains",
             icon: "world",
         },
+        {
+            title: "All Overlays",
+            url: "/admin/all-overlay",
+            icon: "layers",
+        }
     ];
 
     const data = {
@@ -74,14 +84,14 @@ const SidebarContentWrapper = async (props: Props) => {
         ],
     }
 
-        return (
+    return (
         <>
             <NavMain items={data.navMain} />
-            
+
             {user && user.role === "ADMIN" && (
                 <NavAdmin items={adminNavMain} />
             )}
-            
+
             <NavDocuments items={data.documents} />
             <NavSecondary items={data.navSecondary} className="mt-auto" />
         </>

@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, Save, Globe, BarChart3, Layers, Video, FileText } from "lucide-react";
-import { getAllUserModals, getSiteOverlaySettings, updateSiteSettings } from "@/actions/landing-modal";
+import { getAllUserOverlays, getSiteOverlaySettings, updateSiteOverlaySettings } from "@/actions/overlay";
 import { getAllUserLiveStreamCards } from "@/actions/live-stream-card";
 import { toast } from "sonner";
 
@@ -18,13 +18,13 @@ type Props = {
 
 export const SiteSettings = ({ siteId }: Props) => {
   const [enableOverlay, setEnableOverlay] = useState(false);
-  const [selectedModalId, setSelectedModalId] = useState<string>("clear");
+  const [selectedOverlayId, setSelectedOverlayId] = useState<string>("clear");
   const [selectedCardId, setSelectedCardId] = useState<string>("clear");
   const [liveStreamLink, setLiveStreamLink] = useState<string>("");
   const [title, setTitle] = useState<string>("");
   const [favicon, setFavicon] = useState<string>("");
   const [googleAnalyticsId, setGoogleAnalyticsId] = useState<string>("");
-  const [modals, setModals] = useState<any[]>([]);
+  const [overlays, setOverlays] = useState<any[]>([]);
   const [cards, setCards] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -36,35 +36,30 @@ export const SiteSettings = ({ siteId }: Props) => {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load modals
-      const modalsResult = await getAllUserModals();
-      if (modalsResult.status === 200) {
-        // Filter out modals with invalid IDs
-        const validModals = (modalsResult.modals || []).filter(
-          (modal) => modal.id && modal.id.trim() !== ""
+      // Load overlays
+      const overlaysResult = await getAllUserOverlays();
+      if (overlaysResult.status === 200) {
+        const validOverlays = (overlaysResult.overlays || []).filter(
+          (overlay) => overlay.id && overlay.id.trim() !== ""
         );
-        setModals(validModals);
-        console.log("Loaded modals:", validModals);
+        setOverlays(validOverlays);
       }
 
       // Load live stream cards
       const cardsResult = await getAllUserLiveStreamCards();
       if (cardsResult.status === 200) {
-        // Filter out cards with invalid IDs
         const validCards = (cardsResult.cards || []).filter(
           (card) => card.id && card.id.trim() !== ""
         );
         setCards(validCards);
-        console.log("Loaded cards:", validCards);
       }
 
       // Load site settings
       const settingsResult = await getSiteOverlaySettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
         setEnableOverlay(settingsResult.settings.enableOverlay || false);
-        const modalId = settingsResult.settings.selectedModalId;
-        // Ensure we never set an empty string - use "clear" instead
-        setSelectedModalId(modalId && modalId.trim() !== "" ? modalId : "clear");
+        const overlayId = settingsResult.settings.selectedModalId; // Using selectedModalId for backward compatibility
+        setSelectedOverlayId(overlayId && overlayId.trim() !== "" ? overlayId : "clear");
         const cardId = settingsResult.settings.selectedCardId;
         setSelectedCardId(cardId && cardId.trim() !== "" ? cardId : "clear");
         setLiveStreamLink(settingsResult.settings.liveStreamLink || "");
@@ -82,19 +77,15 @@ export const SiteSettings = ({ siteId }: Props) => {
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      console.log("🔴 Saving site settings with selectedCardId:", selectedCardId);
-      
-      const result = await updateSiteSettings(siteId, {
+      const result = await updateSiteOverlaySettings(siteId, {
         enableOverlay,
-        selectedModalId: enableOverlay && selectedModalId !== "clear" ? selectedModalId : undefined,
+        selectedOverlayId: enableOverlay && selectedOverlayId !== "clear" ? selectedOverlayId : undefined,
         selectedCardId: enableOverlay && selectedCardId !== "clear" ? selectedCardId : undefined,
         liveStreamLink: enableOverlay ? liveStreamLink : undefined,
         title,
         favicon,
         googleAnalyticsId
       });
-
-      console.log("🔴 Save result:", result);
 
       if (result.status === 200) {
         toast.success("Ayarlar başarıyla kaydedildi!");
@@ -207,49 +198,49 @@ export const SiteSettings = ({ siteId }: Props) => {
           {enableOverlay && (
             <div className="space-y-4 pl-4 border-l-2 border-border">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Landing Modal Section */}
+                {/* Overlay Section */}
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <FileText className="w-4 h-4" />
-                    <h4 className="font-medium">Landing Modal</h4>
+                    <h4 className="font-medium">Overlay</h4>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="modal-select">Modal Seçin</Label>
-                    <Select 
-                      value={selectedModalId || "clear"} 
-                      onValueChange={(value) => setSelectedModalId(value || "clear")}
+                    <Label htmlFor="overlay-select">Overlay Seçin</Label>
+                    <Select
+                      value={selectedOverlayId || "clear"}
+                      onValueChange={(value) => setSelectedOverlayId(value || "clear")}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Bir modal seçin" />
+                        <SelectValue placeholder="Bir overlay seçin" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="clear">
                           <span className="text-muted-foreground">Seçimi Temizle</span>
                         </SelectItem>
-                        {modals.length === 0 ? (
-                          <SelectItem value="no-modal" disabled>
-                            Modal bulunamadı
+                        {overlays.length === 0 ? (
+                          <SelectItem value="no-overlay" disabled>
+                            Overlay bulunamadı
                           </SelectItem>
                         ) : (
-                          modals
-                            .filter((modal) => modal.id && modal.id.trim() !== "")
-                            .map((modal) => (
-                              <SelectItem key={modal.id} value={modal.id}>
-                                {modal.name || "Unnamed Modal"}
+                          overlays
+                            .filter((overlay) => overlay.id && overlay.id.trim() !== "")
+                            .map((overlay) => (
+                              <SelectItem key={overlay.id} value={overlay.id}>
+                                {overlay.name || "Unnamed Overlay"}
                               </SelectItem>
                             ))
                         )}
                       </SelectContent>
                     </Select>
-                    {modals.length === 0 && (
+                    {overlays.length === 0 && (
                       <p className="text-sm text-amber-600">
-                        Henüz modal oluşturmadınız.{" "}
-                        <a 
-                          href="/admin/landing-modal" 
+                        Henüz overlay oluşturmadınız.{" "}
+                        <a
+                          href="/admin/overlay"
                           className="text-primary hover:underline"
                         >
-                          Modal oluşturmak için tıklayın
+                          Overlay oluşturmak için tıklayın
                         </a>
                       </p>
                     )}
@@ -260,13 +251,13 @@ export const SiteSettings = ({ siteId }: Props) => {
                 <div className="space-y-4">
                   <div className="flex items-center gap-2 mb-2">
                     <Video className="w-4 h-4" />
-                    <h4 className="font-medium">Canlı Yayın Kartı</h4>
+                    <h4 className="font-medium">Canlı Yayın Kartı (Üst Kısım)</h4>
                   </div>
-                  
+
                   <div className="space-y-2">
                     <Label htmlFor="card-select">Stream Card Seçin</Label>
-                    <Select 
-                      value={selectedCardId || "clear"} 
+                    <Select
+                      value={selectedCardId || "clear"}
                       onValueChange={(value) => setSelectedCardId(value || "clear")}
                     >
                       <SelectTrigger>
@@ -294,8 +285,8 @@ export const SiteSettings = ({ siteId }: Props) => {
                     {cards.length === 0 && (
                       <p className="text-sm text-amber-600">
                         Henüz stream card oluşturmadınız.{" "}
-                        <a 
-                          href="/admin/live-stream-cards" 
+                        <a
+                          href="/admin/live-stream-cards"
                           className="text-primary hover:underline"
                         >
                           Stream card oluşturmak için tıklayın
@@ -318,10 +309,10 @@ export const SiteSettings = ({ siteId }: Props) => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="mt-4 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  İkisi de yapılandırılmışsa, overlay her iki içeriği de yan yana gösterecek.
+                  Stream card üst kısımda, overlay alt kısımda gösterilecek. Sadece overlay aktifse her ikisi de görünür.
                 </p>
               </div>
             </div>
@@ -342,4 +333,4 @@ export const SiteSettings = ({ siteId }: Props) => {
       </CardContent>
     </Card>
   );
-}; 
+};
