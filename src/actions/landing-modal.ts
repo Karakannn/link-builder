@@ -1,4 +1,4 @@
-"use server";
+/* "use server";
 
 import { currentUser } from "@clerk/nextjs/server";
 import { client } from "@/lib/prisma";
@@ -1004,4 +1004,4 @@ export async function adminCreateModalFromTemplate(
             message: `Modal oluşturulurken bir hata oluştu: ${error instanceof Error ? error.message : 'Bilinmeyen hata'}`
         };
     }
-} 
+}  */

@@ -152,8 +152,8 @@ export default async function CustomDomainPage({ params }: Props) {
         // Overlay ayarlarını kontrol et
         const siteSettings = domain.site.settings;
         const shouldShowOverlay = siteSettings?.enableOverlay && (
-            (siteSettings?.overlayType === 'LANDING_MODAL' && siteSettings?.selectedModalId) ||
-            (siteSettings?.overlayType === 'LIVE_STREAM_CARD' && siteSettings?.liveStreamLink)
+            (siteSettings?.selectedOverlayId) ||
+            (siteSettings?.selectedCardId)
         );
 
         console.log("✅ Rendering custom domain page:", {
@@ -162,13 +162,12 @@ export default async function CustomDomainPage({ params }: Props) {
             page: homepage.title,
             contentLength: pageContent.length,
             shouldShowOverlay,
-            overlayType: siteSettings?.overlayType,
-            selectedModalId: siteSettings?.selectedModalId,
-            liveStreamLink: siteSettings?.liveStreamLink
+            selectedOverlayId: siteSettings?.selectedOverlayId,
+            selectedCardId: siteSettings?.selectedCardId
         });
 
         return (
-            <OverlayProvider siteId={domain.site.id}>
+     /*        <OverlayProvider siteId={domain.site.id}> */
                 <EditorProvider siteId={domain.site.id} pageDetails={pageContent}>
                     <ResponsiveDeviceDetector>
                         <div className="w-full h-screen">
@@ -185,7 +184,7 @@ export default async function CustomDomainPage({ params }: Props) {
                         </div>
                     </ResponsiveDeviceDetector>
                 </EditorProvider>
-            </OverlayProvider>
+       /*      </OverlayProvider> */
         );
 
     } catch (error) {

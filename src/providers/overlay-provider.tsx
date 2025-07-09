@@ -56,22 +56,22 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                 if (settingsResult.status === 200 && settingsResult.settings) {
                     const {
                         enableOverlay,
-                        selectedModalId, // Using selectedModalId for backward compatibility
+                        selectedOverlayId,
                         selectedCardId,
                         liveStreamLink: streamLink
                     } = settingsResult.settings;
 
                     console.log("🔴 Site overlay settings:", {
                         enableOverlay,
-                        selectedModalId,
+                        selectedOverlayId,
                         selectedCardId,
                         streamLink
                     });
 
                     if (enableOverlay) {
                         // Check overlay content
-                        if (selectedModalId) {
-                            const overlayResult = await getPublicOverlayContent(selectedModalId);
+                        if (selectedOverlayId) {
+                            const overlayResult = await getPublicOverlayContent(selectedOverlayId);
                             if (overlayResult && overlayResult.content) {
                                 // Parse the overlay content properly
                                 let parsedContent: EditorElement[] = [];
@@ -99,7 +99,7 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                             console.log("🔴 Checking live stream card with ID:", selectedCardId);
                             const cardResult = await getPublicLiveStreamCardContent(selectedCardId);
                             console.log("🔴 Card result:", cardResult);
-
+                            
                             if (cardResult && cardResult.card && cardResult.card.content) {
                                 // Parse the card content properly
                                 let parsedContent: EditorElement[] = [];
@@ -127,7 +127,7 @@ export const OverlayProvider = ({ children, siteId }: OverlayProviderProps) => {
                         }
 
                         // Show overlay if at least one is configured
-                        if (selectedModalId || selectedCardId) {
+                        if (selectedOverlayId || selectedCardId) {
                             setIsOpen(true);
                         }
                     }

@@ -6,7 +6,8 @@ import {
   closableContainerDefaultStyles,
   pulsatingButtonDefaultStyles,
   animatedTextDefaultStyles,
-  supportsLayout
+  supportsLayout,
+  liveStreamCardDefaultStyles
 } from '@/lib/constants';
 import { EditorElement, EditorState } from '@/providers/editor/editor-provider';
 import { UniqueIdentifier } from '@dnd-kit/core';
@@ -373,6 +374,15 @@ export const useEditorUtilities = () => {
           },
           styles: { ...animatedTextDefaultStyles } as React.CSSProperties,
           type: "animatedText",
+        } as EditorElement;
+
+      case "liveStreamCard":
+        return {
+          ...baseElement,
+          name: "Live Stream Card",
+          content: [],
+          styles: { ...liveStreamCardDefaultStyles } as React.CSSProperties,
+          type: "liveStreamCard",
         } as EditorElement;
 
       default:

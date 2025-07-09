@@ -23,7 +23,7 @@ export async function saveOverlayContent(content: any, overlayId?: string) {
 
         if (overlayId) {
             // Update existing overlay
-            const overlay = await client.landingModal.update({
+            const overlay = await client.overlay.update({
                 where: {
                     id: overlayId,
                     userId: user.id
@@ -35,7 +35,7 @@ export async function saveOverlayContent(content: any, overlayId?: string) {
             return overlay;
         } else {
             // Create new overlay
-            const overlay = await client.landingModal.create({
+            const overlay = await client.overlay.create({
                 data: {
                     content,
                     name: "Yeni Overlay",
@@ -70,7 +70,7 @@ export async function getOverlayContent(overlayId?: string) {
 
         if (overlayId) {
             // Get specific overlay
-            const overlay = await client.landingModal.findFirst({
+            const overlay = await client.overlay.findFirst({
                 where: {
                     id: overlayId,
                     userId: user.id
@@ -79,7 +79,7 @@ export async function getOverlayContent(overlayId?: string) {
             return overlay;
         } else {
             // Get first overlay (for backward compatibility)
-            const overlay = await client.landingModal.findFirst({
+            const overlay = await client.overlay.findFirst({
                 where: {
                     userId: user.id
                 }
@@ -110,7 +110,7 @@ export async function getAllUserOverlays() {
             throw new Error("User not found");
         }
 
-        const overlays = await client.landingModal.findMany({
+        const overlays = await client.overlay.findMany({
             where: {
                 userId: user.id
             },
@@ -151,7 +151,7 @@ export async function createOverlayFromTemplate(name: string, templateContent: a
         }
 
         // Check if overlay with same name exists
-        const existingOverlay = await client.landingModal.findFirst({
+        const existingOverlay = await client.overlay.findFirst({
             where: {
                 name: name,
                 userId: user.id
@@ -182,7 +182,7 @@ export async function createOverlayFromTemplate(name: string, templateContent: a
             };
         }
 
-        const overlay = await client.landingModal.create({
+        const overlay = await client.overlay.create({
             data: {
                 name,
                 content: templateContent,
@@ -221,7 +221,7 @@ export async function updateOverlayName(overlayId: string, name: string) {
             throw new Error("User not found");
         }
 
-        const overlay = await client.landingModal.update({
+        const overlay = await client.overlay.update({
             where: {
                 id: overlayId,
                 userId: user.id
@@ -262,7 +262,7 @@ export async function deleteOverlay(overlayId: string) {
             throw new Error("User not found");
         }
 
-        await client.landingModal.delete({
+        await client.overlay.delete({
             where: {
                 id: overlayId,
                 userId: user.id
@@ -327,8 +327,7 @@ export async function updateSiteOverlaySettings(siteId: string, settings: {
             create: {
                 siteId: siteId,
                 enableOverlay: settings.enableOverlay ?? false,
-                overlayType: 'LANDING_MODAL', // Keep for backward compatibility
-                selectedModalId: settings.selectedOverlayId ?? null,
+                selectedOverlayId: settings.selectedOverlayId ?? null,
                 selectedCardId: settings.selectedCardId ?? null,
                 liveStreamLink: settings.liveStreamLink ?? null,
                 title: settings.title ?? null,
@@ -337,7 +336,7 @@ export async function updateSiteOverlaySettings(siteId: string, settings: {
             },
             update: {
                 enableOverlay: settings.enableOverlay ?? false,
-                selectedModalId: settings.selectedOverlayId ?? null,
+                selectedOverlayId: settings.selectedOverlayId ?? null,
                 selectedCardId: settings.selectedCardId ?? null,
                 liveStreamLink: settings.liveStreamLink ?? null,
                 title: settings.title ?? null,
@@ -443,7 +442,7 @@ export async function getPublicOverlayContent(overlayId: string) {
         }
 
         // Get overlay content without authentication
-        const overlay = await client.landingModal.findUnique({
+        const overlay = await client.overlay.findUnique({
             where: {
                 id: overlayId,
                 isEnabled: true // Only get enabled overlays
@@ -467,7 +466,7 @@ export async function adminGetAllUserOverlays() {
             return { status: admin.status, message: admin.message };
         }
 
-        const overlays = await client.landingModal.findMany({
+        const overlays = await client.overlay.findMany({
             where: {
                 user: {
                     role: "USER"
@@ -510,7 +509,7 @@ export async function adminGetOverlayContent(overlayId: string) {
             return { status: admin.status, message: admin.message };
         }
 
-        const overlay = await client.landingModal.findFirst({
+        const overlay = await client.overlay.findFirst({
             where: {
                 id: overlayId,
                 user: {
@@ -556,7 +555,7 @@ export async function adminDeleteOverlay(overlayId: string) {
         }
 
         // Overlay'ı bul
-        const overlay = await client.landingModal.findUnique({
+        const overlay = await client.overlay.findUnique({
             where: { id: overlayId }
         });
 
@@ -568,7 +567,7 @@ export async function adminDeleteOverlay(overlayId: string) {
         }
 
         // Overlay'ı sil
-        await client.landingModal.delete({
+        await client.overlay.delete({
             where: { id: overlayId }
         });
 
@@ -595,7 +594,7 @@ export async function adminUpdateOverlayName(overlayId: string, name: string) {
         }
 
         // Overlay'ı güncelle
-        const overlay = await client.landingModal.update({
+        const overlay = await client.overlay.update({
             where: { id: overlayId },
             data: { name }
         });
@@ -615,8 +614,8 @@ export async function adminUpdateOverlayName(overlayId: string, name: string) {
 }
 
 export async function adminCreateOverlayFromTemplate(
-    name: string,
-    templateContent: any,
+    name: string, 
+    templateContent: any, 
     userId: string
 ) {
     try {
@@ -648,7 +647,7 @@ export async function adminCreateOverlayFromTemplate(
         console.log("[ADMIN_CREATE_OVERLAY_FROM_TEMPLATE] User found:", user.email);
 
         // Check if overlay with same name exists
-        const existingOverlay = await client.landingModal.findFirst({
+        const existingOverlay = await client.overlay.findFirst({
             where: {
                 name: name,
                 userId: userId
@@ -682,7 +681,7 @@ export async function adminCreateOverlayFromTemplate(
         }
 
         // Overlay oluştur
-        const overlay = await client.landingModal.create({
+        const overlay = await client.overlay.create({
             data: {
                 name,
                 content: templateContent,

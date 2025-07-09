@@ -29,6 +29,9 @@ import PulsatingButtonPlaceholder from "./pulsating-button-placeholder";
 // Animated Text component
 import AnimatedTextPlaceholder from "./animated-text-placeholder";
 
+// Live Stream Card component
+import LiveStreamCardPlaceholder from "./live-stream-card-placeholder";
+
 const ComponentsTab = () => {
     const elements: {
         Component: React.ReactNode;
@@ -124,6 +127,14 @@ const ComponentsTab = () => {
             label: "Marquee",
             id: "marquee",
             category: "marquee",
+        },
+        
+        // Live Stream Card Elements
+        {
+            Component: <LiveStreamCardPlaceholder />,
+            label: "Live Stream Card",
+            id: "liveStreamCard",
+            category: "cards",
         },
         
         // Other Elements

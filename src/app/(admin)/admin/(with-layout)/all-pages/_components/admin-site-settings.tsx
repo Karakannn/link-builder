@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, User, Mail } from "lucide-react";
-import { adminGetAllUserModals, adminGetSiteLandingModalSettings, adminUpdateSiteLandingModalSettings } from "@/actions/landing-modal";
 import { toast } from "sonner";
 
 type Props = {
@@ -33,16 +32,16 @@ export const AdminSiteSettings = ({ siteId, siteName, userName, userEmail }: Pro
     setIsLoading(true);
     try {
       // Load all modals
-      const modalsResult = await adminGetAllUserModals();
+    /*   const modalsResult = await adminGetAllUserModals();
       if (modalsResult.status === 200) {
         setModals(modalsResult.modals || []);
-      }
+      } 
 
       // Load site settings
-      const settingsResult: any = await adminGetSiteLandingModalSettings(siteId);
+/*       const settingsResult: any = await adminGetSiteLandingModalSettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
         setEnableLandingModal(settingsResult.settings.enableLandingModal);
-        setSelectedModalId(settingsResult.settings.selectedModalId || "");
+        setSelectedModalId(settingsResult.settings.selectedModalId || "");  
       }
     } catch (error) {
       toast.error("Ayarlar yüklenirken bir hata oluştu");
@@ -54,17 +53,17 @@ export const AdminSiteSettings = ({ siteId, siteName, userName, userEmail }: Pro
   const handleSaveSettings = async () => {
     setIsSaving(true);
     try {
-      const result = await adminUpdateSiteLandingModalSettings(
+/*       const result = await adminUpdateSiteLandingModalSettings(
         siteId,
         enableLandingModal,
         enableLandingModal ? selectedModalId : undefined
-      );
+      ); */
 
-      if (result.status === 200) {
+/*       if (result.status === 200) {
         toast.success("Site ayarları başarıyla kaydedildi!");
       } else {
         toast.error(result.message || "Ayarlar kaydedilirken bir hata oluştu");
-      }
+      } */
     } catch (error) {
       toast.error("Beklenmeyen bir hata oluştu");
     } finally {
@@ -167,7 +166,7 @@ export const AdminSiteSettings = ({ siteId, siteName, userName, userEmail }: Pro
         </div>
 
         {/* Save Button */}
-        <div className="flex justify-end pt-4 border-t border-border">
+    {/*     <div className="flex justify-end pt-4 border-t border-border">
           <Button onClick={handleSaveSettings} disabled={isSaving} className="gap-2">
             {isSaving ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -176,7 +175,7 @@ export const AdminSiteSettings = ({ siteId, siteName, userName, userEmail }: Pro
             )}
             {isSaving ? "Kaydediliyor..." : "Ayarları Kaydet"}
           </Button>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );

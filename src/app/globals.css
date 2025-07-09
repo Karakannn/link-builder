@@ -549,15 +549,18 @@
 /* Pulse Animation */
 @keyframes pulse {
   0%, 100% {
-    box-shadow: 0 0 0 0 currentColor;
+    box-shadow: 0 0 0 0 var(--pulse-color, currentColor);
+    opacity: 0.8;
   }
   50% {
-    box-shadow: 0 0 0 8px currentColor;
+    box-shadow: 0 0 0 12px var(--pulse-color, currentColor);
+    opacity: 0.4;
   }
 }
 
 .animate-pulse-custom {
   animation: pulse 1.5s ease-out infinite;
+  border-radius: inherit;
 }
 
 /* Animated Text Styles */

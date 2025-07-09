@@ -22,7 +22,6 @@ import {
   Plus
 } from "lucide-react";
 import { adminDeletePage, adminCreatePageFromTemplate, adminSetPageAsHome, getUsersWithoutPages } from "@/actions/page";
-import { adminGetSiteLandingModalSettings, adminUpdateSiteLandingModalSettings, adminGetUserModals } from "@/actions/landing-modal";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
@@ -115,7 +114,7 @@ const AllUsersPages = ({ usersData }: Props) => {
     setIsLoadingSettings(true);
     
     try {
-      // Check if user info exists
+      // Check if user info exists  
       if (!site.user?.id) {
         console.error("[FRONTEND] No user info found for site:", site);
         toast.error("Site kullanıcı bilgisi bulunamadı");
@@ -124,21 +123,21 @@ const AllUsersPages = ({ usersData }: Props) => {
 
       // Load user's modals
       console.log("[FRONTEND] Loading modals for user:", site.user.id);
-      const modalsResult = await adminGetUserModals(site.user.id);
-      console.log("[FRONTEND] Modals result:", modalsResult);
+    /*   const modalsResult = await adminGetUserModals(site.user.id); */
+    /*   console.log("[FRONTEND] Modals result:", modalsResult); */
       
-      if (modalsResult.status === 200) {
+    /*   if (modalsResult.status === 200) {
         setModals(modalsResult.modals || []);
       } else {
         console.error("[FRONTEND] Failed to load modals:", modalsResult);
-      }
+      } */
 
       // Load site settings
       console.log("[FRONTEND] Loading site settings for site:", site.id);
-      const settingsResult = await adminGetSiteLandingModalSettings(site.id);
-      console.log("[FRONTEND] Settings result:", settingsResult);
+    /*   const settingsResult = await adminGetSiteLandingModalSettings(site.id); */
+    /*   console.log("[FRONTEND] Settings result:", settingsResult); */
       
-      if (settingsResult.status === 200) {
+    /*   if (settingsResult.status === 200) {
         setSiteSettings(prev => ({
           ...prev,
           [site.id]: settingsResult.settings || {
@@ -148,7 +147,7 @@ const AllUsersPages = ({ usersData }: Props) => {
         }));
       } else {
         console.error("[FRONTEND] Failed to load site settings:", settingsResult);
-      }
+      } */
     } catch (error) {
       console.error("[FRONTEND] Error in handleOpenSiteSettings:", {
         error,
@@ -168,18 +167,18 @@ const AllUsersPages = ({ usersData }: Props) => {
     setIsSavingSettings(true);
     try {
       const currentSettings = siteSettings[selectedSiteForSettings.id];
-      const result = await adminUpdateSiteLandingModalSettings(
+    /*   const result = await adminUpdateSiteLandingModalSettings(
         selectedSiteForSettings.id,
         currentSettings.enableLandingModal,
         currentSettings.enableLandingModal ? currentSettings.selectedModalId : undefined
-      );
+      ); */
 
-      if (result.status === 200) {
+    /*   if (result.status === 200) {
         toast.success("Site ayarları başarıyla kaydedildi!");
         setIsSettingsOpen(false);
       } else {
         toast.error(result.message || "Ayarlar kaydedilirken bir hata oluştu");
-      }
+      } */
     } catch (error) {
       toast.error("Beklenmeyen bir hata oluştu");
     } finally {

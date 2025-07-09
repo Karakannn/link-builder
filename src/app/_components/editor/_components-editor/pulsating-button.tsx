@@ -80,7 +80,7 @@ const PulsatingButtonComponent = ({ element }: Props) => {
 
     useEffect(() => {
         if (buttonRef.current && !Array.isArray(content)) {
-            buttonRef.current.innerText = content.innerText as string;
+            buttonRef.current.innerText = content.innerText as string || "Click me";
         }
     }, [content]);
 
@@ -114,12 +114,12 @@ const PulsatingButtonComponent = ({ element }: Props) => {
                     pulseColor={pulseColor}
                     duration={duration}
                     suppressHydrationWarning={true}
-                    contentEditable={!liveMode}
                     onBlur={handleBlurElement}
                     className={clsx({
                         "select-none": !isElementSelected,
                     })}
                     onClick={handleButtonClick}
+                    contentEditable={!liveMode && isElementSelected}
                 >
                     {!Array.isArray(content) ? content.innerText : "Click me"}
                 </PulsatingButton>

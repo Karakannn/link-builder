@@ -1,4 +1,3 @@
-import { getLandingModalContent, adminGetLandingModalContent } from "@/actions/landing-modal";
 import FunnelEditor from "@/app/_components/editor";
 import FunnelEditorNavigation from "@/app/_components/editor-navigation/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
@@ -6,8 +5,8 @@ import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeh
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { getAuthUserDetails, onAdminUser } from "@/actions/auth";
-import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { ModalEditorWrapper } from "./_components/modal-editor-wrapper";
+import { adminGetOverlayContent, getOverlayContent } from "@/actions/overlay";
 
 const defaultContent: EditorElement[] = [
     {
@@ -58,7 +57,7 @@ export default async function ModalBuilderPage({ params }: Props) {
 
     try {
         if (adminCheck.status === 200) {
-            const result = await adminGetLandingModalContent(resolvedParams.modalId);
+                const result = await adminGetOverlayContent(resolvedParams.modalId);
             if (result.status === 200) {
                 modalContent = result.modal;
             } else {
@@ -66,7 +65,7 @@ export default async function ModalBuilderPage({ params }: Props) {
                 modalContent = null;
             }
         } else {
-            modalContent = await getLandingModalContent(resolvedParams.modalId);
+            modalContent = await getOverlayContent(resolvedParams.modalId);
         }
     } catch (error) {
         console.error("Error fetching modal content:", error);
@@ -92,31 +91,29 @@ export default async function ModalBuilderPage({ params }: Props) {
 
     return (
         <EditorProvider siteId={`modal-${resolvedParams.modalId}`} pageDetails={content}>
-            <LandingModalProvider isPreview={true}>
-                <DndContextProvider>
-                    <div className="flex flex-col h-full">
-                        <FunnelEditorNavigation
-                            pageDetails={{
-                                id: resolvedParams.modalId,
-                                title: modalContent?.name || "Modal",
-                                slug: `modal-${resolvedParams.modalId}`,
-                                content: JSON.stringify(content),
-                                siteId: `modal-${resolvedParams.modalId}`,
-                                isHome: false,
-                                seo: null,
-                                updatedAt: modalContent?.updatedAt || new Date(),
-                                createdAt: modalContent?.createdAt || new Date(),
-                            }}
-                            user={user}
-                        />
-                        <div className="mr-[385px] ml-80">
-                            <ModalEditorWrapper pageDetails={content} />
-                        </div>
-                        <FunnelEditorSidebar userId={user.id} />
+            <DndContextProvider>
+                <div className="flex flex-col h-full">
+                    <FunnelEditorNavigation
+                        pageDetails={{
+                            id: resolvedParams.modalId,
+                            title: modalContent?.name || "Modal",
+                            slug: `modal-${resolvedParams.modalId}`,
+                            content: JSON.stringify(content),
+                            siteId: `modal-${resolvedParams.modalId}`,
+                            isHome: false,
+                            seo: null,
+                            updatedAt: modalContent?.updatedAt || new Date(),
+                            createdAt: modalContent?.createdAt || new Date(),
+                        }}
+                        user={user}
+                    />
+                    <div className="mr-[385px] ml-80">
+                        <ModalEditorWrapper pageDetails={content} />
                     </div>
-                    <DragOverlayWrapper />
-                </DndContextProvider>
-            </LandingModalProvider>
+                    <FunnelEditorSidebar userId={user.id} />
+                </div>
+                <DragOverlayWrapper />
+            </DndContextProvider>
         </EditorProvider>
     );
 } 

@@ -58,7 +58,7 @@ export const SiteSettings = ({ siteId }: Props) => {
       const settingsResult = await getSiteOverlaySettings(siteId);
       if (settingsResult.status === 200 && settingsResult.settings) {
         setEnableOverlay(settingsResult.settings.enableOverlay || false);
-        const overlayId = settingsResult.settings.selectedModalId; // Using selectedModalId for backward compatibility
+        const overlayId = settingsResult.settings.selectedOverlayId;
         setSelectedOverlayId(overlayId && overlayId.trim() !== "" ? overlayId : "clear");
         const cardId = settingsResult.settings.selectedCardId;
         setSelectedCardId(cardId && cardId.trim() !== "" ? cardId : "clear");
@@ -204,11 +204,11 @@ export const SiteSettings = ({ siteId }: Props) => {
                     <FileText className="w-4 h-4" />
                     <h4 className="font-medium">Overlay</h4>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="overlay-select">Overlay Seçin</Label>
-                    <Select
-                      value={selectedOverlayId || "clear"}
+                    <Select 
+                      value={selectedOverlayId || "clear"} 
                       onValueChange={(value) => setSelectedOverlayId(value || "clear")}
                     >
                       <SelectTrigger>
@@ -236,8 +236,8 @@ export const SiteSettings = ({ siteId }: Props) => {
                     {overlays.length === 0 && (
                       <p className="text-sm text-amber-600">
                         Henüz overlay oluşturmadınız.{" "}
-                        <a
-                          href="/admin/overlay"
+                        <a 
+                          href="/admin/overlay" 
                           className="text-primary hover:underline"
                         >
                           Overlay oluşturmak için tıklayın
@@ -253,11 +253,11 @@ export const SiteSettings = ({ siteId }: Props) => {
                     <Video className="w-4 h-4" />
                     <h4 className="font-medium">Canlı Yayın Kartı (Üst Kısım)</h4>
                   </div>
-
+                  
                   <div className="space-y-2">
                     <Label htmlFor="card-select">Stream Card Seçin</Label>
-                    <Select
-                      value={selectedCardId || "clear"}
+                    <Select 
+                      value={selectedCardId || "clear"} 
                       onValueChange={(value) => setSelectedCardId(value || "clear")}
                     >
                       <SelectTrigger>
@@ -285,8 +285,8 @@ export const SiteSettings = ({ siteId }: Props) => {
                     {cards.length === 0 && (
                       <p className="text-sm text-amber-600">
                         Henüz stream card oluşturmadınız.{" "}
-                        <a
-                          href="/admin/live-stream-cards"
+                        <a 
+                          href="/admin/live-stream-cards" 
                           className="text-primary hover:underline"
                         >
                           Stream card oluşturmak için tıklayın
@@ -309,7 +309,7 @@ export const SiteSettings = ({ siteId }: Props) => {
                   </div>
                 </div>
               </div>
-
+              
               <div className="mt-4 p-4 bg-muted/50 rounded-lg">
                 <p className="text-sm text-muted-foreground">
                   Stream card üst kısımda, overlay alt kısımda gösterilecek. Sadece overlay aktifse her ikisi de görünür.

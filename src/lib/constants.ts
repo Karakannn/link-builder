@@ -21,6 +21,7 @@ export type EditorBtns =
   | "dotPattern"
   | "pulsatingButton"
   | "animatedText"
+  | "liveStreamCard"
   | null;
 
 // Elements that support layout functionality (horizontal/vertical)
@@ -190,4 +191,22 @@ export const animatedTextDefaultStyles: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
+};
+
+// Specific default styles for live stream card components
+export const liveStreamCardDefaultStyles: React.CSSProperties = {
+  ...defaultStyles,
+  margin: "0px",
+  padding: "0px",
+  marginTop: "0px",
+  marginRight: "0px",
+  marginBottom: "0px",
+  marginLeft: "0px",
+  paddingTop: "0px",
+  paddingRight: "0px",
+  paddingBottom: "0px",
+  paddingLeft: "0px",
+  fontSize: "16px",
+  minHeight: "200px",
+  maxWidth: "500px",
 };

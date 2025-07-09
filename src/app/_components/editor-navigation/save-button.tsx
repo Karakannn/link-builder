@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { Page } from "@prisma/client";
 import { upsertPage } from "@/actions/page";
-import { saveLandingModalContent } from "@/actions/landing-modal";
 import { saveLiveStreamCardContent } from "@/actions/live-stream-card";
+import { saveOverlayContent } from "@/actions/overlay";
 import { toast } from "sonner";
 import { usePathname } from "next/navigation";
 import { useElements } from "@/providers/editor/editor-elements-provider";
@@ -22,8 +22,8 @@ export const SaveButton = memo(({ pageDetails, onSaveSuccess }: SaveButtonProps)
     const [isSaving, setIsSaving] = useState(false);
     const elements = useElements();
    
-    const isLandingModalPage = pathname?.includes("landing-modal");
     const isLiveStreamCardPage = pathname?.includes("live-stream-cards");
+    const isOverlayPage = pathname?.includes("overlay");
 
     const handleOnSave = useCallback(async () => {
         if (isSaving) return;
@@ -34,14 +34,14 @@ export const SaveButton = memo(({ pageDetails, onSaveSuccess }: SaveButtonProps)
         try {
             let response;
 
-            if (isLandingModalPage) {
-                const modalId = pageDetails.id;
-                response = await saveLandingModalContent(content, modalId);
-                console.log("Modal save response:", response);
-            } else if (isLiveStreamCardPage) {
+            if (isLiveStreamCardPage) {
                 const cardId = pageDetails.id;
                 response = await saveLiveStreamCardContent(content, cardId);
                 console.log("Stream card save response:", response);
+            } else if (isOverlayPage) {
+                const overlayId = pageDetails.id;
+                response = await saveOverlayContent(content, overlayId);
+                console.log("Overlay save response:", response);
             } else {
                 response = await upsertPage({
                     ...pageDetails,
@@ -54,21 +54,21 @@ export const SaveButton = memo(({ pageDetails, onSaveSuccess }: SaveButtonProps)
             onSaveSuccess?.();
 
             toast("Başarılı", {
-                description: isLandingModalPage
-                    ? "Modal başarıyla kaydedildi"
-                    : isLiveStreamCardPage
+                description: isLiveStreamCardPage
                     ? "Stream card başarıyla kaydedildi"
+                    : isOverlayPage
+                    ? "Overlay başarıyla kaydedildi"
                     : "Sayfa başarıyla kaydedildi",
             });
         } catch (error) {
             console.error("Save error:", error);
             toast("Hata!", {
-                description: isLandingModalPage ? "Modal kaydedilemedi" : isLiveStreamCardPage ? "Stream card kaydedilemedi" : "Editör kaydedilemedi",
+                description: isLiveStreamCardPage ? "Stream card kaydedilemedi" : isOverlayPage ? "Overlay kaydedilemedi" : "Editör kaydedilemedi",
             });
         } finally {
             setIsSaving(false);
         }
-    }, [isSaving, elements, isLandingModalPage, isLiveStreamCardPage, pageDetails, onSaveSuccess]);
+    }, [isSaving, elements, isLiveStreamCardPage, isOverlayPage, pageDetails, onSaveSuccess]);
 
     return (
         <Button onClick={handleOnSave} disabled={isSaving}>

@@ -46,11 +46,6 @@ export function DomainList({ domains, sites }: Props) {
         // Domain adını temizle ve kontrol et
         const cleanDomainName = domainName.toLowerCase().trim();
         
-        // Basit domain format kontrolü
-        if (!cleanDomainName.includes('.') || cleanDomainName.length < 3) {
-            toast.error("Geçerli bir domain adı girin (örn: example.com)");
-            return;
-        }
 
         // Aynı domain adının zaten var olup olmadığını kontrol et
         const existingDomain = domains.find(d => d.name.toLowerCase() === cleanDomainName);

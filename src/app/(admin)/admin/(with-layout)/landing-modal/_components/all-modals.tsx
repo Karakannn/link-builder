@@ -15,7 +15,6 @@ import {
   AlertTriangle,
   Plus
 } from "lucide-react";
-import { createModalFromTemplate, deleteModal, updateModalName } from "@/actions/landing-modal";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -79,14 +78,14 @@ const AllModals = ({ modalsData }: Props) => {
         },
       ];
       
-      const result = await createModalFromTemplate(name, basicModalContent);
+    /*   const result = await createModalFromTemplate(name, basicModalContent); */
       
-      if (result.status === 200) {
+    /*   if (result.status === 200) {
         toast.success("Modal başarıyla oluşturuldu!");
         router.refresh();
       } else {
         toast.error(result.message || "Modal oluşturulurken bir hata oluştu");
-      }
+      } */
     } catch (error) {
       toast.error("Beklenmeyen bir hata oluştu");
     } finally {
@@ -97,14 +96,14 @@ const AllModals = ({ modalsData }: Props) => {
   const handleDeleteModal = async (modalId: string) => {
     setLoadingStates(prev => ({ ...prev, [modalId]: true }));
     try {
-      const result = await deleteModal(modalId);
+    /*   const result = await deleteModal(modalId); */
       
-      if (result.status === 200) {
+    /*   if (result.status === 200) {
         toast.success("Modal başarıyla silindi!");
         router.refresh();
       } else {
         toast.error(result.message || "Modal silinirken bir hata oluştu");
-      }
+      } */
     } catch (error) {
       toast.error("Beklenmeyen bir hata oluştu");
     } finally {

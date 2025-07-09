@@ -8,139 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id              String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  firstname       String
-  lastname        String
-  email           String
-  clerkId         String           @unique
-  image           String?
-  role            UserRole         @default(USER)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-  domains         Domain[]
-  landingModals   LandingModal[]
-  liveStreamCards LiveStreamCard[]
-  media           Media[]
-  sites           Site[]
-}
-
-model Site {
-  id          String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String
-  description String?
-  isPublished Boolean       @default(false)
-  favIcon     String?
-  isDefault   Boolean       @default(false)
-  userId      String        @db.Uuid
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-  domains     Domain[]
-  media       Media[]
-  pages       Page[]
-  user        User          @relation(fields: [userId], references: [id])
-  settings    SiteSettings?
-
-  @@index([userId])
-}
-
-model Page {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title     String
-  slug      String
-  isHome    Boolean  @default(false)
-  content   Json
-  seo       Json?
-  siteId    String   @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-
-  @@unique([siteId, slug])
-  @@index([siteId])
-}
-
-model Domain {
-  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String   @unique
-  userId         String   @db.Uuid
-  siteId         String?  @db.Uuid
-  isVerified     Boolean  @default(false)
-  verificationId String   @unique
-  sslStatus      String   @default("pending")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  site           Site?    @relation(fields: [siteId], references: [id])
-  user           User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-  @@index([siteId])
-}
-
-model LandingModal {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content   Json
-  isEnabled Boolean  @default(true)
-  userId    String   @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-}
-
-model LiveStreamCard {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  content   Json
-  isEnabled Boolean  @default(true)
-  userId    String   @db.Uuid
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  name      String
-  user      User     @relation(fields: [userId], references: [id])
-
-  @@index([userId])
-}
-
-model SiteSettings {
-  id                String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  siteId            String      @unique @db.Uuid
-  enableOverlay     Boolean     @default(false)
-  overlayType       OverlayType @default(LANDING_MODAL)
-  selectedModalId   String?     @db.Uuid
-  liveStreamLink    String?
-  title             String?
-  favicon           String?
-  googleAnalyticsId String?
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-  selectedCardId    String?     @db.Uuid
-  site              Site        @relation(fields: [siteId], references: [id], onDelete: Cascade)
-
-  @@index([siteId])
-}
-
-model Media {
-  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  type      MediaType
-  name      String
-  link      String    @unique
-  alt       String?
-  size      Int?
-  mimeType  String?
-  userId    String    @db.Uuid
-  siteId    String?   @db.Uuid
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  site      Site?     @relation(fields: [siteId], references: [id], onDelete: Cascade)
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([userId])
-  @@index([siteId])
-  @@index([type])
-}
-
 enum UserRole {
   ADMIN
   USER
@@ -153,7 +20,150 @@ enum MediaType {
   AUDIO
 }
 
-enum OverlayType {
-  LANDING_MODAL
-  LIVE_STREAM_CARD
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  firstname     String
+  lastname      String
+  clerkId       String   @unique
+  image         String?
+  role          UserRole @default(USER)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  sites         Site[]
+  media         Media[]
+  domains       Domain[]
+  overlays      Overlay[]    
+  liveStreamCards LiveStreamCard[]
+
+  @@map("User")
+}
+
+model Site {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isDefault   Boolean  @default(false)
+  isPublished Boolean  @default(false)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages       Page[]
+  media       Media[]
+  domains     Domain[]
+  settings    SiteSettings?
+
+  @@index([userId])
+  @@map("Site")
+}
+
+model Page {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String
+  content   Json?
+  isHome    Boolean  @default(false)
+  seo       Json?
+  siteId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@unique([siteId, slug])
+  @@index([siteId])
+  @@map("Page")
+}
+
+model Overlay {
+  id        String   @id @default(cuid())
+  name      String
+  content   Json?
+  isEnabled Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("Overlay") 
+}
+
+model LiveStreamCard {
+  id        String   @id @default(cuid())
+  name      String
+  content   Json?
+  isEnabled Boolean  @default(false)
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("LiveStreamCard")
+}
+
+model SiteSettings {
+  id                  String   @id @default(cuid())
+  siteId              String   @unique
+  enableOverlay       Boolean  @default(false)  
+  selectedOverlayId   String?                   
+  selectedCardId      String?
+  liveStreamLink      String?
+  title               String?
+  favicon             String?
+  googleAnalyticsId   String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  site                Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([siteId])
+  @@map("SiteSettings")
+}
+
+model Media {
+  id        String    @id @default(cuid())
+  name      String
+  link      String
+  type      MediaType
+  alt       String?
+  size      Int?
+  mimeType  String?
+  userId    String
+  siteId    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site      Site?     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([siteId])
+  @@index([type])
+  @@map("Media")
+}
+
+model Domain {
+  id             String   @id @default(cuid())
+  name           String   @unique
+  userId         String
+  siteId         String
+  verificationId String   @unique
+  isVerified     Boolean  @default(false)
+  sslStatus      String   @default("pending")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([siteId])
+  @@map("Domain")
 }

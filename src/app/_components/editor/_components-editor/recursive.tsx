@@ -17,6 +17,8 @@ const Column = React.lazy(() => import("./column").then((m) => ({ default: m.Col
 const GifComponent = React.lazy(() => import("./gif"));
 const ImageComponent = React.lazy(() => import("./image"));
 const AnimatedTextComponent = React.lazy(() => import("./animated-text"));
+const PulsatingButtonComponent = React.lazy(() => import("./pulsating-button"));
+const LiveStreamCardComponent = React.lazy(() => import("./live-stream-card").then((m) => ({ default: m.LiveStreamCardComponent })));
 
 type Props = {
     element: EditorElement;
@@ -76,6 +78,10 @@ const Recursive = memo(({ element, containerId, index = 0, layout }: Props) => {
                 return <ImageComponent element={element} />;
             case "animatedText":
                 return <AnimatedTextComponent element={element} />;
+            case "pulsatingButton":
+                return <PulsatingButtonComponent element={element} />;
+            case "liveStreamCard":
+                return <LiveStreamCardComponent element={element} layout={elementLayout} />;
             default:
                 console.warn(`❓ Unknown element type: ${element.type} for ${element.id}`);
                 return null;

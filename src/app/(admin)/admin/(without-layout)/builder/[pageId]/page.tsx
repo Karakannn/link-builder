@@ -7,7 +7,6 @@ import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeh
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
-import { getSiteOverlaySettings, adminGetSiteLandingModalSettings } from "@/actions/landing-modal";
 import { client } from "@/lib/prisma";
 import { Metadata } from "next";
 
@@ -45,13 +44,13 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
         }
 
         const siteSettings = pageData.site.settings;
-        
+
         // Title: Site settings > Page title > Site name
         const title = siteSettings?.title || pageData.title || pageData.site.name;
-        
+
         // Add mode suffix for non-live modes
         const finalTitle = isLiveMode ? title : `${title} - Editor`;
-        
+
         // Favicon: Site settings > Default
         const favicon = siteSettings?.favicon || "/favicon.ico";
 
@@ -116,31 +115,36 @@ export default async function page({ params, searchParams }: Props) {
     }
 
     const page = pageData.page;
-
     const pageContent = page.content as any as EditorElement[];
 
     if (isLiveMode) {
-        let initialModalSettings = null;
+        let initialOverlaySettings = null;
         try {
-            let modalSettingsResult;
-            
-            // Admin kontrolü yap
+            let overlaySettingsResult;
+
+            // Admin kontrolü yap - overlay actions kullan
             if (adminCheck.status === 200) {
-                modalSettingsResult = await adminGetSiteLandingModalSettings(page.siteId);
+                // Admin için public overlay settings kullan (adminGetSiteOverlaySettings yok)
+                const { getPublicSiteOverlaySettings } = await import('@/actions/overlay');
+                overlaySettingsResult = await getPublicSiteOverlaySettings(page.siteId);
             } else {
-                modalSettingsResult = await getSiteOverlaySettings(page.siteId);
+                const { getSiteOverlaySettings } = await import('@/actions/overlay');
+                overlaySettingsResult = await getSiteOverlaySettings(page.siteId);
             }
-            
-            if (modalSettingsResult.status === 200 && modalSettingsResult.settings) {
-                const settings = modalSettingsResult.settings;
-                initialModalSettings = {
-                    enableLandingModal: ('enableLandingModal' in settings && settings.enableLandingModal) || (settings.enableOverlay && settings.overlayType === 'LANDING_MODAL'),
-                    selectedModalId: settings.selectedModalId,
+
+            console.log("🔴 Overlay settings result:", overlaySettingsResult);
+
+            if (overlaySettingsResult.status === 200 && overlaySettingsResult.settings) {
+                const settings = overlaySettingsResult.settings;
+                initialOverlaySettings = {
+                    enableOverlay: settings.enableOverlay || false,
+                    selectedOverlayId: settings.selectedOverlayId,
                     googleAnalyticsId: settings.googleAnalyticsId
                 };
+                console.log("🔴 Initial overlay settings:", initialOverlaySettings);
             }
         } catch (error) {
-            console.error("❌ Error loading modal settings server-side:", error);
+            console.error("❌ Error loading overlay settings server-side:", error);
         }
 
         return (
@@ -148,13 +152,12 @@ export default async function page({ params, searchParams }: Props) {
                 <LivePreviewWrapper
                     pageContent={pageContent}
                     siteId={page.siteId}
-                    initialModalSettings={initialModalSettings}
+                    initialOverlaySettings={initialOverlaySettings}
                 />
             </EditorProvider>
         );
     }
 
-    // Normal edit mode
     return (
         <EditorProvider siteId={page.id} pageDetails={pageContent}>
             <DndContextProvider>

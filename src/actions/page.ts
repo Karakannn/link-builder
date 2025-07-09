@@ -530,7 +530,7 @@ export const createPageFromTemplate = async (
     }
 
     // Modal ile aynı isim kontrolü
-    const existingModal = await client.landingModal.findFirst({
+/*     const existingModal = await client.landingModal.findFirst({
       where: {
         name: title,
         userId: user.id
@@ -539,7 +539,7 @@ export const createPageFromTemplate = async (
 
     if (existingModal) {
       return { status: 400, message: `"${title}" isimli bir modal zaten mevcut` };
-    }
+    } */
 
     // Sayfa oluştur
     const response = await client.page.create({
@@ -1164,7 +1164,7 @@ export const adminCreatePageFromTemplate = async (
     }
 
     // Modal ile aynı isim kontrolü
-    const existingModal = await client.landingModal.findFirst({
+   /*  const existingModal = await client.landingModal.findFirst({
       where: {
         name: title,
         userId: site.userId
@@ -1173,7 +1173,7 @@ export const adminCreatePageFromTemplate = async (
 
     if (existingModal) {
       return { status: 400, message: `"${title}" isimli bir modal zaten mevcut` };
-    }
+    } */
 
     // Sayfa oluştur
     const response = await client.page.create({

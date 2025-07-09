@@ -5,10 +5,10 @@ import { EditorBtns } from "@/lib/constants";
 import { EditorAction } from "./editor-actions";
 import { arrayMove } from "@dnd-kit/sortable";
 import { EditorActionsProvider } from "./editör-actions-provider";
-import { LandingModalProvider } from "../landing-modal-provider";
 import { EditorHistoryProvider } from "./editor-history-context";
 import { EditorUIProvider } from "./editor-ui-context";
 import { EditorElementsProvider } from "./editor-elements-provider";
+import { OverlayPreviewProvider } from "../overlay-preview-provider";
 
 export type DeviceTypes = "Desktop" | "Mobile" | "Tablet";
 
@@ -33,217 +33,217 @@ export type EditorElement = {
         description?: string;
     };
     content:
-        | EditorElement[]
-        | {
-              // Common content properties
-              href?: string;
-              innerText?: string;
-              src?: string;
+    | EditorElement[]
+    | {
+        // Common content properties
+        href?: string;
+        innerText?: string;
+        src?: string;
 
-              // Background animation property
-              backgroundAnimation?: string;
+        // Background animation property
+        backgroundAnimation?: string;
 
-              // Shimmer button properties
-              shimmerColor?: string;
-              shimmerSize?: string;
-              shimmerDuration?: string;
-              borderRadius?: string;
-              background?: string;
+        // Shimmer button properties
+        shimmerColor?: string;
+        shimmerSize?: string;
+        shimmerDuration?: string;
+        borderRadius?: string;
+        background?: string;
 
-              // Neon gradient button properties
-              firstColor?: string;
-              secondColor?: string;
-              borderSize?: number;
+        // Neon gradient button properties
+        firstColor?: string;
+        secondColor?: string;
+        borderSize?: number;
 
-              // Card properties
-              title?: string;
-              subtitle?: string;
-              logo?: string;
+        // Card properties
+        title?: string;
+        subtitle?: string;
+        logo?: string;
 
-              // Neon card properties
-              imageSrc?: string;
-              imageAlt?: string;
-              imageHeight?: number;
+        // Neon card properties
+        imageSrc?: string;
+        imageAlt?: string;
+        imageHeight?: number;
 
-              // Button common properties
-              buttonClass?: string;
+        // Button common properties
+        buttonClass?: string;
 
-              // Grid pattern properties
-              width?: number;
-              height?: number;
-              numSquares?: number;
-              maxOpacity?: number;
-              duration?: number;
-              repeatDelay?: number;
-              squares?: [number, number];
+        // Grid pattern properties
+        width?: number;
+        height?: number;
+        numSquares?: number;
+        maxOpacity?: number;
+        duration?: number;
+        repeatDelay?: number;
+        squares?: [number, number];
 
-              // Retro grid properties
-              angle?: number;
-              cellSize?: number;
-              opacity?: number;
-              lightLineColor?: string;
-              darkLineColor?: string;
+        // Retro grid properties
+        angle?: number;
+        cellSize?: number;
+        opacity?: number;
+        lightLineColor?: string;
+        darkLineColor?: string;
 
-              // Dot pattern properties
-              cx?: number;
-              cy?: number;
-              cr?: number;
+        // Dot pattern properties
+        cx?: number;
+        cy?: number;
+        cr?: number;
 
-              // Marquee properties
-              direction?: "left" | "right";
-              speed?: number;
-              pauseOnHover?: boolean;
-              items?: Array<{
-                  type: "text" | "image";
-                  content: string;
-                  alt?: string;
-                  width?: number;
-                  height?: number;
-              }>;
+        // Marquee properties
+        direction?: "left" | "right";
+        speed?: number;
+        pauseOnHover?: boolean;
+        items?: Array<{
+            type: "text" | "image";
+            content: string;
+            alt?: string;
+            width?: number;
+            height?: number;
+        }>;
 
-              // Grid Layout properties
-              columns?: number;
-              gap?: string;
-              minColumnWidth?: string;
-              autoFit?: boolean;
-              template?: string;
-              templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
-              columnSpans?: any[];
+        // Grid Layout properties
+        columns?: number;
+        gap?: string;
+        minColumnWidth?: string;
+        autoFit?: boolean;
+        template?: string;
+        templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+        columnSpans?: any[];
 
-              // GIF properties
-              alt?: string;
-              autoplay?: boolean;
-              loop?: boolean;
-              controls?: boolean;
-              loading?: "lazy" | "eager";
+        // GIF properties
+        alt?: string;
+        autoplay?: boolean;
+        loop?: boolean;
+        controls?: boolean;
+        loading?: "lazy" | "eager";
 
-              // Sponsor Neon Card properties
-              neonColor?: string;
-              animationDelay?: number;
+        // Sponsor Neon Card properties
+        neonColor?: string;
+        animationDelay?: number;
 
-              responsiveContent?: {
-                  Tablet?: {
-                      // All the above properties can be responsive
-                      href?: string;
-                      innerText?: string;
-                      src?: string;
-                      backgroundAnimation?: string;
-                      shimmerColor?: string;
-                      shimmerSize?: string;
-                      shimmerDuration?: string;
-                      borderRadius?: string;
-                      background?: string;
-                      firstColor?: string;
-                      secondColor?: string;
-                      borderSize?: number;
-                      buttonClass?: string;
-                      width?: number;
-                      height?: number;
-                      numSquares?: number;
-                      maxOpacity?: number;
-                      duration?: number;
-                      repeatDelay?: number;
-                      squares?: [number, number];
-                      angle?: number;
-                      cellSize?: number;
-                      opacity?: number;
-                      lightLineColor?: string;
-                      darkLineColor?: string;
-                      cx?: number;
-                      cy?: number;
-                      cr?: number;
-                      direction?: "left" | "right";
-                      speed?: number;
-                      pauseOnHover?: boolean;
-                      items?: Array<{
-                          type: "text" | "image";
-                          content: string;
-                          alt?: string;
-                          width?: number;
-                          height?: number;
-                      }>;
-                      // Grid Layout responsive properties
-                      columns?: number;
-                      gap?: string;
-                      minColumnWidth?: string;
-                      autoFit?: boolean;
-                      template?: string;
-                      templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+        responsiveContent?: {
+            Tablet?: {
+                // All the above properties can be responsive
+                href?: string;
+                innerText?: string;
+                src?: string;
+                backgroundAnimation?: string;
+                shimmerColor?: string;
+                shimmerSize?: string;
+                shimmerDuration?: string;
+                borderRadius?: string;
+                background?: string;
+                firstColor?: string;
+                secondColor?: string;
+                borderSize?: number;
+                buttonClass?: string;
+                width?: number;
+                height?: number;
+                numSquares?: number;
+                maxOpacity?: number;
+                duration?: number;
+                repeatDelay?: number;
+                squares?: [number, number];
+                angle?: number;
+                cellSize?: number;
+                opacity?: number;
+                lightLineColor?: string;
+                darkLineColor?: string;
+                cx?: number;
+                cy?: number;
+                cr?: number;
+                direction?: "left" | "right";
+                speed?: number;
+                pauseOnHover?: boolean;
+                items?: Array<{
+                    type: "text" | "image";
+                    content: string;
+                    alt?: string;
+                    width?: number;
+                    height?: number;
+                }>;
+                // Grid Layout responsive properties
+                columns?: number;
+                gap?: string;
+                minColumnWidth?: string;
+                autoFit?: boolean;
+                template?: string;
+                templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
 
-                      // Neon card responsive properties
-                      imageSrc?: string;
-                      imageAlt?: string;
-                      imageHeight?: number;
+                // Neon card responsive properties
+                imageSrc?: string;
+                imageAlt?: string;
+                imageHeight?: number;
 
-                      // GIF responsive properties
-                      alt?: string;
-                      autoplay?: boolean;
-                      loop?: boolean;
-                      controls?: boolean;
-                      loading?: "lazy" | "eager";
-                  };
-                  Mobile?: {
-                      // Same properties as Tablet
-                      href?: string;
-                      innerText?: string;
-                      src?: string;
-                      backgroundAnimation?: string;
-                      shimmerColor?: string;
-                      shimmerSize?: string;
-                      shimmerDuration?: string;
-                      borderRadius?: string;
-                      background?: string;
-                      firstColor?: string;
-                      secondColor?: string;
-                      borderSize?: number;
-                      buttonClass?: string;
-                      width?: number;
-                      height?: number;
-                      numSquares?: number;
-                      maxOpacity?: number;
-                      duration?: number;
-                      repeatDelay?: number;
-                      squares?: [number, number];
-                      angle?: number;
-                      cellSize?: number;
-                      opacity?: number;
-                      lightLineColor?: string;
-                      darkLineColor?: string;
-                      cx?: number;
-                      cy?: number;
-                      cr?: number;
-                      direction?: "left" | "right";
-                      speed?: number;
-                      pauseOnHover?: boolean;
-                      items?: Array<{
-                          type: "text" | "image";
-                          content: string;
-                          alt?: string;
-                          width?: number;
-                          height?: number;
-                      }>;
-                      // Grid Layout responsive properties
-                      columns?: number;
-                      gap?: string;
-                      minColumnWidth?: string;
-                      autoFit?: boolean;
-                      template?: string;
-                      templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
+                // GIF responsive properties
+                alt?: string;
+                autoplay?: boolean;
+                loop?: boolean;
+                controls?: boolean;
+                loading?: "lazy" | "eager";
+            };
+            Mobile?: {
+                // Same properties as Tablet
+                href?: string;
+                innerText?: string;
+                src?: string;
+                backgroundAnimation?: string;
+                shimmerColor?: string;
+                shimmerSize?: string;
+                shimmerDuration?: string;
+                borderRadius?: string;
+                background?: string;
+                firstColor?: string;
+                secondColor?: string;
+                borderSize?: number;
+                buttonClass?: string;
+                width?: number;
+                height?: number;
+                numSquares?: number;
+                maxOpacity?: number;
+                duration?: number;
+                repeatDelay?: number;
+                squares?: [number, number];
+                angle?: number;
+                cellSize?: number;
+                opacity?: number;
+                lightLineColor?: string;
+                darkLineColor?: string;
+                cx?: number;
+                cy?: number;
+                cr?: number;
+                direction?: "left" | "right";
+                speed?: number;
+                pauseOnHover?: boolean;
+                items?: Array<{
+                    type: "text" | "image";
+                    content: string;
+                    alt?: string;
+                    width?: number;
+                    height?: number;
+                }>;
+                // Grid Layout responsive properties
+                columns?: number;
+                gap?: string;
+                minColumnWidth?: string;
+                autoFit?: boolean;
+                template?: string;
+                templateType?: "equal" | "sidebar" | "hero" | "thirds" | "custom";
 
-                      // Neon card responsive properties
-                      imageSrc?: string;
-                      imageAlt?: string;
-                      imageHeight?: number;
+                // Neon card responsive properties
+                imageSrc?: string;
+                imageAlt?: string;
+                imageHeight?: number;
 
-                      // GIF responsive properties
-                      alt?: string;
-                      autoplay?: boolean;
-                      loop?: boolean;
-                      controls?: boolean;
-                      loading?: "lazy" | "eager";
-                  };
-              };
-          };
+                // GIF responsive properties
+                alt?: string;
+                autoplay?: boolean;
+                loop?: boolean;
+                controls?: boolean;
+                loading?: "lazy" | "eager";
+            };
+        };
+    };
 };
 
 export type Editor = {
@@ -907,7 +907,9 @@ const EditorProvider = (props: EditorProps) => {
                         layerSidebarCollapsed={state.editor.layerSidebarCollapsed}
                     >
                         <EditorElementsProvider elements={state.editor.elements} selectedElement={state.editor.selectedElement}>
-                            <LandingModalProvider>{props.children}</LandingModalProvider>
+                            <OverlayPreviewProvider isPreview={true}>
+                                {props.children}
+                            </OverlayPreviewProvider>
                         </EditorElementsProvider>
                     </EditorUIProvider>
                 </EditorHistoryProvider>

@@ -1,12 +1,10 @@
 import { getOverlayContent, adminGetOverlayContent } from "@/actions/overlay";
-import FunnelEditor from "@/app/_components/editor";
 import FunnelEditorNavigation from "@/app/_components/editor-navigation/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
 import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeholder-elements/drag-overlay-wrapper";
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { getAuthUserDetails, onAdminUser } from "@/actions/auth";
-import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { OverlayEditorWrapper } from "./_components/overlay-editor-wrapper";
 
 const defaultContent: EditorElement[] = [
@@ -92,31 +90,29 @@ export default async function OverlayBuilderPage({ params }: Props) {
 
     return (
         <EditorProvider siteId={`overlay-${resolvedParams.overlayId}`} pageDetails={content}>
-            <LandingModalProvider isPreview={true}>
-                <DndContextProvider>
-                    <div className="flex flex-col h-full">
-                        <FunnelEditorNavigation
-                            pageDetails={{
-                                id: resolvedParams.overlayId,
-                                title: overlayContent?.name || "Overlay",
-                                slug: `overlay-${resolvedParams.overlayId}`,
-                                content: JSON.stringify(content),
-                                siteId: `overlay-${resolvedParams.overlayId}`,
-                                isHome: false,
-                                seo: null,
-                                updatedAt: overlayContent?.updatedAt || new Date(),
-                                createdAt: overlayContent?.createdAt || new Date(),
-                            }}
-                            user={user}
-                        />
-                        <div className="mr-[385px] ml-80">
-                            <OverlayEditorWrapper pageDetails={content} />
-                        </div>
-                        <FunnelEditorSidebar userId={user.id} />
+            <DndContextProvider>
+                <div className="flex flex-col h-full">
+                    <FunnelEditorNavigation
+                        pageDetails={{
+                            id: resolvedParams.overlayId,
+                            title: overlayContent?.name || "Overlay",
+                            slug: `overlay-${resolvedParams.overlayId}`,
+                            content: JSON.stringify(content),
+                            siteId: `overlay-${resolvedParams.overlayId}`,
+                            isHome: false,
+                            seo: null,
+                            updatedAt: overlayContent?.updatedAt || new Date(),
+                            createdAt: overlayContent?.createdAt || new Date(),
+                        }}
+                        user={user}
+                    />
+                    <div className="mr-[385px] ml-80">
+                        <OverlayEditorWrapper pageDetails={content} />
                     </div>
-                    <DragOverlayWrapper />
-                </DndContextProvider>
-            </LandingModalProvider>
+                    <FunnelEditorSidebar userId={user.id} />
+                </div>
+                <DragOverlayWrapper />
+            </DndContextProvider>
         </EditorProvider>
     );
 }

@@ -6,7 +6,6 @@ import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeh
 import { DndContextProvider } from "@/providers/dnd-context-provider";
 import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
 import { getAuthUserDetails } from "@/actions/auth";
-import { LandingModalProvider } from "@/providers/landing-modal-provider";
 import { LiveStreamCardEditorWrapper } from "./_components/live-stream-card-editor-wrapper";
 
 const defaultContent: EditorElement[] = [
@@ -81,31 +80,29 @@ export default async function LiveStreamCardBuilderPage({ params }: Props) {
 
     return (
         <EditorProvider siteId={`stream-card-${resolvedParams.cardId}`} pageDetails={content}>
-            <LandingModalProvider isPreview={true}>
-                <DndContextProvider>
-                    <div className="flex flex-col h-full">
-                        <FunnelEditorNavigation
-                            pageDetails={{
-                                id: resolvedParams.cardId,
-                                title: cardContent?.name || "Stream Card",
-                                slug: `stream-card-${resolvedParams.cardId}`,
-                                content: JSON.stringify(content),
-                                siteId: `stream-card-${resolvedParams.cardId}`,
-                                isHome: false,
-                                seo: null,
-                                updatedAt: cardContent?.updatedAt || new Date(),
-                                createdAt: cardContent?.createdAt || new Date(),
-                            }}
-                            user={user}
-                        />
-                        <div className="mr-[385px] ml-80">
-                            <LiveStreamCardEditorWrapper pageDetails={content} />
-                        </div>
-                        <FunnelEditorSidebar userId={user.id} />
+            <DndContextProvider>
+                <div className="flex flex-col h-full">
+                    <FunnelEditorNavigation
+                        pageDetails={{
+                            id: resolvedParams.cardId,
+                            title: cardContent?.name || "Stream Card",
+                            slug: `stream-card-${resolvedParams.cardId}`,
+                            content: JSON.stringify(content),
+                            siteId: `stream-card-${resolvedParams.cardId}`,
+                            isHome: false,
+                            seo: null,
+                            updatedAt: cardContent?.updatedAt || new Date(),
+                            createdAt: cardContent?.createdAt || new Date(),
+                        }}
+                        user={user}
+                    />
+                    <div className="mr-[385px] ml-80">
+                        <LiveStreamCardEditorWrapper pageDetails={content} />
                     </div>
-                    <DragOverlayWrapper />
-                </DndContextProvider>
-            </LandingModalProvider>
+                    <FunnelEditorSidebar userId={user.id} />
+                </div>
+                <DragOverlayWrapper />
+            </DndContextProvider>
         </EditorProvider>
     );
 } 
