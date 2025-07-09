@@ -1,7 +1,6 @@
 "use client";
 
 import { DndContext, DragEndEvent, DragMoveEvent, DragOverEvent, DragStartEvent, PointerSensor, pointerWithin, useSensor, useSensors } from "@dnd-kit/core";
-import { useMemo } from "react";
 import { EditorElement, useEditor } from "@/providers/editor/editor-provider";
 import { useEditorUtilities } from "@/hooks/use-editor-utilities";
 import { SortableContext, verticalListSortingStrategy, arrayMove } from "@dnd-kit/sortable";
@@ -20,17 +19,12 @@ type DndContextProviderProps = {
 
 export const DndContextProvider = ({ children }: DndContextProviderProps) => {
     
-    const { selectElement, moveElement, insertElement, updateElement, reorderElement, addElement, reorderLayers } = useElementActions();
+    const { selectElement, moveElement, insertElement, updateElement, reorderElement, addElement } = useElementActions();
     const { createElement } = useEditorUtilities();
     const { handleContainerDrop } = useDrops();
 
     const elements = useElements();
     const liveMode = useLiveMode();
-
-    // Root elements for layers sorting
-    const rootElements = useMemo(() => {
-        return elements.filter((element) => element.type !== "__body" || elements.length === 1);
-    }, [elements]);
 
     const { indicatorState, updateIndicatorFromDragOver, updateIndicatorFromDragMove, handleDragEndInsert, clearIndicator } = useDropIndicator();
     const { dropHereState, updateDropHereFromDragOver, updateDropHereFromDragMove, clearDropHere } = useDropHere();
@@ -167,23 +161,6 @@ export const DndContextProvider = ({ children }: DndContextProviderProps) => {
             isFromSidebar,
             isFromEditor
         });
-
-        // =================== LAYERS REORDERING ===================
-        if (draggedType === "layer") {
-            console.log('🔥 Layer drag end detected');
-            console.log('🔥 Layer drag details:', {
-                activeId: active.id,
-                overId: over.id,
-                activeData: active.data?.current,
-                overData: over.data?.current
-            });
-            
-            if (over.id && over.id !== active.id) {
-                console.log('🔥 Reordering layers:', active.id, '->', over.id);
-                reorderLayers(active.id as string, over.id as string);
-            }
-            return;
-        }
 
         // =================== COLUMN REORDERING ===================
         if (draggedType === "column") {

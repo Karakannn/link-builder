@@ -41,7 +41,6 @@ export const GridLayoutComponent = ({ element }: Props) => {
     const defaultSpan = Math.floor(totalGridColumns / Math.max(gridColumns.length, 1));
 
     const generateGridTemplate = () => {
-        // Her zaman tam grid template kullan, device'a göre hardcode yapma
         return `repeat(${totalGridColumns}, 1fr)`;
     };
 

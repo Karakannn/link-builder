@@ -682,41 +682,6 @@ const reorderElement = (elements: EditorElement[], action: EditorAction): Editor
     return newElements;
 };
 
-const reorderLayers = (elements: EditorElement[], action: EditorAction): EditorElement[] => {
-    if (action.type !== "REORDER_LAYERS") throw Error("You sent the wrong action type on the REORDER_LAYERS editor State");
-
-    const { activeId, overId } = action.payload;
-
-    console.log(`🔧 REORDER_LAYERS Logic Start:`, { activeId, overId });
-
-    // Recursive function to find and reorder elements
-    const reorderElementInArray = (elementArray: EditorElement[]): EditorElement[] => {
-        const activeIndex = elementArray.findIndex(el => el.id === activeId);
-        const overIndex = elementArray.findIndex(el => el.id === overId);
-
-        if (activeIndex !== -1 && overIndex !== -1) {
-            // Both elements found in this array, reorder them
-            return arrayMove(elementArray, activeIndex, overIndex);
-        }
-
-        // Check in children recursively
-        return elementArray.map(element => {
-            if (Array.isArray(element.content)) {
-                const reorderedContent = reorderElementInArray(element.content);
-                if (reorderedContent !== element.content) {
-                    return { ...element, content: reorderedContent };
-                }
-            }
-            return element;
-        });
-    };
-
-    const newElements = reorderElementInArray(elements);
-
-    console.log(`✅ REORDER_LAYERS completed`);
-    return newElements;
-};
-
 const editorReducer = (state: EditorState = initialState, action: EditorAction): EditorState => {
     switch (action.type) {
         case "ADD_ELEMENT":
@@ -890,26 +855,6 @@ const editorReducer = (state: EditorState = initialState, action: EditorAction):
         case "SET_PAGE_ID":
             const setPageIdState = handleSetPageIdState(state, action);
             return setPageIdState;
-        case "REORDER_LAYERS":
-            const reorderedLayersElements = reorderLayers(state.editor.elements, action);
-            const updatedEditorStateAfterLayerReorder = {
-                ...state.editor,
-                elements: reorderedLayersElements,
-            };
-            const updatedHistoryAfterLayerReorder = [
-                ...state.history.history.slice(0, state.history.currentIndex + 1),
-                { ...updatedEditorStateAfterLayerReorder }
-            ];
-            const reorderedLayersState = {
-                ...state,
-                editor: updatedEditorStateAfterLayerReorder,
-                history: {
-                    ...state.history,
-                    history: updatedHistoryAfterLayerReorder,
-                    currentIndex: updatedHistoryAfterLayerReorder.length - 1,
-                },
-            };
-            return reorderedLayersState;
         case "TOGGLE_LAYER_SIDEBAR":
             console.log("🔧 TOGGLE_LAYER_SIDEBAR case triggered");
             const toggleLayerSidebarState = handleToggleLayerSidebar(state, action);
