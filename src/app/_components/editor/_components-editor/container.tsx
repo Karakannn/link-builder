@@ -55,6 +55,39 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
 
     const { attributes, listeners, setNodeRef: setSortableRef, transform, transition, isDragging } = useSortable(sortable);
 
+    // Generate custom CSS variables for animation colors
+    const customAnimationStyles = useMemo(() => {
+        const customClass = (styles as any).customClass;
+        const animationColors = (styles as any).animationColors;
+        
+        if (!customClass || !animationColors?.[customClass]) {
+            return {};
+        }
+        
+        const colors = animationColors[customClass];
+        const cssVars: Record<string, string> = {};
+        
+        // Generate CSS custom properties based on animation type
+        if (customClass === "bg-gradient-waves" && colors) {
+            cssVars['--gradient-color-1'] = colors.color1 || '#ee7752';
+            cssVars['--gradient-color-2'] = colors.color2 || '#e73c7e';
+            cssVars['--gradient-color-3'] = colors.color3 || '#23a6d5';
+            cssVars['--gradient-color-4'] = colors.color4 || '#23d5ab';
+        } else if (customClass === "bg-pulsing-orbs" && colors) {
+            cssVars['--orb-color-1'] = colors.color1 || '#ff0096';
+            cssVars['--orb-color-2'] = colors.color2 || '#0096ff';
+        } else if (customClass === "bg-twinkling-stars" && colors) {
+            cssVars['--star-bg-color'] = colors.color1 || '#0c0c2a';
+            cssVars['--star-color'] = colors.color2 || '#ffffff';
+        } else if (customClass === "bg-dot-pattern" && colors) {
+            cssVars['--dot-color-1'] = colors.color1 || '#9ca3af';
+        } else if (customClass === "bg-animated-grid" && colors) {
+            cssVars['--grid-color-1'] = colors.color1 || '#9ca3af';
+        }
+        
+        return cssVars;
+    }, [styles]);
+
     const computedStyles = useMemo(() => {
         const baseStyles = getElementStyles(liveElement, device);
 
@@ -63,8 +96,9 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
             transform: CSS.Transform.toString(transform),
             transition,
             ...getLayoutStyles(layout),
+            ...customAnimationStyles,
         });
-    }, [liveElement, transform, transition, layout, getLayoutStyles]);
+    }, [liveElement, transform, transition, layout, getLayoutStyles, customAnimationStyles]);
 
     // Placeholder styles without transform - stays in place
     const placeholderStyles = useMemo(() => {
@@ -105,8 +139,11 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
     }, [content, type, id, layout]);
 
     const containerClasses = useMemo(
-        () =>
-            clsx("relative group", getBorderClasses(), {
+        () => {
+            // Get custom classes from styles
+            const customClass = (styles as any).customClass;
+            
+            return clsx("relative group", getBorderClasses(), {
                 "max-w-full w-full": type === "container" || type === "2Col",
                 "h-fit": type === "container",
                 "h-full": type === "__body",
@@ -115,8 +152,12 @@ export const Container = memo(({ element: initialElement, layout = "vertical" }:
                 "opacity-50": isDragging,
                 "outline-dashed outline-2 outline-blue-500": isSelected && isEditMode,
                 "ring-2 ring-blue-500 ring-offset-2": isSelected && isEditMode && type !== "__body",
-            }),
-        [type, isDragging, isSelected, isEditMode]
+            },
+            // Apply custom classes if they exist
+            customClass || ""
+            );
+        },
+        [type, isDragging, isSelected, isEditMode, styles, getBorderClasses]
     );
 
     if (isDragging) {

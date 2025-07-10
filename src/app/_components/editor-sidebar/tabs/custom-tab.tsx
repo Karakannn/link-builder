@@ -8,6 +8,7 @@ import GridLayoutCustomProperties from "./custom-properties/grid-layout-custom";
 import GifCustomProperties from "./custom-properties/gif-custom";
 import MarqueeCustomProperties from "./custom-properties/marquee-custom";
 import BodyCustomProperties from "./custom-properties/body-custom";
+import ContainerCustomProperties from "./custom-properties/container-custom";
 import NeonCardCustomProperties from "./custom-properties/neon-card-custom";
 import ImageCustom from "./custom-properties/image-custom";
 import PulsatingButtonCustomProperties from "./custom-properties/pulsating-button-custom";
@@ -16,6 +17,7 @@ import AnimatedTextCustomProperties from "./custom-properties/animated-text-cust
 
 type CustomElementType =
   | "link"
+  | "container"
   | "sponsorNeonCard"
   | "marquee"
   | "gridLayout"
@@ -29,6 +31,7 @@ type CustomElementType =
 
 const customElementComponentMap: Record<CustomElementType, React.FC> = {
   link: LinkCustomProperties,
+  container: ContainerCustomProperties,
   sponsorNeonCard: NeonCardCustomProperties,
   marquee: MarqueeCustomProperties,
   gridLayout: GridLayoutCustomProperties,
