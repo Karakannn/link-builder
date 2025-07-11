@@ -51,6 +51,7 @@ const GifComponent = ({ element }: Props) => {
     const gifProps = !Array.isArray(computedContent) ? computedContent : {};
     const src = gifProps.src || "";
     const alt = gifProps.alt || "GIF";
+    const href = gifProps.href || "";
 
     const handleImageLoad = () => {
         setIsLoading(false);
@@ -62,9 +63,86 @@ const GifComponent = ({ element }: Props) => {
         setHasError(true);
     };
 
+    const handleGifClick = (e: React.MouseEvent) => {
+        // If in live mode and href is provided, open link
+        if (liveMode && href && !e.defaultPrevented) {
+            e.preventDefault();
+            window.open(href, "_blank", "noopener,noreferrer");
+        }
+    };
+
     const objectFit = styles?.objectFit || "cover";
     const borderRadius = styles?.borderRadius || 0;
     const opacity = styles?.opacity || 1;
+
+    const gifContent = (
+        <div className="relative inline-block" onMouseEnter={() => setShowOverlay(true)} onMouseLeave={() => setShowOverlay(false)}>
+            {src ? (
+                <div className="relative">
+                    <img
+                        ref={imgRef}
+                        src={src}
+                        alt={alt}
+                        className={clsx("max-w-full h-auto transition-all duration-300", {
+                            "pointer-events-none": !liveMode && !previewMode,
+                            "cursor-pointer": liveMode && href,
+                        })}
+                        style={{
+                            width: computedStyles.width || "auto",
+                            height: computedStyles.height || "auto",
+                            maxWidth: "100%",
+                            objectFit: objectFit as any,
+                            borderRadius: `${borderRadius}px`,
+                            opacity: opacity,
+                        }}
+                        onLoad={handleImageLoad}
+                        onError={handleImageError}
+                        onClick={handleGifClick}
+                    />
+
+                    {isLoading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        </div>
+                    )}
+
+                    {hasError && (
+                        <div className="flex items-center justify-center bg-gray-50 border border-gray-200 rounded-lg p-4">
+                            <AlertCircle className="h-6 w-6 text-gray-400" />
+                        </div>
+                    )}
+
+                    {showOverlay && !liveMode && src && !hasError && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 rounded">
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        const downloadLink = document.createElement("a");
+                                        downloadLink.href = src;
+                                        downloadLink.download = alt || "gif";
+                                        downloadLink.click();
+                                    }}
+                                    className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
+                                    title="Indir"
+                                >
+                                    <Download size={16} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
+                    <div className="text-center text-gray-500">
+                        <ImageIcon className="mx-auto h-12 w-12 mb-2" />
+                        <div>GIF kaynagi yok</div>
+                        <div className="text-sm">Ayarlardan bir GIF URL'si ekleyin</div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
 
     return (
         <EditorElementWrapper element={element}>
@@ -77,70 +155,7 @@ const GifComponent = ({ element }: Props) => {
                 onMouseLeave={handleMouseLeave}
                 data-element-id={id}
             >
-                <div className="relative inline-block" onMouseEnter={() => setShowOverlay(true)} onMouseLeave={() => setShowOverlay(false)}>
-                    {src ? (
-                        <div className="relative">
-                            <img
-                                ref={imgRef}
-                                src={src}
-                                alt={alt}
-                                className={clsx("max-w-full h-auto transition-all duration-300", {
-                                    "pointer-events-none": !liveMode && !previewMode,
-                                })}
-                                style={{
-                                    width: computedStyles.width || "auto",
-                                    height: computedStyles.height || "auto",
-                                    maxWidth: "100%",
-                                    objectFit: objectFit as any,
-                                    borderRadius: `${borderRadius}px`,
-                                    opacity: opacity,
-                                }}
-                                onLoad={handleImageLoad}
-                                onError={handleImageError}
-                            />
-
-                            {isLoading && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                </div>
-                            )}
-
-                            {hasError && (
-                                <div className="flex items-center justify-center bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                    <AlertCircle className="h-6 w-6 text-gray-400" />
-                                </div>
-                            )}
-
-                            {showOverlay && !liveMode && src && !hasError && (
-                                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity duration-200 rounded">
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                const downloadLink = document.createElement("a");
-                                                downloadLink.href = src;
-                                                downloadLink.download = alt || "gif";
-                                                downloadLink.click();
-                                            }}
-                                            className="bg-white rounded-full p-2 hover:bg-gray-100 transition-colors"
-                                            title="Indir"
-                                        >
-                                            <Download size={16} />
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div className="flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg p-8 min-h-[200px]">
-                            <div className="text-center text-gray-500">
-                                <ImageIcon className="mx-auto h-12 w-12 mb-2" />
-                                <div>GIF kaynagi yok</div>
-                                <div className="text-sm">Ayarlardan bir GIF URL'si ekleyin</div>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                {gifContent}
 
                 {isElementSelected && !liveMode && <DeleteElementButton element={element} />}
             </div>

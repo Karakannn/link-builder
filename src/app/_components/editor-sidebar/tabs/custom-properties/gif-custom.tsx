@@ -32,6 +32,17 @@ const GifCustomProperties = (props: Props) => {
                 />
             </div>
 
+            <div className="flex flex-col gap-2">
+                <p className="text-muted-foreground">Click URL</p>
+                <Input
+                    id="href"
+                    placeholder="https://example.com"
+                    onChange={handleChangeCustomValues}
+                    value={getCurrentContent().href || ""}
+                />
+                <p className="text-xs text-muted-foreground">Optional: Add a link to make the GIF clickable</p>
+            </div>
+
             <div className="flex items-center gap-2">
                 <input
                     type="checkbox"
