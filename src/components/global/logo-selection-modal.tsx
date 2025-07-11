@@ -23,6 +23,7 @@ const AVAILABLE_LOGOS: LogoData[] = [
   { filename: "bahisen.png", title: "Bahisen", defaultColor: "#3173da", url: "/logos/bahisen.png" },
   { filename: "bankobet.png", title: "Bankobet", defaultColor: "#ff1376", url: "/logos/bankobet.png" },
   { filename: "betewin.png", title: "Betewin", defaultColor: "#ff6d10", url: "/logos/betewin.png" },
+  { filename: "betist.png", title: "Betist", defaultColor: "#3fb26e", url: "/logos/betist.png" },
   { filename: "betjuve.jpg", title: "Betjuve", defaultColor: "#caba94", url: "/logos/betjuve.jpg" },
   { filename: "betkanyon.png", title: "Betkanyon", defaultColor: "#ec6139", url: "/logos/betkanyon.png" },
   { filename: "betkom.png", title: "Betkom", defaultColor: "#1fe0ff", url: "/logos/betkom.png" },
