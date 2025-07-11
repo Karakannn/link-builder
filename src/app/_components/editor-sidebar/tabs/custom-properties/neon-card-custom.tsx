@@ -28,6 +28,13 @@ const SponsorNeonCardCustomProperties = () => {
     const borderRadius = parseInt(currentStyles.borderRadius?.toString().replace("px", "")) || 12;
     const neonColor = currentStyles.neonColor || "#ff00aa";
     const animationDelay = currentStyles.animationDelay || 0;
+    
+    // Gradient settings - using nested structure like container custom
+    const gradientSettings = currentStyles.gradientSettings || {
+        color1: "#ff00aa",
+        color2: "#00aaff", 
+        angle: 135
+    };
 
     // Child elementleri bul
     const element = selectedElement;
@@ -155,8 +162,177 @@ const SponsorNeonCardCustomProperties = () => {
         }
     };
 
+    // Gradient settings handler - using nested structure like container custom
+    const handleGradientSettingChange = (key: string, value: any) => {
+        let processedValue = value;
+        
+        // Process color values
+        if (key === 'color1' || key === 'color2') {
+            try {
+                if (Array.isArray(value) && value.length >= 3) {
+                    const colorObj = Color.rgb(value[0], value[1], value[2]);
+                    processedValue = colorObj.hex();
+                } else if (typeof value === "string") {
+                    const colorObj = Color(value);
+                    processedValue = colorObj.hex();
+                }
+            } catch (error) {
+                console.warn("Invalid color value:", value);
+                processedValue = key === 'color1' ? "#ff00aa" : "#00aaff";
+            }
+        }
+
+        const updatedSettings = {
+            ...gradientSettings,
+            [key]: processedValue,
+        };
+        
+        handleOnChanges({
+            target: {
+                id: "gradientSettings",
+                value: updatedSettings,
+            },
+        } as any);
+    };
+
     return (
         <div className="space-y-6">
+            {/* Card Type Section */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-2 pb-2 border-b">
+                    <Settings size={16} />
+                    <span className="font-medium">Card Type</span>
+                </div>
+
+                <div className="space-y-2">
+                    <Label htmlFor="cardType">Card Style</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                        {[
+                            { value: "neon", label: "Neon (Default)" },
+                            { value: "glassmorphism", label: "Glass" },
+                            { value: "gradient", label: "Gradient" },
+                            { value: "pulse", label: "Pulse" },
+                        ].map((cardType) => (
+                            <Button
+                                key={cardType.value}
+                                variant={currentStyles.cardType === cardType.value || (!currentStyles.cardType && cardType.value === "neon") ? "default" : "outline"}
+                                size="sm"
+                                onClick={() =>
+                                    handleOnChanges({
+                                        target: {
+                                            id: "cardType",
+                                            value: cardType.value,
+                                        },
+                                    } as any)
+                                }
+                                className="text-xs"
+                            >
+                                {cardType.label}
+                            </Button>
+                        ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">Choose a card style that fits your design</p>
+                </div>
+            </div>
+
+
+            {/* Gradient Settings Section - Only show for gradient card type */}
+            {currentStyles.cardType === "gradient" && (
+                <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                        <Palette size={16} />
+                        <span className="font-medium">Gradient Settings</span>
+                    </div>
+
+                    {/* Gradient Color 1 */}
+                    <div className="space-y-2">
+                        <Label htmlFor="gradientColor1">Gradient Color 1</Label>
+                        <div className="flex items-center gap-2">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                        <div className="w-4 h-4 rounded" style={{ backgroundColor: gradientSettings.color1 }} />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <ColorPicker 
+                                        value={gradientSettings.color1} 
+                                        onChange={(value) => handleGradientSettingChange('color1', value)} 
+                                        onChangeComplete={(value) => handleGradientSettingChange('color1', value)}
+                                    >
+                                        <ColorPickerSelection className="h-32" />
+                                        <div className="flex flex-col gap-2 mt-4">
+                                            <ColorPickerHue />
+                                            <ColorPickerAlpha />
+                                            <div className="flex items-center gap-2">
+                                                <ColorPickerOutput />
+                                                <ColorPickerFormat />
+                                            </div>
+                                        </div>
+                                    </ColorPicker>
+                                </PopoverContent>
+                            </Popover>
+                            <Input 
+                                placeholder="#ff00aa" 
+                                className="flex-1" 
+                                onChange={(e) => handleGradientSettingChange('color1', e.target.value)} 
+                                value={gradientSettings.color1} 
+                            />
+                        </div>
+                    </div>
+
+                    {/* Gradient Color 2 */}
+                    <div className="space-y-2">
+                        <Label htmlFor="gradientColor2">Gradient Color 2</Label>
+                        <div className="flex items-center gap-2">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+                                        <div className="w-4 h-4 rounded" style={{ backgroundColor: gradientSettings.color2 }} />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <ColorPicker 
+                                        value={gradientSettings.color2} 
+                                        onChange={(value) => handleGradientSettingChange('color2', value)} 
+                                        onChangeComplete={(value) => handleGradientSettingChange('color2', value)}
+                                    >
+                                        <ColorPickerSelection className="h-32" />
+                                        <div className="flex flex-col gap-2 mt-4">
+                                            <ColorPickerHue />
+                                            <ColorPickerAlpha />
+                                            <div className="flex items-center gap-2">
+                                                <ColorPickerOutput />
+                                                <ColorPickerFormat />
+                                            </div>
+                                        </div>
+                                    </ColorPicker>
+                                </PopoverContent>
+                            </Popover>
+                            <Input 
+                                placeholder="#00aaff" 
+                                className="flex-1" 
+                                onChange={(e) => handleGradientSettingChange('color2', e.target.value)} 
+                                value={gradientSettings.color2} 
+                            />
+                        </div>
+                    </div>
+
+                    {/* Gradient Angle */}
+                    <div className="space-y-2">
+                        <Label className="text-muted-foreground">Gradient Angle: {gradientSettings.angle}°</Label>
+                        <Slider
+                            value={[gradientSettings.angle]}
+                            onValueChange={(value) => handleGradientSettingChange('angle', value[0])}
+                            max={360}
+                            min={0}
+                            step={15}
+                            className="w-full"
+                        />
+                        <p className="text-xs text-muted-foreground">Controls the direction of the gradient (0° = horizontal, 90° = vertical)</p>
+                    </div>
+                </div>
+            )}
             {/* Neon Color Section */}
             <div className="space-y-4">
                 <div className="flex items-center gap-2 pb-2 border-b">
@@ -435,6 +611,7 @@ const SponsorNeonCardCustomProperties = () => {
                     />
                 </div>
             </div>
+
 
             <div className="text-sm text-muted-foreground p-3 bg-gray-50 rounded-lg dark:bg-gray-800">
                 💡 <strong>Tip:</strong> Title color varsayılan olarak neon color ile aynıdır. "Sync with Neon" butonu ile tekrar senkronize edebilirsiniz.

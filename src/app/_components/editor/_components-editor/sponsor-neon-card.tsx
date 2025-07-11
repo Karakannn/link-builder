@@ -71,6 +71,12 @@ const SponsorNeonCardComponent = memo(({ element, layout = "vertical" }: Props) 
         const animationDelay = computedStyles.animationDelay || 0;
         const animationType = computedStyles.animationType || "blink";
         const href = computedStyles.href || "";
+        const cardType = computedStyles.cardType || "neon";
+        const gradientSettings = computedStyles.gradientSettings || {
+            color1: "#ff00aa",
+            color2: "#00aaff", 
+            angle: 135
+        };
 
         let parsedBorderRadius = 12;
         if (typeof borderRadius === "string") {
@@ -86,6 +92,8 @@ const SponsorNeonCardComponent = memo(({ element, layout = "vertical" }: Props) 
             animationDelay: animationDelay as number,
             animationType,
             href,
+            cardType,
+            gradientSettings,
         };
     }, [computedStyles]);
 
@@ -148,6 +156,8 @@ const SponsorNeonCardComponent = memo(({ element, layout = "vertical" }: Props) 
                     animationDelay={cardProps.animationDelay}
                     animationType={cardProps.animationType}
                     href={cardProps.href}
+                    cardType={cardProps.cardType}
+                    gradientSettings={cardProps.gradientSettings}
                     className="w-full min-h-[100px]"
                 >
                     {childContent}

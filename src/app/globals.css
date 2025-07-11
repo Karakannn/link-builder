@@ -128,6 +128,8 @@
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -395,6 +397,111 @@
     border-radius: 12px;
     animation-delay: var(--animation-delay);
   }
+
+  /* Card Type Styles */
+  .sponsor-card-neon {
+    position: relative;
+  }
+  
+  .sponsor-card-glassmorphism {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+  
+  .sponsor-card-glassmorphism:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(25px);
+  }
+  
+  .sponsor-card-glassmorphism::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  }
+
+  .sponsor-card-gradient {
+    position: relative;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+  
+  .sponsor-card-gradient::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+      rgba(var(--card-color-rgb, 255, 0, 170), 0.1),
+      rgba(var(--card-color-rgb, 255, 0, 170), 0.05),
+      rgba(var(--card-color-rgb, 255, 0, 170), 0.1)
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 4s ease infinite;
+    border-radius: inherit;
+  }
+  
+  .sponsor-card-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(var(--card-color-rgb, 255, 0, 170), 0.6);
+  }
+
+
+
+  .sponsor-card-pulse {
+    position: relative;
+    animation: pulse-glow-card 2s ease-in-out infinite;
+  }
+  
+  .sponsor-card-pulse:hover {
+    animation-duration: 1s;
+  }
+
+
+
+  /* Card Animation Keyframes */
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes pulse-glow-card {
+    0% {
+      box-shadow: 0 0 0 0 rgba(var(--card-color-rgb, 255, 0, 170), 0.7);
+    }
+    50% {
+      box-shadow: 0 0 0 15px rgba(var(--card-color-rgb, 255, 0, 170), 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(var(--card-color-rgb, 255, 0, 170), 0);
+    }
+  }
+
+
+
+
 
 
   /* Background Animations */

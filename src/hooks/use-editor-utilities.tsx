@@ -321,6 +321,7 @@ export const useEditorUtilities = () => {
             zIndex: 10,
             neonColor: "#ff00aa",
             animationDelay: 0,
+            cardType: "neon",
             ...defaultStyles,
           } as React.CSSProperties,
           type: "sponsorNeonCard",

@@ -12,6 +12,12 @@ interface SponsorNeonCardProps {
   animationDelay?: number;
   animationType?: string;
   href?: string;
+  cardType?: string;
+  gradientSettings?: {
+    color1: string;
+    color2: string;
+    angle: number;
+  };
 }
 
 // Helper function to convert hex to RGB
@@ -35,9 +41,12 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
   animationDelay = 0,
   animationType = 'blink',
   href,
+  cardType = 'neon',
+  gradientSettings = { color1: '#ff00aa', color2: '#00aaff', angle: 135 },
 }) => {
   const rgbColor = hexToRgb(neonColor);
   const liveMode = useLiveMode();
+  
   // Map animation types to CSS classes
   const getAnimationClass = (type: string) => {
     switch (type) {
@@ -68,18 +77,74 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
     }
   };
 
+  // Get card type specific styles
+  const getCardTypeStyles = (type: string) => {
+    switch (type) {
+      case 'neon':
+        return {
+          border: `${borderSize}px solid ${neonColor}`,
+          borderRadius: `${borderRadius}px`,
+          boxShadow: `inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45)`,
+          background: 'rgba(28, 28, 28, 0.75)',
+          backdropFilter: 'blur(1px)',
+          className: 'sponsor-card-neon',
+        };
+      case 'glassmorphism':
+        return {
+          border: `1px solid rgba(255, 255, 255, 0.2)`,
+          borderRadius: `${borderRadius}px`,
+          boxShadow: `0 8px 32px rgba(0, 0, 0, 0.1)`,
+          background: 'rgba(255, 255, 255, 0.08)',
+          backdropFilter: 'blur(20px)',
+          className: 'sponsor-card-glassmorphism',
+        };
+      case 'gradient':
+        return {
+          border: `${borderSize}px solid transparent`,
+          borderRadius: `${borderRadius}px`,
+          boxShadow: `0 4px 15px rgba(${rgbColor}, 0.4)`,
+          background: `linear-gradient(${gradientSettings.angle}deg, ${gradientSettings.color1}, ${gradientSettings.color2})`,
+          backdropFilter: 'blur(10px)',
+          className: 'sponsor-card-gradient',
+        };
+      case 'pulse':
+        return {
+          border: `${borderSize}px solid ${neonColor}`,
+          borderRadius: `${borderRadius}px`,
+          boxShadow: `0 0 0 0 rgba(${rgbColor}, 0.7)`,
+          background: 'rgba(28, 28, 28, 0.85)',
+          backdropFilter: 'blur(2px)',
+          className: 'sponsor-card-pulse',
+        };
+      default:
+        return {
+          border: `${borderSize}px solid ${neonColor}`,
+          borderRadius: `${borderRadius}px`,
+          boxShadow: `inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45)`,
+          background: 'rgba(28, 28, 28, 0.75)',
+          backdropFilter: 'blur(1px)',
+          className: 'sponsor-card-neon',
+        };
+    }
+  };
+
+  const cardTypeStyles = getCardTypeStyles(cardType);
+
   const commonProps = {
     className: cn(
-      "relative flex items-center justify-center text-white overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
+      "relative flex items-center justify-center overflow-hidden cursor-pointer transition-all duration-300 ease-in-out",
       getAnimationClass(animationType),
+      cardTypeStyles.className,
+      // Text color based on card type
+      cardType === 'glassmorphism' ? 'text-gray-800' : 'text-white',
       className
     ),
     style: {
-      border: `${borderSize}px solid ${neonColor}`,
-      borderRadius: `${borderRadius}px`,
-      boxShadow: `inset 0px 0px 16px 1px rgba(${rgbColor}, 0.35), 0px 0px 14px 3px rgba(${rgbColor}, 0.45)`,
-      background: 'rgba(28, 28, 28, 0.75)',
-      backdropFilter: 'blur(1px)',
+      border: cardTypeStyles.border,
+      borderRadius: cardTypeStyles.borderRadius,
+      boxShadow: cardTypeStyles.boxShadow,
+      background: cardTypeStyles.background,
+      backdropFilter: cardTypeStyles.backdropFilter,
       height: '100%',
       animationDelay: `${animationDelay}s`,
       // CSS custom properties for animations
@@ -94,6 +159,8 @@ export const SponsorNeonCard: React.FC<SponsorNeonCardProps> = ({
       {children}
     </>
   );
+
+
 
   // If in live mode and href is provided, render as anchor tag
   if (liveMode && href) {
