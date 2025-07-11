@@ -529,18 +529,6 @@ export const createPageFromTemplate = async (
       return { status: 400, message: `"${title}" isimli bir sayfa zaten mevcut` };
     }
 
-    // Modal ile aynı isim kontrolü
-/*     const existingModal = await client.landingModal.findFirst({
-      where: {
-        name: title,
-        userId: user.id
-      },
-    });
-
-    if (existingModal) {
-      return { status: 400, message: `"${title}" isimli bir modal zaten mevcut` };
-    } */
-
     // Sayfa oluştur
     const response = await client.page.create({
       data: {

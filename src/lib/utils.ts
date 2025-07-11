@@ -220,3 +220,19 @@ export const formatLastUpdated = (date: Date) => {
         return `${days} gün önce`;
     }
 };
+
+
+export function parsePageContent(content: any): EditorElement[] {
+    try {
+        if (Array.isArray(content)) {
+            return content as EditorElement[];
+        }
+        if (typeof content === 'string') {
+            return JSON.parse(content) as EditorElement[];
+        }
+        return [];
+    } catch (error) {
+        console.error("Error parsing page content:", error);
+        return [];
+    }
+}

@@ -1,5 +1,6 @@
 import { getAuthUserDetails, onAdminUser } from "@/actions/auth";
 import { getPageById, adminGetPageById } from "@/actions/page";
+import { getPublicSiteOverlaySettings, getSiteOverlaySettings } from "@/actions/overlay";
 import FunnelEditor from "@/app/_components/editor";
 import FunnelEditorNavigation from "@/app/_components/editor-navigation/editor-navigation";
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
@@ -9,99 +10,80 @@ import EditorProvider, { EditorElement } from "@/providers/editor/editor-provide
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
 import { client } from "@/lib/prisma";
 import { Metadata } from "next";
+import { unstable_cache } from "next/cache";
+import { parsePageContent } from "@/lib/utils";
 
 type Props = {
     params: Promise<{ pageId: string }>;
     searchParams: Promise<{ live?: string }>;
 };
 
-export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
-    const resolvedParams = await params;
-    const resolvedSearchParams = await searchParams;
-    const pageId = resolvedParams.pageId;
-    const isLiveMode = resolvedSearchParams.live === 'true';
-
-    try {
-        // Get page data with site settings
-        const pageData = await client.page.findUnique({
-            where: {
-                id: pageId,
-            },
-            include: {
-                site: {
-                    include: {
-                        settings: true,
-                    },
-                },
-            },
+// 🚀 Cached data fetcher - Next.js 15 optimizasyonu
+const getPageData = unstable_cache(
+    async (pageId: string) => {
+        return await client.page.findUnique({
+            where: { id: pageId },
+            include: { site: { include: { settings: true } } },
         });
+    },
+    ['page-data'],
+    { revalidate: 60 } // 1 dakika cache
+);
 
-        if (!pageData?.site) {
-            return {
-                title: isLiveMode ? "Live Preview" : "Page Editor",
-                description: "LinkBuilder - Build amazing landing pages",
-            };
-        }
+// 🚀 Metadata için optimize edilmiş fonksiyon
+async function getMetadataForPage(pageId: string, isLiveMode: boolean): Promise<Metadata> {
+    const pageData = await getPageData(pageId);
 
-        const siteSettings = pageData.site.settings;
-
-        // Title: Site settings > Page title > Site name
-        const title = siteSettings?.title || pageData.title || pageData.site.name;
-
-        // Add mode suffix for non-live modes
-        const finalTitle = isLiveMode ? title : `${title} - Editor`;
-
-        // Favicon: Site settings > Default
-        const favicon = siteSettings?.favicon || "/favicon.ico";
-
-        return {
-            title: finalTitle,
-            description: pageData.site.description || `Edit and preview ${pageData.site.name}`,
-            icons: {
-                icon: favicon,
-                shortcut: favicon,
-                apple: favicon,
-            },
-            openGraph: {
-                title: finalTitle,
-                description: pageData.site.description || `Edit and preview ${pageData.site.name}`,
-                siteName: pageData.site.name,
-                type: "website",
-            },
-            twitter: {
-                title: finalTitle,
-                description: pageData.site.description || `Edit and preview ${pageData.site.name}`,
-                card: "summary_large_image",
-            },
-        };
-    } catch (error) {
-        console.error("❌ Error generating metadata:", error);
+    if (!pageData?.site) {
         return {
             title: isLiveMode ? "Live Preview" : "Page Editor",
             description: "LinkBuilder - Build amazing landing pages",
         };
     }
+
+    const { site: { settings, name, description }, title } = pageData;
+    const finalTitle = settings?.title || title || name;
+    const favicon = settings?.favicon || "/favicon.ico";
+
+    return {
+        title: isLiveMode ? finalTitle : `${finalTitle} - Editor`,
+        description: description || `Edit and preview ${name}`,
+        icons: { icon: favicon, shortcut: favicon, apple: favicon },
+        openGraph: {
+            title: finalTitle,
+            description: description || `Edit and preview ${name}`,
+            siteName: name,
+            type: "website",
+        },
+    };
+}
+
+export async function generateMetadata({ params, searchParams }: Props): Promise<Metadata> {
+    const { pageId } = await params;
+    const { live } = await searchParams;
+    const isLiveMode = live === 'true';
+
+    return await getMetadataForPage(pageId, isLiveMode);
 }
 
 export default async function page({ params, searchParams }: Props) {
-    const resolvedParams = await params;
-    const resolvedSearchParams = await searchParams;
-    const pageId = resolvedParams.pageId;
-    const isLiveMode = resolvedSearchParams.live === 'true';
+    const { pageId } = await params;
+    const { live } = await searchParams;
+    const isLiveMode = live === 'true';
 
-    const user = await getAuthUserDetails();
+    // 🚀 Paralel veri çekme
+    const [user, adminCheck, cachedPageData] = await Promise.all([
+        getAuthUserDetails(),
+        onAdminUser(),
+        getPageData(pageId) // Cache'den gelecek
+    ]);
 
-    // Admin kontrolü yap
-    const adminCheck = await onAdminUser();
-    let pageData;
+    // Admin kontrolü sonrası fresh data gerekirse
+    const pageData = adminCheck.status === 200 
+        ? await adminGetPageById(pageId) 
+        : await getPageById(pageId);
 
-    if (adminCheck.status === 200) {
-        pageData = await adminGetPageById(pageId);
-    } else {
-        pageData = await getPageById(pageId);
-    }
-
-    if (!pageData || pageData.status !== 200 || !pageData.page || !user) {
+    if (!pageData?.page || pageData.status !== 200 || !user) {
         return (
             <div className="flex items-center justify-center h-screen">
                 <div className="text-center">
@@ -114,45 +96,17 @@ export default async function page({ params, searchParams }: Props) {
         );
     }
 
-    const page = pageData.page;
-    const pageContent = page.content as any as EditorElement[];
+    const { page } = pageData;
+    const pageContent = parsePageContent(page.content);
 
     if (isLiveMode) {
-        let initialOverlaySettings = null;
-        try {
-            let overlaySettingsResult;
-
-            // Admin kontrolü yap - overlay actions kullan
-            if (adminCheck.status === 200) {
-                // Admin için public overlay settings kullan (adminGetSiteOverlaySettings yok)
-                const { getPublicSiteOverlaySettings } = await import('@/actions/overlay');
-                overlaySettingsResult = await getPublicSiteOverlaySettings(page.siteId);
-            } else {
-                const { getSiteOverlaySettings } = await import('@/actions/overlay');
-                overlaySettingsResult = await getSiteOverlaySettings(page.siteId);
-            }
-
-            console.log("🔴 Overlay settings result:", overlaySettingsResult);
-
-            if (overlaySettingsResult.status === 200 && overlaySettingsResult.settings) {
-                const settings = overlaySettingsResult.settings;
-                initialOverlaySettings = {
-                    enableOverlay: settings.enableOverlay || false,
-                    selectedOverlayId: settings.selectedOverlayId,
-                    googleAnalyticsId: settings.googleAnalyticsId
-                };
-                console.log("🔴 Initial overlay settings:", initialOverlaySettings);
-            }
-        } catch (error) {
-            console.error("❌ Error loading overlay settings server-side:", error);
-        }
-
+        const overlaySettings = await getOverlaySettings(page.siteId, adminCheck.status === 200);
         return (
             <EditorProvider siteId={page.siteId} pageDetails={pageContent}>
                 <LivePreviewWrapper
                     pageContent={pageContent}
                     siteId={page.siteId}
-                    initialOverlaySettings={initialOverlaySettings}
+                    initialOverlaySettings={overlaySettings}
                 />
             </EditorProvider>
         );
@@ -172,4 +126,21 @@ export default async function page({ params, searchParams }: Props) {
             </DndContextProvider>
         </EditorProvider>
     );
+}
+
+
+
+async function getOverlaySettings(siteId: string, isAdmin: boolean) {
+    try {
+        const fn = isAdmin ? getPublicSiteOverlaySettings : getSiteOverlaySettings;
+        const result = await fn(siteId);
+        
+        if (result.status === 200 && result.settings) {
+            const { enableOverlay, selectedOverlayId, selectedCardId, liveStreamLink, googleAnalyticsId } = result.settings;
+            return { enableOverlay, selectedOverlayId, selectedCardId, liveStreamLink, googleAnalyticsId };
+        }
+    } catch (error) {
+        console.error("❌ Error loading overlay settings:", error);
+    }
+    return null;
 }

@@ -4,14 +4,14 @@ import React, { memo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { EyeIcon, Square } from "lucide-react";
 import { useUIActions } from "@/hooks/editor-actions/use-ui-actions";
-import { useLandingModal } from "@/providers/landing-modal-provider";
+/* import { useLandingModal } from "@/providers/landing-modal-provider"; */
 import { usePathname } from "next/navigation";
 import { useElements } from "@/providers/editor/editor-elements-provider";
 
 export const PreviewControls = memo(() => {
 
     const { toggleLiveMode, togglePreviewMode } = useUIActions();
-    const { openModal } = useLandingModal();
+    /* const { openModal } = useLandingModal(); */
 
     const pathname = usePathname();
     const elements = useElements();
@@ -25,8 +25,8 @@ export const PreviewControls = memo(() => {
     }, [togglePreviewMode, toggleLiveMode]);
 
     const handlePreviewModalClick = useCallback(() => {
-        openModal(elements);
-    }, [openModal, elements]);
+        /* openModal(elements); */
+    }, []);
 
     return (
         <>
