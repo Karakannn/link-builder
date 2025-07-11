@@ -8,52 +8,38 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-enum UserRole {
-  ADMIN
-  USER
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-  DOCUMENT
-  AUDIO
-}
-
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
-  firstname     String
-  lastname      String
-  clerkId       String   @unique
-  image         String?
-  role          UserRole @default(USER)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  sites         Site[]
-  media         Media[]
-  domains       Domain[]
-  overlays      Overlay[]    
+  id              String           @id @default(cuid())
+  firstname       String
+  lastname        String
+  email           String           @unique
+  clerkId         String           @unique
+  image           String?
+  role            UserRole         @default(USER)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  domains         Domain[]
   liveStreamCards LiveStreamCard[]
+  media           Media[]
+  overlays        Overlay[]
+  sites           Site[]
 
   @@map("User")
 }
 
 model Site {
-  id          String   @id @default(cuid())
+  id          String        @id @default(cuid())
   name        String
   description String?
-  isDefault   Boolean  @default(false)
-  isPublished Boolean  @default(false)
+  isPublished Boolean       @default(false)
+  isDefault   Boolean       @default(false)
   userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  pages       Page[]
-  media       Media[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   domains     Domain[]
+  media       Media[]
+  pages       Page[]
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   settings    SiteSettings?
 
   @@index([userId])
@@ -64,13 +50,12 @@ model Page {
   id        String   @id @default(cuid())
   title     String
   slug      String
-  content   Json?
   isHome    Boolean  @default(false)
+  content   Json?
   seo       Json?
   siteId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
   site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@unique([siteId, slug])
@@ -80,28 +65,26 @@ model Page {
 
 model Overlay {
   id        String   @id @default(cuid())
-  name      String
   content   Json?
   isEnabled Boolean  @default(false)
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  name      String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@map("Overlay") 
+  @@map("Overlay")
 }
 
 model LiveStreamCard {
   id        String   @id @default(cuid())
-  name      String
   content   Json?
   isEnabled Boolean  @default(false)
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
+  name      String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
@@ -109,19 +92,18 @@ model LiveStreamCard {
 }
 
 model SiteSettings {
-  id                  String   @id @default(cuid())
-  siteId              String   @unique
-  enableOverlay       Boolean  @default(false)  
-  selectedOverlayId   String?                   
-  selectedCardId      String?
-  liveStreamLink      String?
-  title               String?
-  favicon             String?
-  googleAnalyticsId   String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  site                Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  id                String   @id @default(cuid())
+  siteId            String   @unique
+  enableOverlay     Boolean  @default(false)
+  liveStreamLink    String?
+  title             String?
+  favicon           String?
+  googleAnalyticsId String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  selectedCardId    String?
+  selectedOverlayId String?
+  site              Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
 
   @@index([siteId])
   @@map("SiteSettings")
@@ -129,9 +111,9 @@ model SiteSettings {
 
 model Media {
   id        String    @id @default(cuid())
+  type      MediaType
   name      String
   link      String
-  type      MediaType
   alt       String?
   size      Int?
   mimeType  String?
@@ -139,9 +121,8 @@ model Media {
   siteId    String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
-
-  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   site      Site?     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([siteId])
@@ -154,16 +135,27 @@ model Domain {
   name           String   @unique
   userId         String
   siteId         String
-  verificationId String   @unique
   isVerified     Boolean  @default(false)
+  verificationId String   @unique
   sslStatus      String   @default("pending")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   site           Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([siteId])
   @@map("Domain")
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  DOCUMENT
+  AUDIO
 }

@@ -711,6 +711,3 @@ export async function adminCreateOverlayFromTemplate(
         };
     }
 }
-
-// Backward compatibility - alias for adminGetOverlayContent
-export const adminGetLandingModalContent = adminGetOverlayContent;
