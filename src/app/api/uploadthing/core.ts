@@ -25,7 +25,7 @@ export const ourFileRouter = {
         .onUploadComplete(() => {}),
     // Updated media endpoint for images and videos
     media: f({ 
-        image: { maxFileSize: "8MB", maxFileCount: 1 },
+        image: { maxFileSize: "32MB", maxFileCount: 1 },
         video: { maxFileSize: "32MB", maxFileCount: 1 }
     })
         .middleware(authenticateUser)
