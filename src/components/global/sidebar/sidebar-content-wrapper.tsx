@@ -52,8 +52,13 @@ const SidebarContentWrapper = async (props: Props) => {
         },
         {
             title: "All Overlays",
-            url: "/admin/all-overlay",
+            url: "/admin/all-overlays",
             icon: "layers",
+        },
+        {
+            title: "All Live Stream Cards",
+            url: "/admin/all-live-stream-cards",
+            icon: "video",
         }
     ];
 

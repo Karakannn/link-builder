@@ -139,7 +139,6 @@ export async function createOverlayFromTemplate(name: string, templateContent: a
             throw new Error("Unauthorized");
         }
 
-        // Get the user's database ID using clerkId
         const user = await client.user.findUnique({
             where: {
                 clerkId: clerkUser.id
@@ -150,13 +149,15 @@ export async function createOverlayFromTemplate(name: string, templateContent: a
             throw new Error("User not found");
         }
 
-        // Check if overlay with same name exists
         const existingOverlay = await client.overlay.findFirst({
             where: {
                 name: name,
                 userId: user.id
             }
         });
+
+        console.log("existing overlay", existingOverlay);
+        
 
         if (existingOverlay) {
             return {
@@ -165,22 +166,7 @@ export async function createOverlayFromTemplate(name: string, templateContent: a
             };
         }
 
-        // Check if page with same title exists
-        const existingPage = await client.page.findFirst({
-            where: {
-                title: name,
-                site: {
-                    userId: user.id
-                }
-            }
-        });
 
-        if (existingPage) {
-            return {
-                status: 400,
-                message: `"${name}" isimli bir sayfa zaten mevcut`
-            };
-        }
 
         const overlay = await client.overlay.create({
             data: {
@@ -662,23 +648,7 @@ export async function adminCreateOverlayFromTemplate(
             };
         }
 
-        // Check if page with same title exists
-        const existingPage = await client.page.findFirst({
-            where: {
-                title: name,
-                site: {
-                    userId: userId
-                }
-            }
-        });
 
-        if (existingPage) {
-            console.error("[ADMIN_CREATE_OVERLAY_FROM_TEMPLATE] Page with same title exists:", name);
-            return {
-                status: 400,
-                message: `"${name}" isimli bir sayfa zaten mevcut`
-            };
-        }
 
         // Overlay oluştur
         const overlay = await client.overlay.create({

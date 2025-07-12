@@ -165,22 +165,7 @@ export async function createLiveStreamCardFromTemplate(name: string, templateCon
             };
         }
 
-        // Check if page with same title exists
-        const existingPage = await client.page.findFirst({
-            where: {
-                title: name,
-                site: {
-                    userId: user.id
-                }
-            }
-        });
 
-        if (existingPage) {
-            return {
-                status: 400,
-                message: `"${name}" isimli bir sayfa zaten mevcut`
-            };
-        }
 
         const card = await client.liveStreamCard.create({
             data: {
@@ -534,23 +519,7 @@ export async function adminCreateLiveStreamCardFromTemplate(
             };
         }
 
-        // Check if page with same title exists
-        const existingPage = await client.page.findFirst({
-            where: {
-                title: name,
-                site: {
-                    userId: userId
-                }
-            }
-        });
 
-        if (existingPage) {
-            console.error("[ADMIN_CREATE_LIVE_STREAM_CARD_FROM_TEMPLATE] Page with same title exists:", name);
-            return {
-                status: 400,
-                message: `"${name}" isimli bir sayfa zaten mevcut`
-            };
-        }
 
         // Stream card oluştur
         const card = await client.liveStreamCard.create({

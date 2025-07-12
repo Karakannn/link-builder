@@ -295,3 +295,202 @@ export const createSafePageTemplate = (title: string) => {
         }
     ];
 };
+
+export const createSafeOverlayTemplate = (name: string) => {
+    return [
+        {
+            id: v4(),
+            name: "Overlay Container",
+            type: "container" as const,
+            layout: "vertical" as const,
+            styles: {
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center" as const,
+                justifyContent: "center" as const,
+                padding: "40px",
+                width: "500px",
+                height: "300px",
+                backgroundColor: "white",
+                borderRadius: "12px",
+                boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
+                margin: "0px",
+                border: "none",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                textAlign: "left" as const,
+                opacity: "100%",
+                position: "relative" as const
+            },
+            content: [
+                {
+                    id: v4(),
+                    name: "Overlay Title",
+                    type: "text" as const,
+                    styles: {
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        color: "#667eea",
+                        marginBottom: "20px",
+                        textAlign: "center" as const,
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1.5",
+                        fontFamily: "inherit",
+                        border: "none",
+                        backgroundColor: "transparent",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative" as const,
+                        width: "100%",
+                        height: "auto"
+                    },
+                    content: {
+                        innerText: name
+                    }
+                },
+                {
+                    id: v4(),
+                    name: "Overlay Content",
+                    type: "text" as const,
+                    styles: {
+                        fontSize: "16px",
+                        color: "#666",
+                        lineHeight: "1.6",
+                        textAlign: "center" as const,
+                        marginBottom: "20px",
+                        margin: "0px",
+                        padding: "0px",
+                        fontFamily: "inherit",
+                        border: "none",
+                        backgroundColor: "transparent",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative" as const,
+                        width: "100%",
+                        height: "auto"
+                    },
+                    content: {
+                        innerText: "Overlay içeriğini düzenlemek için editörde değişiklik yapın."
+                    }
+                },
+                {
+                    id: v4(),
+                    name: "Overlay Button",
+                    type: "link" as const,
+                    styles: {
+                        padding: "12px 24px",
+                        fontSize: "16px",
+                        backgroundColor: "#667eea",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontWeight: "500",
+                        textAlign: "center" as const,
+                        textDecoration: "none",
+                        margin: "0px",
+                        fontFamily: "inherit",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative" as const,
+                        width: "auto",
+                        height: "auto"
+                    },
+                    content: {
+                        href: "#",
+                        innerText: "Tamam"
+                    }
+                }
+            ]
+        }
+    ];
+};
+
+export const createSafeLiveStreamCardTemplate = (name: string) => {
+    return [
+        {
+            id: v4(),
+            name: "Stream Card Container",
+            type: "container" as const,
+            layout: "vertical" as const,
+            styles: {
+                backgroundColor: "rgba(239, 68, 68, 0.1)",
+                padding: "20px",
+                borderRadius: "10px",
+                boxShadow: "0 0 10px 0 rgba(239, 68, 68, 0.2)",
+                border: "1px solid rgba(239, 68, 68, 0.3)",
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center" as const,
+                justifyContent: "center" as const,
+                margin: "0px",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                textAlign: "left" as const,
+                opacity: "100%",
+                position: "relative" as const,
+                width: "100%",
+                height: "auto"
+            },
+            content: [
+                {
+                    id: v4(),
+                    name: "Stream Card Title",
+                    type: "text" as const,
+                    styles: {
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        color: "#EF4444",
+                        marginBottom: "20px",
+                        textAlign: "center" as const,
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1.5",
+                        fontFamily: "inherit",
+                        border: "none",
+                        backgroundColor: "transparent",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative" as const,
+                        width: "100%",
+                        height: "auto"
+                    },
+                    content: {
+                        innerText: name
+                    }
+                },
+                {
+                    id: v4(),
+                    name: "Stream Card Description",
+                    type: "text" as const,
+                    styles: {
+                        fontSize: "16px",
+                        color: "#FFFFFF",
+                        marginBottom: "20px",
+                        textAlign: "center" as const,
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1.5",
+                        fontFamily: "inherit",
+                        border: "none",
+                        backgroundColor: "transparent",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative" as const,
+                        width: "100%",
+                        height: "auto"
+                    },
+                    content: {
+                        innerText: "🔴 Canlı Yayın Başladı!"
+                    }
+                }
+            ]
+        }
+    ];
+};
