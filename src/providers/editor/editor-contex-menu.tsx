@@ -11,7 +11,7 @@ interface ElementContextMenuProps {
 }
 
 const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
-  
+
     const { selectElement, insertElement, addElement, deleteElement, updateElement } = useElementActions();
     const elements = useElements();
 
@@ -98,21 +98,10 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
         deleteElement(element);
     };
 
-    const handleToggleVisibility = () => {
-        updateElement({
-            ...element,
-            styles: {
-                ...element.styles,
-                display: element.styles.display === "none" ? "block" : "none",
-            },
-        });
-    };
 
     const handleOpenSettings = () => {
         selectElement(element);
     };
-
-    const isHidden = element.styles.display === "none";
 
     return (
         <ContextMenu>
@@ -124,19 +113,6 @@ const ElementContextMenu = ({ element, children }: ElementContextMenuProps) => {
                     Duplicate
                 </ContextMenuItem>
 
-                <ContextMenuItem onClick={handleToggleVisibility} className="flex items-center gap-2">
-                    {isHidden ? (
-                        <>
-                            <Eye className="h-4 w-4" />
-                            Show
-                        </>
-                    ) : (
-                        <>
-                            <EyeOff className="h-4 w-4" />
-                            Hide
-                        </>
-                    )}
-                </ContextMenuItem>
 
                 <ContextMenuSeparator />
 

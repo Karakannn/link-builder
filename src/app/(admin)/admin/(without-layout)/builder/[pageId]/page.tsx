@@ -7,7 +7,7 @@ import FunnelEditorNavigation from "@/app/_components/editor-navigation/editor-n
 import FunnelEditorSidebar from "@/app/_components/editor-sidebar";
 import { DragOverlayWrapper } from "@/app/_components/editor-sidebar/tabs/placeholder-elements/drag-overlay-wrapper";
 import { DndContextProvider } from "@/providers/dnd-context-provider";
-import EditorProvider, { EditorElement } from "@/providers/editor/editor-provider";
+import EditorProvider from "@/providers/editor/editor-provider";
 import { LivePreviewWrapper } from "./_components/live-preview-wrapper";
 import { client } from "@/lib/prisma";
 import { Metadata } from "next";
@@ -135,6 +135,8 @@ export default async function page({ params, searchParams }: Props) {
             </EditorProvider>
         );
     }
+
+    console.log(pageContent);
 
     return (
         <EditorProvider siteId={page.id} pageDetails={pageContent}>

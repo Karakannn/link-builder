@@ -29,7 +29,21 @@ export function NavAdmin({
       <SidebarGroupLabel>Admin Yönetimi</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
-          const IconComponent: any = typeof item.icon === 'string' ? getIcon(item.icon) : item.icon
+          const IconComponent = typeof item.icon === 'string' ? getIcon(item.icon) : item.icon
+          
+          if (!IconComponent) {
+            console.warn(`Icon not found for: ${item.icon}`)
+            return (
+              <SidebarMenuItem key={item.title}>
+                <SidebarMenuButton asChild>
+                  <a href={item.url}>
+                    <span>{item.title}</span>
+                  </a>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            )
+          }
+
           return (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild>
@@ -44,4 +58,4 @@ export function NavAdmin({
       </SidebarMenu>
     </SidebarGroup>
   )
-} 
+}

@@ -26,11 +26,7 @@ const SidebarContentWrapper = async (props: Props) => {
             url: "/admin/domains",
             icon: "world",
         },
-        {
-            title: "Landing Modal",
-            url: "/admin/landing-modal",
-            icon: "database",
-        },
+       
         {
             title: "Live Stream Cards",
             url: "/admin/live-stream-cards",
@@ -48,11 +44,6 @@ const SidebarContentWrapper = async (props: Props) => {
             title: "All Users Pages",
             url: "/admin/all-pages",
             icon: "users",
-        },
-        {
-            title: "All Modals",
-            url: "/admin/all-modals",
-            icon: "database",
         },
         {
             title: "All Domains",

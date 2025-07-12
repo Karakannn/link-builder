@@ -3,6 +3,7 @@ import { twMerge } from "tailwind-merge";
 import { DeviceTypes, EditorElement } from "@/providers/editor/editor-provider";
 import { Building2, Users, File } from "lucide-react";
 import { IconDashboard, IconSettings, IconDatabase, IconWorld } from "@tabler/icons-react";
+import { v4 } from "uuid";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -236,3 +237,61 @@ export function parsePageContent(content: any): EditorElement[] {
         return [];
     }
 }
+
+
+export const createSafePageTemplate = (title: string) => {
+    return [
+        {
+            id: v4(), // ✅ v4 kullan
+            name: "Container",
+            type: "container" as const,
+            layout: "vertical" as const,
+            styles: {
+                display: "flex",
+                flexDirection: "column" as const,
+                alignItems: "center" as const,
+                justifyContent: "center" as const,
+                padding: "2rem",
+                minHeight: "50vh",
+                width: "100%",
+                height: "auto",
+                margin: "0px",
+                border: "none",
+                backgroundColor: "transparent",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                textAlign: "left" as const,
+                opacity: "100%",
+                position: "relative" as const
+            },
+            content: [
+                {
+                    id: v4(), // ✅ v4 kullan
+                    name: "Welcome Text",
+                    type: "text" as const,
+                    styles: {
+                        fontSize: "24px",
+                        fontWeight: "bold",
+                        textAlign: "center" as const,
+                        color: "#333333",
+                        margin: "0px",
+                        padding: "0px",
+                        lineHeight: "1.5",
+                        fontFamily: "inherit",
+                        border: "none",
+                        backgroundColor: "transparent",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                        opacity: "100%",
+                        position: "relative" as const,
+                        width: "100%",
+                        height: "auto"
+                    },
+                    content: {
+                        innerText: `Hoş geldiniz! Bu sayfa "${title}" başlıklı yeni sayfanızdır.`
+                    }
+                }
+            ]
+        }
+    ];
+};

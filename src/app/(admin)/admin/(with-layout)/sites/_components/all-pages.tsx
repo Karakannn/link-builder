@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageCard } from "./page-card";
 import { TemplateSelectionModal } from "./template-selection-modal";
-import { SiteSettings } from "./site-settings";
+import { SiteSettingsModal } from "@/components/global/site-settings-modal";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Loader2, Settings } from "lucide-react";
@@ -27,6 +27,7 @@ type Props = {
 const AllPages = ({ pagesData }: Props) => {
   const router = useRouter();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isCreatingPage, setIsCreatingPage] = useState(false);
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({});
 
@@ -214,7 +215,14 @@ const AllPages = ({ pagesData }: Props) => {
         <TabsContent value="settings" className="space-y-6">
           <div>
             <h2 className="text-2xl font-bold text-foreground mb-6">Site Ayarları</h2>
-            {pagesData.siteId && <SiteSettings siteId={pagesData.siteId} />}
+            <div className="p-8 text-center bg-muted rounded-lg border border-border">
+              <h3 className="text-lg font-medium text-foreground mb-2">Site Ayarlarını Düzenle</h3>
+              <p className="text-muted-foreground mb-4">Site başlığı, favicon, analytics ve overlay ayarlarını yönetin</p>
+              <Button onClick={() => setIsSettingsModalOpen(true)} variant="outline" className="gap-2">
+                <Settings className="w-4 h-4" />
+                Site Ayarlarını Aç
+              </Button>
+            </div>
           </div>
         </TabsContent>
       </Tabs>
@@ -225,6 +233,16 @@ const AllPages = ({ pagesData }: Props) => {
         onClose={() => setIsModalOpen(false)}
         onCreatePage={handleCreatePage}
       />
+
+      {/* Site Settings Modal */}
+      {pagesData.siteId && (
+        <SiteSettingsModal
+          siteId={pagesData.siteId}
+          siteName="Site Ayarları"
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };

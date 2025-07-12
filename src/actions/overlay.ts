@@ -711,3 +711,104 @@ export async function adminCreateOverlayFromTemplate(
         };
     }
 }
+
+export async function adminGetSiteOverlaySettings(siteId: string) {
+    try {
+        const { onAdminUser } = await import("./auth");
+        const admin = await onAdminUser();
+
+        if (admin.status !== 200) {
+            return { status: admin.status, message: admin.message };
+        }
+
+        // Verify site exists
+        const site = await client.site.findUnique({
+            where: { id: siteId }
+        });
+
+        if (!site) {
+            return { status: 404, message: "Site bulunamadı" };
+        }
+
+        const settings = await client.siteSettings.findUnique({
+            where: {
+                siteId: siteId
+            }
+        });
+
+        return {
+            status: 200,
+            settings
+        };
+    } catch (error) {
+        console.error("[ADMIN_GET_SITE_OVERLAY_SETTINGS]", error);
+        return {
+            status: 500,
+            message: "Site ayarları yüklenirken bir hata oluştu"
+        };
+    }
+}
+
+export async function adminUpdateSiteOverlaySettings(siteId: string, settings: {
+    enableOverlay?: boolean;
+    selectedOverlayId?: string;
+    selectedCardId?: string;
+    liveStreamLink?: string;
+    title?: string;
+    favicon?: string;
+    googleAnalyticsId?: string;
+}) {
+    try {
+        const { onAdminUser } = await import("./auth");
+        const admin = await onAdminUser();
+
+        if (admin.status !== 200) {
+            return { status: admin.status, message: admin.message };
+        }
+
+        // Verify site exists
+        const site = await client.site.findUnique({
+            where: { id: siteId }
+        });
+
+        if (!site) {
+            return { status: 404, message: "Site bulunamadı" };
+        }
+
+        const result = await client.siteSettings.upsert({
+            where: {
+                siteId: siteId
+            },
+            create: {
+                siteId: siteId,
+                enableOverlay: settings.enableOverlay ?? false,
+                selectedOverlayId: settings.selectedOverlayId ?? null,
+                selectedCardId: settings.selectedCardId ?? null,
+                liveStreamLink: settings.liveStreamLink ?? null,
+                title: settings.title ?? null,
+                favicon: settings.favicon ?? null,
+                googleAnalyticsId: settings.googleAnalyticsId ?? null
+            },
+            update: {
+                enableOverlay: settings.enableOverlay ?? false,
+                selectedOverlayId: settings.selectedOverlayId ?? null,
+                selectedCardId: settings.selectedCardId ?? null,
+                liveStreamLink: settings.liveStreamLink ?? null,
+                title: settings.title ?? null,
+                favicon: settings.favicon ?? null,
+                googleAnalyticsId: settings.googleAnalyticsId ?? null
+            }
+        });
+
+        return {
+            status: 200,
+            settings: result
+        };
+    } catch (error) {
+        console.error("[ADMIN_UPDATE_SITE_OVERLAY_SETTINGS]", error);
+        return {
+            status: 500,
+            message: "Site ayarları güncellenirken bir hata oluştu"
+        };
+    }
+}

@@ -35,7 +35,7 @@ const EditorSidebarProvider = ({ children }: EditorSidebarProps) => {
     const device = useDevice();
     const { updateElement } = useElementActions();
     const selectedElement = useSelectedElement();
-
+    console.log("selectedElement", selectedElement);
     const [activeDevice, setActiveDevice] = useState<DeviceTypes>(device);
 
     useEffect(() => {
