@@ -313,6 +313,37 @@ export async function getPublicLiveStreamCardContent(cardId: string) {
     }
 }
 
+export async function getLiveStreamCardsByUserId(userId: string) {
+    try {
+        if (!userId) {
+            return {
+                status: 400,
+                message: "User ID is required"
+            };
+        }
+
+        const cards = await client.liveStreamCard.findMany({
+            where: {
+                userId: userId
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        return {
+            status: 200,
+            cards
+        };
+    } catch (error) {
+        console.error("[GET_LIVE_STREAM_CARDS_BY_USER_ID]", error);
+        return {
+            status: 500,
+            message: "Stream card'lar yüklenirken bir hata oluştu"
+        };
+    }
+}
+
 // Admin functions
 export async function adminGetAllUserLiveStreamCards() {
     try {

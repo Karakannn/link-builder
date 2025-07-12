@@ -86,7 +86,6 @@ export default async function OverlayBuilderPage({ params }: Props) {
         }
     }
 
-    console.log("content", content);
 
     return (
         <EditorProvider siteId={`overlay-${resolvedParams.overlayId}`} pageDetails={content}>

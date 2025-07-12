@@ -119,6 +119,9 @@ export async function getAllUserOverlays() {
             }
         });
 
+        console.log("overlays", overlays);
+        
+
         return {
             status: 200,
             overlays
@@ -347,11 +350,12 @@ export async function updateSiteOverlaySettings(siteId: string, settings: {
 export async function getSiteOverlaySettings(siteId: string) {
     try {
         const clerkUser = await currentUser();
+
+        
         if (!clerkUser) {
             throw new Error("Unauthorized");
         }
 
-        // Get the user's database ID using clerkId
         const user = await client.user.findUnique({
             where: {
                 clerkId: clerkUser.id
@@ -362,7 +366,8 @@ export async function getSiteOverlaySettings(siteId: string) {
             throw new Error("User not found");
         }
 
-        // Verify site belongs to user
+        console.log("siteId", siteId , "userid", user.id);
+        
         const site = await client.site.findFirst({
             where: {
                 id: siteId,
@@ -439,6 +444,37 @@ export async function getPublicOverlayContent(overlayId: string) {
     } catch (error) {
         console.error("[GET_PUBLIC_OVERLAY]", error);
         throw error;
+    }
+}
+
+export async function getOverlaysByUserId(userId: string) {
+    try {
+        if (!userId) {
+            return {
+                status: 400,
+                message: "User ID is required"
+            };
+        }
+
+        const overlays = await client.overlay.findMany({
+            where: {
+                userId: userId
+            },
+            orderBy: {
+                createdAt: 'desc'
+            }
+        });
+
+        return {
+            status: 200,
+            overlays
+        };
+    } catch (error) {
+        console.error("[GET_OVERLAYS_BY_USER_ID]", error);
+        return {
+            status: 500,
+            message: "Overlay'lar yüklenirken bir hata oluştu"
+        };
     }
 }
 

@@ -76,8 +76,6 @@ export default async function LiveStreamCardBuilderPage({ params }: Props) {
         }
     }
 
-    console.log("content", content);
-
     return (
         <EditorProvider siteId={`stream-card-${resolvedParams.cardId}`} pageDetails={content}>
             <DndContextProvider>

@@ -136,8 +136,6 @@ export default async function page({ params, searchParams }: Props) {
         );
     }
 
-    console.log(pageContent);
-
     return (
         <EditorProvider siteId={page.id} pageDetails={pageContent}>
             <DndContextProvider>

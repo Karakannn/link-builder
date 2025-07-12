@@ -16,6 +16,21 @@ export const createInitialPage = async (user: User) => {
       },
     });
 
+    // Create default site settings
+    await client.siteSettings.create({
+      data: {
+        siteId: defaultSite.id,
+        enableOverlay: false,
+        liveStreamLink: null,
+        title: `${user.firstname}'s Site`,
+        favicon: null,
+        googleAnalyticsId: null,
+        selectedCardId: null,
+        selectedOverlayId: null,
+      },
+    });
+
+    //create default page settings
     await client.page.create({
       data: {
         title: "Home",
@@ -82,7 +97,7 @@ export const createInitialPage = async (user: User) => {
 
     return {
       status: 200,
-      message: "User successfully created with default site and homepage",
+      message: "User successfully created with default site, settings and homepage",
       id: user.id,
     };
   } catch (error) {
